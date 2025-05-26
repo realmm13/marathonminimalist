@@ -7,7 +7,7 @@ import { SettingsModal } from "@/components/settings/SettingsModal";
 export function useSettingsDialog() {
   const dialog = useDialog();
 
-  const openSettings = React.useCallback(() => {
+  const openSettings = React.useCallback((defaultTab?: string) => {
     dialog.openDialog({
       size: "xl",
       showCancel: false,
@@ -18,6 +18,7 @@ export function useSettingsDialog() {
           onOpenChange={(open) => {
             if (!open) close();
           }}
+          defaultTab={defaultTab}
         />
       ),
     });

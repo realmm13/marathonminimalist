@@ -1,4 +1,4 @@
-import { ExperienceLevel, WorkoutType } from '../../generated/prisma';
+import { ExperienceLevel, WorkoutType, DistanceUnit } from '../../generated/prisma';
 import { TrainingPreferences, MarathonTime } from '@/types/training';
 import { calculateTrainingPaces, formatPaceForUser } from './pace-calculator';
 
@@ -81,12 +81,12 @@ export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
   const tempoDistanceMiles = getTempoDistance(week);
   
   // Convert to user's preferred units
-  const tempoDistance = preferences.distanceUnit === 'KILOMETERS' 
+  const tempoDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS 
     ? tempoDistanceMiles * 1.60934 // miles to km
     : tempoDistanceMiles; // already in miles
   
   // Warm-up and cool-down (separate from main tempo work)
-  const warmUpDistance = preferences.distanceUnit === 'KILOMETERS' ? 1.6 : 1; // 1 mile
+  const warmUpDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 1.6 : 1; // 1 mile
   const coolDownDistance = warmUpDistance; // Same as warm-up
   
   const totalDistance = warmUpDistance + tempoDistance + coolDownDistance;
@@ -130,8 +130,8 @@ function getTempoRunInstructions(
   distance: number,
   preferences: TrainingPreferences
 ): string[] {
-  const unit = preferences.distanceUnit === 'KILOMETERS' ? 'km' : 'mile';
-  const warmUpCoolDown = preferences.distanceUnit === 'KILOMETERS' ? '1.6km' : '1 mile';
+  const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  const warmUpCoolDown = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '1.6km' : '1 mile';
   
   return [
     `Warm up with ${warmUpCoolDown} easy jog`,

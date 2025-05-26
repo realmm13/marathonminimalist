@@ -10,6 +10,7 @@ import { generateIntervalWorkout } from './intervals';
 import { generateLongRun } from './long-runs';
 import { TrainingPreferences, TempoRunWorkout, IntervalWorkout, LongRunWorkout } from '@/types/training';
 import { WorkoutType } from '@/generated/prisma';
+import { DistanceUnit } from '@/generated/prisma';
 
 export interface ScheduledWorkout {
   id?: string;
@@ -267,7 +268,7 @@ export class TrainingScheduler {
     const distanceKm = baseDistances[week as keyof typeof baseDistances] || 6;
     
     // Convert to miles if needed
-    return this.params.preferences.distanceUnit === 'MILES' 
+    return this.params.preferences.distanceUnit === DistanceUnit.MILES 
       ? distanceKm * 0.621371 
       : distanceKm;
   }

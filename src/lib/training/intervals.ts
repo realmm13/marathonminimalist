@@ -1,4 +1,4 @@
-import { ExperienceLevel, WorkoutType } from '../../generated/prisma';
+import { ExperienceLevel, WorkoutType, DistanceUnit } from '../../generated/prisma';
 import { TrainingPreferences, MarathonTime, IntervalSet, IntervalWorkout } from '@/types/training';
 import { formatPaceForUser } from './pace-calculator';
 
@@ -88,11 +88,11 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
   const repetitions = getIntervalRepetitions(week);
   
   // 800m = 0.5 miles
-  const intervalDistance = preferences.distanceUnit === 'KILOMETERS' ? 0.8 : 0.5;
+  const intervalDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 0.8 : 0.5;
   
   // Warm-up and cool-down distances
-  const warmUpDistance = preferences.distanceUnit === 'KILOMETERS' ? 3.2 : 2; // 2 miles
-  const coolDownDistance = preferences.distanceUnit === 'KILOMETERS' ? 1.6 : 1; // 1 mile
+  const warmUpDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 3.2 : 2; // 2 miles
+  const coolDownDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 1.6 : 1; // 1 mile
   
   // Create interval set
   const intervalSet: IntervalSet = {
@@ -140,7 +140,7 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
 function formatIntervalPace(paceSeconds: number, preferences: TrainingPreferences): string {
   const minutes = Math.floor(paceSeconds / 60);
   const seconds = paceSeconds % 60;
-  const unit = preferences.distanceUnit === 'KILOMETERS' ? 'km' : 'mile';
+  const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   return `${minutes}:${seconds.toString().padStart(2, '0')} per ${unit}`;
 }
 
@@ -153,9 +153,9 @@ function getIntervalInstructions(
   recoverySeconds: number,
   preferences: TrainingPreferences
 ): string[] {
-  const unit = preferences.distanceUnit === 'KILOMETERS' ? '800m' : '0.5 mile';
-  const warmUpCoolDown = preferences.distanceUnit === 'KILOMETERS' ? '3.2km' : '2 miles';
-  const coolDown = preferences.distanceUnit === 'KILOMETERS' ? '1.6km' : '1 mile';
+  const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '800m' : '0.5 mile';
+  const warmUpCoolDown = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '3.2km' : '2 miles';
+  const coolDown = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '1.6km' : '1 mile';
   const recoveryTime = `${Math.floor(recoverySeconds / 60)}:${(recoverySeconds % 60).toString().padStart(2, '0')}`;
   
   return [

@@ -8,6 +8,7 @@ import {
   Cpu,
   CreditCard,
   Lock,
+  Activity,
 } from "lucide-react";
 import { TabPanels } from "@/components/TabPanels";
 import { SettingsTabGeneral } from "./SettingsTabGeneral";
@@ -16,21 +17,29 @@ import { SettingsTabShortcuts } from "./SettingsTabShortcuts";
 import { SettingsTabAI } from "./SettingsTabAI/SettingsTabAI";
 import { SettingsTabBilling } from "./SettingsTabBilling";
 import { SettingsTabPasswordChange } from "./SettingsTabPasswordChange";
+import { SettingsTabMarathonTraining } from "./SettingsTabMarathonTraining";
 import { clientEnv } from "@/env/client";
 import { compact } from "lodash";
 
 export interface SettingsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultTab?: string;
 }
 
-export function SettingsModal({}: SettingsModalProps) {
+export function SettingsModal({ defaultTab }: SettingsModalProps) {
   const tabs = compact([
     {
       value: "general",
       label: "General",
       icon: Settings,
       content: <SettingsTabGeneral />,
+    },
+    {
+      value: "marathon",
+      label: "Marathon Training",
+      icon: Activity,
+      content: <SettingsTabMarathonTraining />,
     },
     {
       value: "appearance",
@@ -71,7 +80,7 @@ export function SettingsModal({}: SettingsModalProps) {
       }}
       mobileView="native"
       tabs={tabs}
-      defaultTab="general"
+      defaultTab={defaultTab}
     />
   );
 }

@@ -1,4 +1,4 @@
-import { ExperienceLevel, WorkoutType } from '../../generated/prisma';
+import { ExperienceLevel, WorkoutType, DistanceUnit } from '../../generated/prisma';
 import { TrainingPreferences, MarathonTime, LongRunWorkout } from '@/types/training';
 import { calculateTrainingPaces, formatPaceForUser } from './pace-calculator';
 
@@ -98,7 +98,7 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
   const marathonPaceMiles = getMarathonPaceMiles(week);
   
   // Convert marathon pace miles to user's preferred units
-  const marathonPaceDistance = preferences.distanceUnit === 'KILOMETERS' 
+  const marathonPaceDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS 
     ? marathonPaceMiles * 1.60934 // miles to km
     : marathonPaceMiles; // already in miles
   
@@ -106,7 +106,7 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
   // Assume easy pace is capped at 9:00/mile (5:35/km)
   const easyPaceMinutes = Math.min(
     paces.easyPace.minutes + (paces.easyPace.seconds / 60),
-    preferences.distanceUnit === 'KILOMETERS' ? 5.58 : 9.0 // 9:00/mile = 5:35/km
+    preferences.distanceUnit === DistanceUnit.KILOMETERS ? 5.58 : 9.0 // 9:00/mile = 5:35/km
   );
   
   const easyRunDistance = week === 14 ? 0 : (slowRunDurationMinutes / easyPaceMinutes);
@@ -162,8 +162,8 @@ function getLongRunInstructions(
   marathonPace: string,
   preferences: TrainingPreferences
 ): string[] {
-  const unit = preferences.distanceUnit === 'KILOMETERS' ? 'km' : 'mile';
-  const unitPlural = preferences.distanceUnit === 'KILOMETERS' ? 'km' : 'miles';
+  const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  const unitPlural = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'miles';
   
   if (week === 14) {
     // Race week - marathon pace only
@@ -228,7 +228,7 @@ export function getRecommendedEasyPace(
   const paces = calculateTrainingPaces(marathonTime, preferences);
   
   // Cap easy pace at 9:00/mile (5:35/km)
-  const maxEasyPaceMinutes = preferences.distanceUnit === 'KILOMETERS' ? 5.58 : 9.0;
+  const maxEasyPaceMinutes = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 5.58 : 9.0;
   const easyPaceMinutes = paces.easyPace.minutes + (paces.easyPace.seconds / 60);
   
   if (easyPaceMinutes > maxEasyPaceMinutes) {
