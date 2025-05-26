@@ -6,6 +6,10 @@ import {
   LucideHome,
   LucideFileText,
   LucideMessageSquare,
+  LucideActivity,
+  LucideBarChart3,
+  LucideClock,
+  LucideTarget,
 } from "lucide-react";
 import { clientEnv } from "@/env/client";
 
@@ -54,3 +58,28 @@ export const chatLink: Link | null = clientEnv.NEXT_PUBLIC_ENABLE_CHAT_PAGE
       icon: LucideMessageSquare,
     }
   : null;
+
+// Training-specific navigation links
+export const trainingLinks: Link[] = [
+  {
+    label: "Dashboard",
+    href: "/app",
+    icon: LucideHome,
+  },
+  {
+    label: "Workouts",
+    href: "/workout-demo",
+    icon: LucideActivity,
+  },
+  {
+    label: "Progress",
+    href: "/progress-demo",
+    icon: LucideBarChart3,
+  },
+];
+
+export const dashboardLink: Link = {
+  label: "Dashboard",
+  href: "/app",
+  icon: LucideTarget,
+};

@@ -1,0 +1,415 @@
+Marathon Minimalist – Product Requirements Document
+1. Introduction
+This Product Requirements Document (PRD) outlines the development specifications for Marathon Minimalist, a streamlined marathon training application designed to provide runners with a focused, minimalist approach to marathon preparation. This document serves as the primary reference for development teams, stakeholders, and quality assurance to ensure successful delivery of a comprehensive yet simplified marathon training platform.
+
+The application addresses the common problem of overwhelming training complexity by providing a clean, focused interface that emphasizes the three core weekly workouts essential for marathon success while maintaining flexibility for individual scheduling needs.
+
+2. Product overview
+Marathon Minimalist is a web-based marathon training application that generates personalized 14-week training plans based on user goals and schedules. The platform focuses on three core workout types per week: tempo runs, 800-meter intervals, and long runs with marathon-pace finishes.
+
+The application features an integrated pace calculator, interval timer, workout logging system, and progress analytics, all wrapped in a minimalist user interface that prioritizes clarity and ease of use. Built for runners of all experience levels, the platform provides educational context for each workout while maintaining the flexibility to accommodate various scheduling constraints and training adaptations.
+
+3. Goals and objectives
+Primary Goals
+Simplify marathon training by focusing on three essential weekly workouts
+
+Provide accurate pace calculations and training recommendations based on goal times
+
+Deliver a user-friendly interface that reduces training complexity and decision fatigue
+
+Enable flexible scheduling to accommodate diverse user lifestyles
+
+Secondary Goals
+Educate users on the purpose and benefits of each workout type
+
+Track training progress and adherence through comprehensive logging
+
+Support injury prevention through cross-training integration and guidance
+
+Maintain high user engagement through clear progress visualization
+
+Success Metrics
+User completion rate of generated training plans (target: >70%)
+
+Weekly workout adherence rate (target: >80%)
+
+User retention through full 14-week training cycles (target: >60%)
+
+Time-to-value: Users complete first workout within 48 hours of registration
+
+4. Target audience
+Primary Users
+Intermediate Runners: Runners with 1-3 years of experience seeking structured marathon training
+
+Busy Professionals: Time-constrained individuals needing efficient, focused training plans
+
+Marathon Rookies: First-time marathoners requiring guidance and education
+
+Secondary Users
+Returning Marathoners: Experienced runners seeking a simplified approach to training
+
+Running Coaches: Professionals looking for tools to support client training plans
+
+User Characteristics
+Age range: 25-55 years old
+
+Technology comfort: Moderate to high
+
+Running experience: 6 months to 10+ years
+
+Training time availability: 3-6 hours per week
+
+Goal orientation: Completion-focused to time-specific targets
+
+5. Features and requirements
+5.1 Core Training Features
+Customizable Training Plan Generation: 14-week marathon-specific plans with adaptive start dates
+
+Target Time & Pace Calculation: Comprehensive pace recommendations for all workout types
+
+Flexible Schedule Settings: User-defined workout days with calendar integration
+
+Core Workout Types: Tempo runs, 800m intervals, and long runs with negative splits
+
+5.2 Planning and Calculation Tools
+Integrated Pace Calculator: Marathon and 5K pace conversion with training recommendations
+
+Interval Timer: Automated work/rest calculations with start/pause/reset controls
+
+Schedule Flexibility: Custom rest days and calendar adjustments
+
+5.3 Tracking and Analytics
+Workout Log: Comprehensive recording of distance, time, pace, and notes
+
+Progress Analytics: Weekly adherence visualization and pace trend analysis
+
+Cross-Training Log: Integration of supplementary activities
+
+5.4 User Experience Features
+Minimalist UI: Clean, focused interface emphasizing current week's sessions
+
+Beginner Guidance: Educational tooltips and workout purpose explanations
+
+Contextual Tips: Warm-up, cooldown, and injury prevention recommendations
+
+6. User stories and acceptance criteria
+Authentication and User Management
+ST-101: User Registration
+As a new user, I want to create an account so that I can access personalized training plans.
+
+Given I am on the registration page
+
+When I provide valid email, password, and basic profile information
+
+Then my account is created and I am redirected to the onboarding flow
+
+And I receive a confirmation email
+
+ST-102: User Login
+As a registered user, I want to log into my account so that I can access my training data.
+
+Given I have a valid account
+
+When I enter correct credentials
+
+Then I am authenticated and redirected to my dashboard
+
+And my session is maintained across browser sessions
+
+Training Plan Generation
+ST-103: Marathon Date Input
+As a user, I want to enter my marathon date so that the system can generate an appropriate training timeline.
+
+Given I am setting up my training plan
+
+When I select a marathon date that is 14+ weeks away
+
+Then the system generates a full 14-week plan starting immediately
+
+And displays the complete training schedule
+
+ST-104: Short Timeline Adaptation
+As a user with less than 14 weeks until my marathon, I want the system to adapt the training plan so that I can still prepare effectively.
+
+Given my marathon is less than 14 weeks away
+
+When I input the race date
+
+Then the system offers options to skip early weeks or start at higher intensity
+
+And clearly indicates the modified plan structure
+
+ST-105: Goal Time Setting
+As a user, I want to set my marathon goal time so that the system can calculate appropriate training paces.
+
+Given I am configuring my training plan
+
+When I input my target marathon finish time
+
+Then the system calculates and displays marathon pace, tempo pace, interval pace, and long run pace
+
+And provides clear explanations for each pace zone
+
+Schedule Configuration
+ST-106: Workout Day Selection
+As a user, I want to choose my preferred workout days so that training fits my schedule.
+
+Given I am setting up my weekly schedule
+
+When I select three workout days from the week
+
+Then the system assigns tempo, interval, and long run workouts to those days
+
+And allows me to modify the assignment order
+
+ST-107: Rest Day Customization
+As a user, I want to set custom rest days so that I can accommodate my personal schedule.
+
+Given I have selected my workout days
+
+When I designate specific rest days
+
+Then the system respects these preferences in the training calendar
+
+And provides flexibility to adjust week by week
+
+Workout Execution
+ST-108: Tempo Run Guidance
+As a user, I want clear instructions for tempo runs so that I can execute the workout correctly.
+
+Given I am viewing today's tempo run workout
+
+When I access the workout details
+
+Then I see the target distance, pace, warm-up instructions, and cooldown guidance
+
+And can access educational information about tempo run benefits
+
+ST-109: Interval Timer Usage
+As a user, I want to use the built-in interval timer so that I can properly execute 800m repeat sessions.
+
+Given I am performing an 800m interval workout
+
+When I start the interval timer
+
+Then it automatically calculates work and rest periods based on my target pace
+
+And provides audio/visual cues for each interval transition
+
+ST-110: Long Run Execution
+As a user, I want guidance for long runs with marathon-pace finishes so that I can practice race-day pacing.
+
+Given I am performing a long run workout
+
+When I view the workout details
+
+Then I see the total distance, easy pace for the majority, and marathon pace for the final portion
+
+And receive clear instructions on when to transition between paces
+
+Pace Calculation Tools
+ST-111: Pace Calculator Access
+As a user, I want to access a pace calculator so that I can convert between different race times and training paces.
+
+Given I need to calculate training paces
+
+When I access the pace calculator tool
+
+Then I can input either marathon time or 5K time
+
+And receive recommendations for all training pace zones
+
+ST-112: Training Pace Recommendations
+As a user, I want the system to recommend appropriate training paces so that I can train at the correct intensity.
+
+Given I have set my goal marathon time
+
+When the system calculates my training paces
+
+Then I receive specific pace ranges for tempo, interval, easy, and long run workouts
+
+And can adjust these recommendations based on fitness level
+
+Workout Logging
+ST-113: Workout Recording
+As a user, I want to log my completed workouts so that I can track my progress.
+
+Given I have completed a workout
+
+When I access the workout log
+
+Then I can record date, distance, time, average pace, and notes
+
+And the data is saved to my training history
+
+ST-114: Progress Visualization
+As a user, I want to see my training progress so that I can understand my improvement trends.
+
+Given I have logged multiple workouts
+
+When I access the analytics dashboard
+
+Then I see weekly adherence rates, pace trends, and distance progression
+
+And can filter data by workout type and time period
+
+Cross-Training Integration
+ST-115: Cross-Training Logging
+As a user, I want to log cross-training activities so that I can track my complete fitness routine.
+
+Given I perform activities other than running
+
+When I access the cross-training log
+
+Then I can record yoga, biking, strength training, and other activities
+
+And see how they complement my running schedule
+
+ST-116: Injury Prevention Guidance
+As a user, I want access to injury prevention tips so that I can train safely.
+
+Given I am viewing workout instructions
+
+When I access the guidance section
+
+Then I see contextual tips for warm-up, cooldown, stretching, and recovery
+
+And receive recommendations based on my training load
+
+Database and Data Management
+ST-117: User Data Persistence
+As a user, I want my training data to be securely stored so that I can access it across sessions and devices.
+
+Given I have entered training data
+
+When I log out and log back in
+
+Then all my workout logs, preferences, and progress data are preserved
+
+And accessible from any device where I'm authenticated
+
+ST-118: Data Export Capability
+As a user, I want to export my training data so that I can use it with other applications or for personal records.
+
+Given I have accumulated training data
+
+When I request a data export
+
+Then I receive a downloadable file containing my complete workout history
+
+And the data is formatted in a standard, readable format
+
+Edge Cases and Error Handling
+ST-119: Invalid Date Handling
+As a user, I want appropriate feedback when entering invalid marathon dates so that I can correct my input.
+
+Given I am entering a marathon date
+
+When I select a date in the past or unreasonably far in the future
+
+Then I receive clear error messaging
+
+And guidance on selecting an appropriate date
+
+ST-120: Pace Calculation Limits
+As a user, I want the system to handle unrealistic pace inputs so that I receive practical training recommendations.
+
+Given I am setting goal times
+
+When I enter extremely fast or slow target times
+
+Then the system provides warnings about unrealistic goals
+
+And offers alternative recommendations based on typical progression rates
+
+7. Technical requirements / stack
+Frontend Technology
+Framework: Next.js with App Router for modern React development and optimal performance
+
+Language: TypeScript for type safety and enhanced developer experience
+
+Runtime: Bun for fast package management and build processes
+
+UI Components: Kitze UI (shadcn/ui) for consistent, accessible component library
+
+Validation: Zod for runtime type checking and form validation
+
+Backend Technology
+Database: PostgreSQL for reliable, scalable data storage
+
+Authentication: Better Auth for secure user management and session handling
+
+API: Next.js API routes for seamless frontend-backend integration
+
+Development Requirements
+Code Quality: ESLint and Prettier for consistent code formatting
+
+Testing: Jest and React Testing Library for comprehensive test coverage
+
+Version Control: Git with conventional commit standards
+
+Deployment: Vercel or similar platform for continuous deployment
+
+Performance Requirements
+Page Load Time: <2 seconds for initial page load
+
+Interactive Response: <100ms for user interactions
+
+Mobile Responsiveness: Full functionality across all device sizes
+
+Offline Capability: Basic workout viewing and timer functionality when offline
+
+Security Requirements
+Data Encryption: All user data encrypted in transit and at rest
+
+Authentication: Secure session management with automatic timeout
+
+Input Validation: Server-side validation for all user inputs
+
+Privacy Compliance: GDPR-compliant data handling and user consent management
+
+8. Design and user interface
+Design Principles
+Minimalism: Clean, uncluttered interface focusing on essential information
+
+Clarity: Clear typography and intuitive navigation patterns
+
+Accessibility: WCAG 2.1 AA compliance for inclusive user experience
+
+Responsiveness: Seamless experience across desktop, tablet, and mobile devices
+
+Visual Design
+Color Palette: Monochromatic scheme with accent colors for key actions
+
+Typography: Clean, readable fonts optimized for both digital and mobile viewing
+
+Iconography: Simple, universally understood icons for navigation and actions
+
+Spacing: Generous white space to reduce cognitive load
+
+User Interface Components
+Dashboard: Weekly view highlighting the three core workouts
+
+Workout Cards: Clear display of workout type, distance, pace, and completion status
+
+Progress Charts: Simple visualizations showing adherence and pace trends
+
+Timer Interface: Large, easy-to-read display with prominent start/stop controls
+
+Navigation Structure
+Primary Navigation: Dashboard, Workouts, Progress, Settings
+
+Contextual Actions: Quick access to pace calculator and timer from workout views
+
+Breadcrumb Navigation: Clear indication of current location within the application
+
+Mobile Optimization: Touch-friendly interface with swipe gestures for navigation
+
+Interaction Design
+Feedback Systems: Immediate visual feedback for all user actions
+
+Progressive Disclosure: Advanced features accessible but not overwhelming for beginners
+
+Error Prevention: Clear validation messages and confirmation dialogs for critical actions
+
+Onboarding Flow: Guided setup process for new users with educational tooltips 

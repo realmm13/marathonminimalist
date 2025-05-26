@@ -7,6 +7,7 @@ import { useKitzeUI } from "@/components/KitzeUIContext";
 import { ThemeSwitchMinimalNextThemes } from "@/components/ThemeSwitchMinimalNextThemes";
 import { HeaderCustomized } from "@/components/core/HeaderCustomized";
 import { HeaderLinks } from "@/components/core/HeaderLinks";
+import { TrainingNavigation, TrainingMobileNav } from "@/components/training";
 
 export default function AppHeader() {
   const { isMobile } = useKitzeUI();
@@ -21,8 +22,14 @@ export default function AppHeader() {
         root: "relative",
       }}
       leftSide={
-        <div className="horizontal gap-2">
+        <div className="horizontal gap-4">
           <Logo />
+          {/* Training Navigation - Desktop */}
+          {!isMobile && (
+            <div className="hidden md:block">
+              <TrainingNavigation variant="horizontal" />
+            </div>
+          )}
         </div>
       }
       renderRightSide={() => (
@@ -30,6 +37,8 @@ export default function AppHeader() {
           {!isMobile && <HeaderLinks links={headerLinks} />}
           <ThemeSwitchMinimalNextThemes buttonProps={{ variant: "ghost" }} />
           <AppHeaderUser links={userLinks} />
+          {/* Training Navigation - Mobile */}
+          <TrainingMobileNav />
         </div>
       )}
     />

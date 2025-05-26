@@ -1,0 +1,213 @@
+{
+  "meta": {
+    "generatedAt": "2025-05-25T17:24:54.312Z",
+    "tasksAnalyzed": 25,
+    "totalTasks": 25,
+    "analysisCount": 25,
+    "thresholdScore": 6,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 1,
+      "taskTitle": "Setup Next.js Project with TypeScript",
+      "complexityScore": 4,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the Next.js project setup into steps for initialization, TypeScript configuration, Bun integration, ESLint and Prettier setup, and Git repository configuration.",
+      "reasoning": "Moderate complexity due to multiple tools and configurations, but well-documented processes available."
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Implement User Authentication",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide the authentication implementation into subtasks for Better Auth integration, user registration, login, logout, session management, and security testing.",
+      "reasoning": "High complexity due to security concerns and multiple interconnected features."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Create Database Schema",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the database schema creation into subtasks for user profiles, training plans, workout logs, cross-training activities, and data encryption implementation.",
+      "reasoning": "Moderate to high complexity due to multiple related tables and security considerations."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Develop Training Plan Generation Algorithm",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Divide the algorithm development into subtasks for tempo runs, 800m intervals, long runs, adaptive start dates, short timeline scenarios, TypeScript implementation, and algorithm testing.",
+      "reasoning": "High complexity due to the need for sophisticated logic and multiple workout types."
+    },
+    {
+      "taskId": 5,
+      "taskTitle": "Implement Pace Calculator",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down the pace calculator implementation into subtasks for race time conversion, training pace calculation, input validation with Zod, and API endpoint creation.",
+      "reasoning": "Moderate complexity due to mathematical calculations and API integration."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Design and Implement UI Components",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide UI component creation into subtasks for workout cards, progress charts, timer interface, navigation structure, accessibility compliance, and component testing.",
+      "reasoning": "High complexity due to multiple components and accessibility requirements."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Develop User Dashboard",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the dashboard development into subtasks for weekly view component, workout card display, progress chart integration, data flow implementation, and dashboard testing.",
+      "reasoning": "High complexity due to integration of multiple components and data sources."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Implement Workout Logging System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the logging system implementation into subtasks for running workout form, cross-training activity form, API endpoints for data saving and retrieval, input validation, and system testing.",
+      "reasoning": "Moderate to high complexity due to multiple input types and data flow considerations."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Create Progress Analytics Module",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the analytics module creation into subtasks for adherence rate calculation, pace trend analysis, distance progression tracking, data visualization implementation, and module testing.",
+      "reasoning": "High complexity due to data analysis requirements and visualization challenges."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Implement Interval Timer",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the interval timer implementation into subtasks for timer component creation, work/rest period calculation, audio/visual cue integration, browser compatibility testing, and timer functionality testing.",
+      "reasoning": "Moderate to high complexity due to precise timing requirements and multi-browser support."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Develop Schedule Configuration Interface",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the schedule configuration into subtasks for calendar component implementation, workout assignment logic, rest day customization, week-by-week adjustment feature, and interface testing.",
+      "reasoning": "High complexity due to intricate scheduling logic and user customization options."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Implement Workout Execution Guidance",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Divide the guidance implementation into subtasks for detailed workout display components, marathon-pace finish calculations, guidance clarity testing, and user acceptance testing.",
+      "reasoning": "Moderate to high complexity due to detailed instructions and pace calculations."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Create User Onboarding Flow",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the onboarding flow creation into subtasks for step-by-step process implementation, account creation integration, goal setting interface, schedule configuration, and educational tooltip development.",
+      "reasoning": "High complexity due to multiple steps and educational content integration."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Implement Data Export Functionality",
+      "complexityScore": 4,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Divide the data export implementation into subtasks for API endpoint creation, data formatting logic, and file download functionality.",
+      "reasoning": "Moderate complexity due to data handling and file generation requirements."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Implement Cross-Training Integration",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down the cross-training integration into subtasks for activity logging interface, complementary schedule logic, data incorporation into analytics, and integration testing.",
+      "reasoning": "Moderate to high complexity due to integration with existing training plan and analytics."
+    },
+    {
+      "taskId": 16,
+      "taskTitle": "Develop Injury Prevention Module",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the injury prevention module development into subtasks for tip database creation, contextual recommendation system, warm-up/cooldown guidance, recovery advice implementation, and user acceptance testing.",
+      "reasoning": "High complexity due to the need for contextual awareness and comprehensive advice database."
+    },
+    {
+      "taskId": 17,
+      "taskTitle": "Implement Mobile Responsiveness",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down mobile responsiveness implementation into subtasks for responsive design application, touch interaction optimization, component adjustment for various screen sizes, cross-device testing, and performance optimization for mobile.",
+      "reasoning": "High complexity due to the need for consistent functionality across diverse devices and screen sizes."
+    },
+    {
+      "taskId": 18,
+      "taskTitle": "Implement Offline Capability",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Divide offline capability implementation into subtasks for service worker setup, asset caching strategy, offline-first architecture design, data synchronization logic, offline functionality testing, and reconnection handling.",
+      "reasoning": "High complexity due to the challenges of managing data and functionality without constant network connection."
+    },
+    {
+      "taskId": 19,
+      "taskTitle": "Implement Privacy and GDPR Compliance",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down GDPR compliance implementation into subtasks for user consent management, privacy policy creation, terms of service documentation, data deletion functionality, data export feature, and compliance audit.",
+      "reasoning": "High complexity due to legal requirements and the need for comprehensive data handling procedures."
+    },
+    {
+      "taskId": 20,
+      "taskTitle": "Develop Performance Optimization Module",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide performance optimization into subtasks for code splitting implementation, lazy loading setup, API response caching, asset optimization, performance monitoring implementation, and optimization testing.",
+      "reasoning": "High complexity due to the technical nature of optimizations and the need for measurable improvements."
+    },
+    {
+      "taskId": 21,
+      "taskTitle": "Implement Error Handling and Validation",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down error handling and validation implementation into subtasks for client-side validation, server-side validation, error message creation, global error boundary setup, and comprehensive testing.",
+      "reasoning": "High complexity due to the need for robust handling across various parts of the application."
+    },
+    {
+      "taskId": 22,
+      "taskTitle": "Create User Settings and Preferences Module",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Divide the settings module creation into subtasks for user profile update interface, password change functionality, training preference settings, and API endpoint implementation for settings management.",
+      "reasoning": "Moderate complexity due to multiple settings types but relatively straightforward implementation."
+    },
+    {
+      "taskId": 23,
+      "taskTitle": "Implement Notification System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the notification system implementation into subtasks for in-app notification development, email notification setup, notification preference management, notification generation logic, and delivery testing.",
+      "reasoning": "Moderate to high complexity due to multiple notification channels and preference management."
+    },
+    {
+      "taskId": 24,
+      "taskTitle": "Develop API Documentation",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Divide API documentation development into subtasks for documentation tool setup, endpoint documentation writing, authentication requirement documentation, example usage creation, and documentation accuracy testing.",
+      "reasoning": "Moderate complexity due to the comprehensive nature of the task but straightforward implementation."
+    },
+    {
+      "taskId": 25,
+      "taskTitle": "Implement Continuous Integration and Deployment",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down CI/CD implementation into subtasks for CI tool configuration, automated testing setup, deployment automation, staging environment setup, production environment configuration, and pipeline testing.",
+      "reasoning": "High complexity due to the need for robust automation and multiple environment configurations."
+    }
+  ]
+}
