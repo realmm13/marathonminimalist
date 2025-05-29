@@ -4,23 +4,19 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { FormFieldSegmentedControl } from "@/components/FormFieldSegmentedControl";
 import { FormFieldInput } from "@/components/FormFieldInput";
-import { Calendar, Target, MapPin } from "lucide-react";
+import { Target } from "lucide-react";
 import { toast } from "sonner";
 
-// Define the form schema with string literals instead of enums
+// Simplified schema with automatic pace format based on distance unit
 const marathonSettingsSchema = z.object({
   distanceUnit: z.enum(["MILES", "KILOMETERS"]),
-  paceFormat: z.enum(["MIN_PER_MILE", "MIN_PER_KM"]),
   goalMarathonTime: z.string().optional(),
   current5KTime: z.string().optional(),
   marathonDate: z.string().optional(),
-  experienceLevel: z.enum(["BEGINNER", "INTERMEDIATE", "ADVANCED"]),
-  workoutDays: z.array(z.number()),
 });
 
 type MarathonSettingsFormData = z.infer<typeof marathonSettingsSchema>;
@@ -30,18 +26,21 @@ export function MarathonTrainingSettings() {
     resolver: zodResolver(marathonSettingsSchema),
     defaultValues: {
       distanceUnit: "MILES",
-      paceFormat: "MIN_PER_MILE",
       goalMarathonTime: "",
       current5KTime: "",
       marathonDate: "",
-      experienceLevel: "BEGINNER",
-      workoutDays: [1, 3, 5],
     },
   });
 
   const onSubmit = async (data: MarathonSettingsFormData) => {
     try {
-      console.log("Marathon training settings:", data);
+      // Automatically set pace format based on distance unit
+      const settingsWithPace = {
+        ...data,
+        paceFormat: data.distanceUnit === "MILES" ? "MIN_PER_MILE" : "MIN_PER_KM",
+      };
+      
+      console.log("Marathon training settings:", settingsWithPace);
       toast.success("Marathon training settings saved!");
     } catch (error) {
       console.error("Error saving settings:", error);
@@ -50,58 +49,43 @@ export function MarathonTrainingSettings() {
   };
 
   return (
-    <div className="space-y-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Distance & Pace Preferences
-              </CardTitle>
-              <CardDescription>
-                Configure how distances and paces are displayed throughout the app
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <FormFieldSegmentedControl
-                name="distanceUnit"
-                label="Distance Unit"
-                description="Choose your preferred unit for displaying distances"
-                options={[
-                  { label: "Miles", value: "MILES" },
-                  { label: "Kilometers", value: "KILOMETERS" },
-                ]}
-              />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <div className="space-y-6">
+          <div>
+            <h4 className="heading-5 mb-2 flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Distance Preferences
+            </h4>
+            <p className="body-small text-muted-foreground mb-4">
+              Choose your preferred unit for distances and paces
+            </p>
+            <FormFieldSegmentedControl
+              name="distanceUnit"
+              label="Distance Unit"
+              description="Pace format will be automatically set (min/mile or min/km)"
+              options={[
+                { label: "Miles", value: "MILES" },
+                { label: "Kilometers", value: "KILOMETERS" },
+              ]}
+            />
+          </div>
 
-              <FormFieldSegmentedControl
-                name="paceFormat"
-                label="Pace Format"
-                description="Choose how pace is displayed"
-                options={[
-                  { label: "min/mile", value: "MIN_PER_MILE" },
-                  { label: "min/km", value: "MIN_PER_KM" },
-                ]}
-              />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Marathon Goals
-              </CardTitle>
-              <CardDescription>
-                Set your marathon goals and current fitness level
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <div>
+            <h4 className="heading-5 mb-2 flex items-center gap-2">
+              <Target className="h-4 w-4" />
+              Marathon Goals
+            </h4>
+            <p className="body-small text-muted-foreground mb-4">
+              Set your marathon goals and current fitness level
+            </p>
+            <div className="space-y-4">
               <FormFieldInput
                 name="goalMarathonTime"
                 label="Goal Marathon Time"
                 description="Your target marathon finish time (e.g., 4:30:00)"
                 placeholder="4:30:00"
+                control={form.control}
               />
 
               <FormFieldInput
@@ -109,6 +93,7 @@ export function MarathonTrainingSettings() {
                 label="Current 5K Time"
                 description="Your recent 5K time to help estimate training paces"
                 placeholder="25:00"
+                control={form.control}
               />
 
               <FormFieldInput
@@ -116,26 +101,16 @@ export function MarathonTrainingSettings() {
                 label="Marathon Date"
                 description="When is your target marathon?"
                 type="date"
+                control={form.control}
               />
+            </div>
+          </div>
 
-              <FormFieldSegmentedControl
-                name="experienceLevel"
-                label="Experience Level"
-                description="Your running experience level"
-                options={[
-                  { label: "Beginner", value: "BEGINNER" },
-                  { label: "Intermediate", value: "INTERMEDIATE" },
-                  { label: "Advanced", value: "ADVANCED" },
-                ]}
-              />
-
-              <Button type="submit" className="w-full">
-                Save Marathon Settings
-              </Button>
-            </CardContent>
-          </Card>
-        </form>
-      </Form>
-    </div>
+          <Button type="submit" className="w-full">
+            Save Settings
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 } 

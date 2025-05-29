@@ -1,4 +1,5 @@
 import { api } from "@/trpc/react";
+import { authClient } from "@/server/auth/client";
 import {
   type PreferenceKey,
   getDefaultPreferenceValue,
@@ -12,6 +13,10 @@ export function useUserSetting<K extends PreferenceKey>(
   // Get the schema default if no explicit default was provided
   const finalDefaultValue = defaultValue ?? getDefaultPreferenceValue(key);
 
+  // Check authentication status
+  const { data: session } = authClient.useSession();
+  const isAuthenticated = !!session?.user;
+
   const utils = api.useUtils();
   const { data, isLoading } = api.user.getSinglePreference.useQuery(
     {
@@ -19,7 +24,9 @@ export function useUserSetting<K extends PreferenceKey>(
       defaultValue:
         finalDefaultValue !== undefined ? finalDefaultValue : undefined,
     },
-    { enabled: true },
+    { 
+      enabled: isAuthenticated, // Only run query if user is authenticated
+    },
   );
 
   const updatePreferenceMutation = api.user.updatePreference.useMutation({
@@ -29,6 +36,10 @@ export function useUserSetting<K extends PreferenceKey>(
   });
 
   const setValue = (newValue: UserPreferences[K]) => {
+    if (!isAuthenticated) {
+      console.warn('Cannot update user preference: user not authenticated');
+      return;
+    }
     updatePreferenceMutation.mutate({
       key,
       value: newValue,
@@ -38,7 +49,8 @@ export function useUserSetting<K extends PreferenceKey>(
   return {
     value: data?.value ?? finalDefaultValue,
     setValue,
-    isLoading,
+    isLoading: isAuthenticated ? isLoading : false,
     isUpdating: updatePreferenceMutation.isPending,
+    isAuthenticated,
   };
 }

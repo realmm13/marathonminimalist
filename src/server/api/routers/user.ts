@@ -11,6 +11,15 @@ import {
   getEnhancedUser,
   getUploadThingImageConnectDisconnectArgs,
 } from "@/server/db/utils";
+import { z } from "zod";
+
+// Marathon settings schema
+const marathonSettingsSchema = z.object({
+  distanceUnit: z.enum(["MILES", "KILOMETERS"]),
+  goalMarathonTime: z.string().optional(),
+  current5KTime: z.string().optional(),
+  marathonDate: z.string().optional(),
+});
 
 export const userRouter = createTRPCRouter({
   getCurrentUser: protectedProcedure.query(async ({ ctx }) => {
@@ -146,6 +155,25 @@ export const userRouter = createTRPCRouter({
     };
   }),
 
+  getUserForSimpleProfile: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    return {
+      id: user.id,
+      name: user.name ?? "",
+    };
+  }),
+
   updateProfile: protectedProcedure
     .input(UpdateProfileInput)
     .mutation(async ({ ctx, input }) => {
@@ -173,21 +201,36 @@ export const userRouter = createTRPCRouter({
         }
       }
 
-      // Proceed with the update if username is available or not being changed
+      // Build update data object with only provided fields
+      const updateData: any = {
+        name: input.name, // name is always required
+      };
+
+      // Only include optional fields if they are explicitly provided
+      if (input.username !== undefined) {
+        updateData.username = input.username;
+      }
+      if (input.bio !== undefined) {
+        updateData.bio = input.bio;
+      }
+      if (input.timezone !== undefined) {
+        updateData.timezone = input.timezone;
+      }
+      if (input.avatarImage !== undefined) {
+        updateData.avatarImage = getUploadThingImageConnectDisconnectArgs(
+          input.avatarImage,
+        );
+      }
+      if (input.coverImage !== undefined) {
+        updateData.coverImage = getUploadThingImageConnectDisconnectArgs(
+          input.coverImage,
+        );
+      }
+
+      // Proceed with the update using only the provided fields
       await ctx.db.user.update({
         where: { id: ctx.session.user.id },
-        data: {
-          name: input.name,
-          username: input.username,
-          bio: input.bio,
-          timezone: input.timezone,
-          avatarImage: getUploadThingImageConnectDisconnectArgs(
-            input.avatarImage,
-          ),
-          coverImage: getUploadThingImageConnectDisconnectArgs(
-            input.coverImage,
-          ),
-        },
+        data: updateData,
       });
       return { success: true };
     }),
@@ -207,4 +250,75 @@ export const userRouter = createTRPCRouter({
     });
     return { success: true };
   }),
+
+  getMarathonSettings: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: {
+        goalMarathonTime: true,
+        current5KTime: true,
+        marathonDate: true,
+        preferences: true,
+      },
+    });
+
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+    }
+
+    const preferences = userPreferencesSchema.parse(user.preferences || {});
+    
+    return {
+      distanceUnit: preferences.marathonDistanceUnit || "MILES",
+      goalMarathonTime: user.goalMarathonTime || "",
+      current5KTime: user.current5KTime || "",
+      marathonDate: user.marathonDate ? user.marathonDate.toISOString().split('T')[0] : "",
+    };
+  }),
+
+  updateMarathonSettings: protectedProcedure
+    .input(marathonSettingsSchema)
+    .mutation(async ({ ctx, input }) => {
+      // Update user marathon fields
+      const updateData: any = {};
+      
+      if (input.goalMarathonTime) {
+        updateData.goalMarathonTime = input.goalMarathonTime;
+      }
+      if (input.current5KTime) {
+        updateData.current5KTime = input.current5KTime;
+      }
+      if (input.marathonDate) {
+        updateData.marathonDate = new Date(input.marathonDate);
+      }
+
+      // Update user preferences for distance unit
+      const user = await ctx.db.user.findUnique({
+        where: { id: ctx.session.user.id },
+        select: { preferences: true },
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
+      }
+
+      const currentPreferences = userPreferencesSchema
+        .partial()
+        .parse(user.preferences || {});
+
+      const updatedPreferences = {
+        ...currentPreferences,
+        marathonDistanceUnit: input.distanceUnit,
+        marathonPaceFormat: input.distanceUnit === "MILES" ? "MIN_PER_MILE" : "MIN_PER_KM",
+      };
+
+      updateData.preferences = updatedPreferences;
+
+      await ctx.db.user.update({
+        where: { id: ctx.session.user.id },
+        data: updateData,
+      });
+
+      return { success: true };
+    }),
 });

@@ -49,7 +49,7 @@ export const SearchBar = memo(
 
     return (
       <div className="relative w-full">
-        <div className="text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+        <div className="text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 transition-colors duration-200">
           <Search className="h-4 w-4" />
         </div>
         <input
@@ -60,14 +60,14 @@ export const SearchBar = memo(
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           onBlur={() => onClose && onClose()}
-          className="bg-background border-input focus:ring-ring focus:border-ring w-full rounded-md border py-2 pr-10 pl-10 text-sm shadow-sm focus:ring-2 focus:outline-none"
+          className="input-enhanced w-full py-2 pr-10 pl-10 body-small placeholder:text-muted-foreground/70 hover-lift focus:shadow-lg transition-all duration-200"
           aria-label="Search"
         />
         {value && (
           <button
             type="button"
             onClick={handleClear}
-            className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors"
+            className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center pr-3 transition-colors duration-200 hover:scale-110 focus-ring rounded-sm"
             aria-label="Clear search"
           >
             <X className="h-4 w-4" />

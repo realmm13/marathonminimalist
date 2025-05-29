@@ -44,7 +44,7 @@ export const PageHeader: ReactFC<PageHeaderProps> = ({
     <CustomButton
       variant="ghost"
       leftIcon={LucideMenu}
-      className={cn(classNames?.menuButton)}
+      className={cn("hover-lift focus-ring", classNames?.menuButton)}
       aria-label="Menu"
       iconSize={20}
     />
@@ -65,10 +65,10 @@ export const PageHeader: ReactFC<PageHeaderProps> = ({
       }}
       className={cn(
         "z-30 flex w-full items-center justify-center",
-        "backdrop-blur-xl transition-all duration-200",
+        "backdrop-blur-xl transition-all duration-300",
         "text-foreground/80",
         {
-          "r-0 dark:bg-background/80 fixed top-0 left-0 shadow-sm": applyFixed,
+          "r-0 dark:bg-background/80 fixed top-0 left-0 shadow-lg border-b border-border/50": applyFixed,
         },
         classNames?.root,
       )}
@@ -76,19 +76,22 @@ export const PageHeader: ReactFC<PageHeaderProps> = ({
     >
       <div
         className={cn(
-          "flex w-full max-w-[1200px] items-center justify-between px-4 py-3",
+          "flex w-full max-w-[1200px] items-center justify-between px-4 py-3 transition-all duration-200",
+          {
+            "px-6": applyFixed,
+          },
           classNames?.container,
         )}
       >
-        <div className={cn("flex-1", classNames?.leftSide)}>{leftSide}</div>
+        <div className={cn("flex-1 animate-fade-in-up", classNames?.leftSide)}>{leftSide}</div>
 
         {middle && (
-          <div className={cn("flex-1 text-center", classNames?.middle)}>
+          <div className={cn("flex-1 text-center animate-fade-in-up", classNames?.middle)} style={{ animationDelay: '0.1s' }}>
             {middle}
           </div>
         )}
 
-        <div className={cn("flex flex-1 justify-end", classNames?.rightSide)}>
+        <div className={cn("flex flex-1 justify-end animate-fade-in-up", classNames?.rightSide)} style={{ animationDelay: '0.2s' }}>
           {renderRightSide?.({ menuButton, bottomDrawer })}
         </div>
       </div>

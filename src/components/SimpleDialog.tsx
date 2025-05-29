@@ -90,14 +90,14 @@ const CustomDialogContent = ({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-xl border border-border/50 p-6 shadow-xl backdrop-blur-md duration-200 sm:max-w-lg card-enhanced",
           className,
         )}
         {...props}
       >
         {children}
         {showCloseButton && (
-          <DialogClose className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <DialogClose className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-lg opacity-70 transition-all duration-200 hover:opacity-100 hover:bg-accent/50 hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 focus-ring active-press">
             <XIcon />
             <span className="sr-only">Close</span>
           </DialogClose>
@@ -141,12 +141,12 @@ export const SimpleDialog = ({
   };
 
   const footerContent = (onSubmit || showCancel) && (
-    <div className={cn("flex justify-end gap-2 pt-4", classNames.footer)}>
+    <div className={cn("flex justify-end gap-3 pt-4", classNames.footer)}>
       {showCancel && (
         <CustomButton
           variant="outline"
           onClick={handleCancel}
-          className={classNames.cancelButton}
+          className={cn("btn-secondary-enhanced", classNames.cancelButton)}
         >
           {cancelText}
         </CustomButton>
@@ -154,7 +154,7 @@ export const SimpleDialog = ({
       {onSubmit && (
         <CustomButton
           onClick={handleSubmit}
-          className={classNames.submitButton}
+          className={cn("btn-primary-enhanced", classNames.submitButton)}
         >
           {submitText}
         </CustomButton>
@@ -174,7 +174,7 @@ export const SimpleDialog = ({
           headerWrapper: classNames.drawerHeader,
         }}
       >
-        <div className={classNames.body}>{children}</div>
+        <div className={cn("space-y-4", classNames.body)}>{children}</div>
         {footerContent && (
           <div
             className={cn(classNames.drawerFooter, "px-6 pt-4 pb-6 md:pb-2")}
@@ -191,7 +191,7 @@ export const SimpleDialog = ({
       {trigger && open === undefined && (
         <DialogTrigger asChild>
           {typeof trigger === "string" ? (
-            <CustomButton>{trigger}</CustomButton>
+            <CustomButton className="btn-primary-enhanced">{trigger}</CustomButton>
           ) : (
             trigger
           )}
@@ -205,19 +205,19 @@ export const SimpleDialog = ({
         )}
         showCloseButton={showCloseButton}
       >
-        <DialogHeader className={classNames.header}>
-          <DialogTitle className={cn(classNames.title, !title && "sr-only")}>
+        <DialogHeader className={cn("space-y-3", classNames.header)}>
+          <DialogTitle className={cn("heading-4 gradient-text", classNames.title, !title && "sr-only")}>
             {title || "Dialog"}
           </DialogTitle>
         </DialogHeader>
-        <div className={cn("py-4", classNames.body)}>{children}</div>
+        <div className={cn("py-4 space-y-4", classNames.body)}>{children}</div>
         {footerContent && (
-          <DialogFooter className={classNames.footer}>
+          <DialogFooter className={cn("space-y-2 sm:space-y-0", classNames.footer)}>
             {showCancel && (
               <CustomButton
                 variant="outline"
                 onClick={handleCancel}
-                className={classNames.cancelButton}
+                className={cn("btn-secondary-enhanced", classNames.cancelButton)}
               >
                 {cancelText}
               </CustomButton>
@@ -225,7 +225,7 @@ export const SimpleDialog = ({
             {onSubmit && (
               <CustomButton
                 onClick={handleSubmit}
-                className={classNames.submitButton}
+                className={cn("btn-primary-enhanced", classNames.submitButton)}
               >
                 {submitText}
               </CustomButton>

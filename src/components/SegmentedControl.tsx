@@ -20,7 +20,7 @@ export type SegmentedControlOption = {
 };
 
 const segmentedControl = tv({
-  base: "inline-flex items-center justify-start rounded-md bg-muted p-1",
+  base: "inline-flex items-center justify-start rounded-lg bg-muted/80 backdrop-blur-sm p-1 shadow-sm border border-border/50",
   variants: {
     size: {
       sm: "h-8",
@@ -34,16 +34,16 @@ const segmentedControl = tv({
 });
 
 const segmentedItem = tv({
-  base: "inline-flex items-center justify-center whitespace-nowrap rounded-sm ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer hover:bg-background/50 disabled:pointer-events-none disabled:opacity-50",
+  base: "inline-flex items-center justify-center whitespace-nowrap rounded-md ring-offset-background transition-all duration-200 focus-ring cursor-pointer hover-lift disabled:pointer-events-none disabled:opacity-50 font-medium",
   variants: {
     size: {
-      sm: "px-2 py-1 text-xs",
-      md: "px-3 py-1.5 text-sm",
-      lg: "px-4 py-2 text-base",
+      sm: "px-3 py-1.5 body-xs",
+      md: "px-4 py-2 body-small",
+      lg: "px-5 py-2.5 body-base",
     },
     active: {
-      true: "bg-background text-foreground shadow-sm hover:bg-background",
-      false: "",
+      true: "bg-background text-foreground shadow-md border border-border/30 hover:bg-background",
+      false: "text-muted-foreground hover:text-foreground hover:bg-background/50",
     },
   },
   defaultVariants: {

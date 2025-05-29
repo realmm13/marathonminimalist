@@ -60,6 +60,7 @@ export function ResetPasswordForm({
           <FormProvider {...form}>
             <form onSubmit={handleSubmit} className="space-y-6">
               <FormFieldInput
+                control={form.control}
                 name="password"
                 label="Password"
                 type="password"
@@ -67,6 +68,7 @@ export function ResetPasswordForm({
               />
 
               <FormFieldInput
+                control={form.control}
                 name="confirmPassword"
                 label="Confirm Password"
                 type="password"

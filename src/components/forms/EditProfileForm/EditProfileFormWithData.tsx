@@ -2,33 +2,20 @@ import React from "react";
 import { toast } from "sonner";
 import { EditProfileForm, type EditProfileFormValues } from "./EditProfileForm";
 import { api } from "@/trpc/react";
-import type { InitialImageType } from "@/components/core/UploadThingUploadSingleImage/UploadThingUploadSingleImage";
-import type { UpdateProfileInputType } from "@/types/user";
 import { Spinner } from "@/components/Spinner";
-
-type UserForEditingProfile = {
-  id: string;
-  name: string;
-  username: string;
-  bio: string;
-  timezone: string;
-  avatarImageUrl: string | null;
-  coverImageUrl: string | null;
-  avatarImage: InitialImageType | null;
-  coverImage: InitialImageType | null;
-};
 
 interface EditProfileFormWithDataProps {
   onSubmit?: (data: EditProfileFormValues) => Promise<void>;
   close?: () => void;
+  hideSaveButton?: boolean;
 }
 
 export const EditProfileFormWithData: React.FC<
   EditProfileFormWithDataProps
-> = ({ onSubmit: externalOnSubmit, close }) => {
+> = ({ onSubmit: externalOnSubmit, close, hideSaveButton = false }) => {
   const updateProfileMutation = api.user.updateProfile.useMutation();
   const { data: user, isFetching } =
-    api.user.getUserForEditingProfile.useQuery<UserForEditingProfile>(
+    api.user.getUserForSimpleProfile.useQuery(
       undefined,
       {
         gcTime: 0,
@@ -43,21 +30,17 @@ export const EditProfileFormWithData: React.FC<
   }
 
   const handleSubmit = async (values: EditProfileFormValues) => {
-    const updateData: UpdateProfileInputType = {
+    // For the simplified profile form, we only need to update the name
+    // The updateProfile mutation will handle preserving other fields
+    const updateData = {
       name: values.name,
-      username: values.username,
-      bio: values.bio,
-      timezone: values.timezone,
-      avatarImageId: values.avatarImage?.id ?? null,
-      coverImageId: values.coverImage?.id ?? null,
-      avatarImage: values.avatarImage,
-      coverImage: values.coverImage,
     };
 
     try {
       await updateProfileMutation.mutateAsync(updateData);
       await utils.user.getCurrentUser.invalidate();
       await utils.user.getUserForEditingProfile.invalidate();
+      await utils.user.getUserForSimpleProfile.invalidate();
 
       if (externalOnSubmit) {
         await externalOnSubmit(values);
@@ -86,6 +69,7 @@ export const EditProfileFormWithData: React.FC<
       onSubmit={handleSubmit}
       isSubmitting={updateProfileMutation.isPending}
       onCancel={close}
+      hideSaveButton={hideSaveButton}
     />
   );
 };

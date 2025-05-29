@@ -4,7 +4,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-background flex min-h-screen flex-col">
       <AppHeader />
-      <main className="vertical mx-auto mt-[var(--header-height)] w-full max-w-[var(--container-max-width)] flex-1 px-4 py-4">
+      <main className="vertical mx-auto mt-[var(--header-height)] w-full max-w-[var(--container-max-width)] flex-1 px-4 pt-0 pb-2">
         {children}
       </main>
     </div>

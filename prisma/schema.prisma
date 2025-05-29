@@ -238,6 +238,9 @@ model WorkoutLog {
   weather        String?
   temperature    Float?
   
+  // Custom workout identifier (e.g., "1-2" for week 1, day 2)
+  workoutIdentifier String?
+  
   // Relationships
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)

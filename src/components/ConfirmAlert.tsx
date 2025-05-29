@@ -36,13 +36,15 @@ export const ConfirmAlert = React.memo(
         description={description}
         variant={variant}
       >
-        <AlertDialogCancel>{cancelLabel}</AlertDialogCancel>
+        <AlertDialogCancel className="button-ghost hover:bg-muted/50 transition-all duration-200">
+          {cancelLabel}
+        </AlertDialogCancel>
         <AlertDialogAction
           onClick={handleConfirm}
           className={
             variant === "destructive"
-              ? "bg-red-600 hover:bg-red-700"
-              : undefined
+              ? "bg-red-600 hover:bg-red-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+              : "button-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           }
         >
           {confirmLabel}

@@ -8,16 +8,40 @@ import {
   Activity, 
   TrendingUp, 
   Clock, 
-  Target, 
-  Heart,
-  Zap,
+  Target,
   Calendar,
   BarChart3
 } from 'lucide-react';
 import { useState } from 'react';
+import { useUserSetting } from '@/hooks/useUserSetting';
+import { cn } from '@/lib/utils';
 
-// Sample data for different chart types
-const weeklyDistanceData: ProgressDataPoint[] = [
+// Local enum that matches Prisma DistanceUnit to avoid runtime import issues
+enum LocalDistanceUnit {
+  KILOMETERS = 'KILOMETERS',
+  MILES = 'MILES'
+}
+
+// Helper function to convert distances based on user preference
+const convertDistance = (kmValue: number, unit: string): number => {
+  return unit === LocalDistanceUnit.MILES ? kmValue * 0.621371 : kmValue;
+};
+
+// Helper functions for unit labels
+const getUnitName = (unit: string): string => {
+  return unit === LocalDistanceUnit.MILES ? 'miles' : 'kilometers';
+};
+
+const getUnitLabel = (unit: string): 'mi' | 'km' => {
+  return unit === LocalDistanceUnit.MILES ? 'mi' : 'km';
+};
+
+const getPaceUnitLabel = (unit: string): '/mi' | '/km' => {
+  return unit === LocalDistanceUnit.MILES ? '/mi' : '/km';
+};
+
+// Sample data for different chart types (in km, will be converted based on user preference)
+const weeklyDistanceDataKm: ProgressDataPoint[] = [
   { date: 'Week 1', distance: 25, week: 1 },
   { date: 'Week 2', distance: 28, week: 2 },
   { date: 'Week 3', distance: 32, week: 3 },
@@ -30,9 +54,12 @@ const weeklyDistanceData: ProgressDataPoint[] = [
   { date: 'Week 10', distance: 48, week: 10 },
   { date: 'Week 11', distance: 35, week: 11 },
   { date: 'Week 12', distance: 25, week: 12 },
+  { date: 'Week 13', distance: 20, week: 13 },
+  { date: 'Week 14', distance: 42.2, week: 14 }, // Marathon week
 ];
 
-const paceProgressData: ProgressDataPoint[] = [
+// Pace data (in min/km, will be converted for miles)
+const paceProgressDataKm: ProgressDataPoint[] = [
   { date: 'Week 1', pace: 5.5, week: 1 },
   { date: 'Week 2', pace: 5.4, week: 2 },
   { date: 'Week 3', pace: 5.3, week: 3 },
@@ -45,6 +72,8 @@ const paceProgressData: ProgressDataPoint[] = [
   { date: 'Week 10', pace: 4.6, week: 10 },
   { date: 'Week 11', pace: 4.5, week: 11 },
   { date: 'Week 12', pace: 4.4, week: 12 },
+  { date: 'Week 13', pace: 4.3, week: 13 },
+  { date: 'Week 14', pace: 4.2, week: 14 },
 ];
 
 const workoutTypeData: ProgressDataPoint[] = [
@@ -54,54 +83,48 @@ const workoutTypeData: ProgressDataPoint[] = [
   { date: 'Long Runs', distance: 15, week: 4 },
 ];
 
-const effortData: ProgressDataPoint[] = [
-  { date: 'Week 1', effort: 6, week: 1 },
-  { date: 'Week 2', effort: 6.5, week: 2 },
-  { date: 'Week 3', effort: 7, week: 3 },
-  { date: 'Week 4', effort: 6.5, week: 4 },
-  { date: 'Week 5', effort: 7.5, week: 5 },
-  { date: 'Week 6', effort: 8, week: 6 },
-  { date: 'Week 7', effort: 8.5, week: 7 },
-  { date: 'Week 8', effort: 7.5, week: 8 },
-  { date: 'Week 9', effort: 8.5, week: 9 },
-  { date: 'Week 10', effort: 9, week: 10 },
-  { date: 'Week 11', effort: 6, week: 11 },
-  { date: 'Week 12', effort: 5, week: 12 },
-];
-
-const heartRateData: ProgressDataPoint[] = [
-  { date: 'Week 1', heartRate: 155, week: 1 },
-  { date: 'Week 2', heartRate: 152, week: 2 },
-  { date: 'Week 3', heartRate: 150, week: 3 },
-  { date: 'Week 4', heartRate: 148, week: 4 },
-  { date: 'Week 5', heartRate: 147, week: 5 },
-  { date: 'Week 6', heartRate: 145, week: 6 },
-  { date: 'Week 7', heartRate: 143, week: 7 },
-  { date: 'Week 8', heartRate: 142, week: 8 },
-  { date: 'Week 9', heartRate: 140, week: 9 },
-  { date: 'Week 10', heartRate: 138, week: 10 },
-  { date: 'Week 11', heartRate: 140, week: 11 },
-  { date: 'Week 12', heartRate: 142, week: 12 },
-];
-
 export function ProgressDashboard() {
-  const [selectedPeriod, setSelectedPeriod] = useState('12weeks');
+  const [selectedPeriod, setSelectedPeriod] = useState('14weeks');
+  
+  // Get user's distance unit preference with proper typing and fallback
+  const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
+  const distanceUnit = (distanceUnitValue as string) || LocalDistanceUnit.MILES;
+  
+  // Convert data based on user preference
+  const weeklyDistanceData = weeklyDistanceDataKm.map(item => ({
+    ...item,
+    distance: item.distance ? convertDistance(item.distance, distanceUnit) : undefined
+  }));
+  
+  // Convert pace data (km pace to mile pace: multiply by 1.609344)
+  const paceProgressData = paceProgressDataKm.map(item => ({
+    ...item,
+    pace: item.pace ? (distanceUnit === LocalDistanceUnit.MILES ? item.pace * 1.609344 : item.pace) : undefined
+  }));
+  
+  // Calculate total distance for summary
+  const totalDistance = weeklyDistanceData.reduce((sum, week) => sum + (week.distance || 0), 0);
+  const validPaces = paceProgressData.map(week => week.pace).filter((pace): pace is number => pace !== undefined && pace > 0);
+  const bestPace = validPaces.length > 0 ? Math.min(...validPaces) : 0;
+  
+  const unitLabel = getUnitName(distanceUnit);
+  const paceUnitLabel = getPaceUnitLabel(distanceUnit);
 
   const chartConfigs: Record<string, ChartConfig> = {
     distance: {
       title: 'Weekly Distance',
-      description: 'Total kilometers per week',
+      description: `Total ${unitLabel} per week`,
       color: '#3b82f6',
       trend: 'up',
-      trendValue: '+15.2%',
+      trendValue: distanceUnit === LocalDistanceUnit.MILES ? '+2.1 mi' : '+3.4 km',
       icon: <Activity className="h-4 w-4" />,
     },
     pace: {
       title: 'Average Pace Improvement',
-      description: 'Minutes per kilometer',
+      description: `Minutes per ${unitLabel.slice(0, -1)}`, // Remove 's' from 'miles' or use 'km'
       color: '#10b981',
       trend: 'down',
-      trendValue: '-20s/km',
+      trendValue: distanceUnit === LocalDistanceUnit.MILES ? '-32s/mile' : '-20s/km',
       icon: <TrendingUp className="h-4 w-4" />,
     },
     workoutTypes: {
@@ -112,165 +135,173 @@ export function ProgressDashboard() {
       trendValue: 'Balanced',
       icon: <Target className="h-4 w-4" />,
     },
-    effort: {
-      title: 'Perceived Effort',
-      description: 'RPE scale (1-10)',
-      color: '#ef4444',
-      trend: 'up',
-      trendValue: '+1.5 avg',
-      icon: <Zap className="h-4 w-4" />,
-    },
-    heartRate: {
-      title: 'Average Heart Rate',
-      description: 'Beats per minute during runs',
-      color: '#8b5cf6',
-      trend: 'down',
-      trendValue: '-17 bpm',
-      icon: <Heart className="h-4 w-4" />,
-    },
   };
 
   const summaryStats = [
     {
       label: 'Total Distance',
-      value: '420 km',
+      value: `${Math.round(totalDistance)} ${unitLabel}`,
       change: '+15.2%',
       trend: 'up' as const,
       icon: <Activity className="h-5 w-5" />,
     },
     {
       label: 'Best Pace',
-      value: '4:24/km',
-      change: '-32s',
+      value: `${Math.floor(bestPace)}:${String(Math.round((bestPace % 1) * 60)).padStart(2, '0')}${paceUnitLabel}`,
+      change: distanceUnit === LocalDistanceUnit.MILES ? '-52s' : '-32s',
       trend: 'down' as const,
       icon: <Clock className="h-5 w-5" />,
     },
     {
       label: 'Workouts',
-      value: '48',
+      value: '56', // 14 weeks * 4 workouts per week
       change: '+12',
       trend: 'up' as const,
       icon: <Calendar className="h-5 w-5" />,
     },
     {
-      label: 'Avg HR',
-      value: '145 bpm',
-      change: '-17',
-      trend: 'down' as const,
-      icon: <Heart className="h-5 w-5" />,
+      label: 'Training Load',
+      value: 'Moderate',
+      change: 'Optimal',
+      trend: 'neutral' as const,
+      icon: <BarChart3 className="h-5 w-5" />,
     },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in-up">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Training Progress</h2>
-          <p className="text-muted-foreground">
-            Track your marathon training journey
+        <div className="space-y-2">
+          <h2 className="heading-2 gradient-text">Training Progress</h2>
+          <p className="body-large text-muted-foreground">
+            Track your 14-week marathon training journey
           </p>
         </div>
         <SegmentedControl
           value={selectedPeriod}
           onChange={setSelectedPeriod}
           options={[
-            { label: '4 Weeks', value: '4weeks' },
-            { label: '12 Weeks', value: '12weeks' },
-            { label: '6 Months', value: '6months' },
+            { label: '8 Weeks', value: '8weeks' },
+            { label: '14 Weeks', value: '14weeks' },
           ]}
         />
       </div>
 
       {/* Summary Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {summaryStats.map((stat, index) => (
-          <Card key={index} className="p-6">
+          <Card key={index} className="card-enhanced p-6 hover-lift group">
             <div className="flex items-center justify-between">
-              <div className="p-2 rounded-lg bg-primary/10">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300">
                 {stat.icon}
               </div>
               <Badge 
                 color={stat.trend === 'up' ? 'green' : stat.trend === 'down' ? 'blue' : 'gray'}
-                className={
-                  stat.trend === 'up' 
-                    ? 'bg-green-100 text-green-800' 
-                    : stat.trend === 'down' 
-                    ? 'bg-blue-100 text-blue-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }
+                className={cn(
+                  "badge-enhanced font-medium",
+                  stat.trend === 'up' && 'badge-success',
+                  stat.trend === 'down' && 'badge-info'
+                )}
               >
                 {stat.change}
               </Badge>
             </div>
-            <div className="mt-4">
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            <div className="mt-6 space-y-1">
+              <div className="heading-4 font-bold">{stat.value}</div>
+              <p className="body-small text-muted-foreground">{stat.label}</p>
             </div>
           </Card>
         ))}
       </div>
 
       {/* Charts Grid */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-2">
         {/* Weekly Distance - Area Chart */}
-        <ProgressChart
-          data={weeklyDistanceData}
-          type="area"
-          config={chartConfigs.distance!}
-          dataKey="distance"
-          xAxisKey="date"
-          height={300}
-        />
+        <div className="animate-slide-down" style={{ animationDelay: '100ms' }}>
+          <ProgressChart
+            data={weeklyDistanceData}
+            type="area"
+            config={{
+              title: 'Weekly Distance',
+              description: `Total ${unitLabel} per week`,
+              color: '#3b82f6',
+              trend: 'up',
+              trendValue: distanceUnit === LocalDistanceUnit.MILES ? '+2.1 mi' : '+3.4 km',
+              icon: <Activity className="h-4 w-4" />
+            }}
+            dataKey="distance"
+            xAxisKey="week"
+            height={300}
+            distanceUnit={getUnitLabel(distanceUnit)}
+            paceUnit={getPaceUnitLabel(distanceUnit)}
+          />
+        </div>
 
         {/* Pace Progress - Line Chart */}
-        <ProgressChart
-          data={paceProgressData}
-          type="line"
-          config={chartConfigs.pace!}
-          dataKey="pace"
-          xAxisKey="date"
-          height={300}
-        />
+        <div className="animate-slide-down" style={{ animationDelay: '200ms' }}>
+          <ProgressChart
+            data={paceProgressData}
+            type="line"
+            config={{
+              title: 'Pace Progress',
+              description: `Minutes per ${unitLabel.slice(0, -1)}`, // Remove 's' from 'miles' or use 'km'
+              color: '#10b981',
+              trend: 'down',
+              trendValue: distanceUnit === LocalDistanceUnit.MILES ? '-32s/mile' : '-20s/km',
+              icon: <Clock className="h-4 w-4" />
+            }}
+            dataKey="pace"
+            xAxisKey="week"
+            height={300}
+            distanceUnit={getUnitLabel(distanceUnit)}
+            paceUnit={getPaceUnitLabel(distanceUnit)}
+          />
+        </div>
 
         {/* Workout Types - Pie Chart */}
-        <ProgressChart
-          data={workoutTypeData}
-          type="pie"
-          config={chartConfigs.workoutTypes!}
-          dataKey="distance"
-          xAxisKey="date"
-          height={300}
-        />
+        <div className="animate-slide-down" style={{ animationDelay: '300ms' }}>
+          <ProgressChart
+            data={workoutTypeData}
+            type="pie"
+            config={chartConfigs.workoutTypes!}
+            dataKey="distance"
+            xAxisKey="date"
+            height={300}
+          />
+        </div>
 
-        {/* Effort Tracking - Bar Chart */}
-        <ProgressChart
-          data={effortData}
-          type="bar"
-          config={chartConfigs.effort!}
-          dataKey="effort"
-          xAxisKey="date"
-          height={300}
-        />
+        {/* Training Consistency - Bar Chart */}
+        <div className="animate-slide-down" style={{ animationDelay: '400ms' }}>
+          <ProgressChart
+            data={weeklyDistanceData.slice(-8)} // Last 8 weeks for consistency view
+            type="bar"
+            config={{
+              title: 'Training Consistency',
+              description: 'Weekly training volume',
+              color: '#8b5cf6',
+              trend: 'up',
+              trendValue: '+8%',
+              icon: <BarChart3 className="h-4 w-4" />,
+            }}
+            dataKey="distance"
+            xAxisKey="date"
+            height={300}
+            distanceUnit={getUnitLabel(distanceUnit)}
+            paceUnit={getPaceUnitLabel(distanceUnit)}
+          />
+        </div>
       </div>
 
-      {/* Heart Rate Trend - Full Width */}
-      <ProgressChart
-        data={heartRateData}
-        type="line"
-        config={chartConfigs.heartRate!}
-        dataKey="heartRate"
-        xAxisKey="date"
-        height={250}
-        className="col-span-full"
-      />
-
       {/* Minimal Charts Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Quick Overview</h3>
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">Distance Trend</h4>
+      <div className="space-y-6 animate-slide-down" style={{ animationDelay: '500ms' }}>
+        <div className="space-y-2">
+          <h3 className="heading-3">Quick Overview</h3>
+          <p className="body-base text-muted-foreground">Recent training trends at a glance</p>
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          <Card className="card-enhanced p-4 space-y-3">
+            <h4 className="body-small font-medium text-muted-foreground">Distance Trend</h4>
             <ProgressChart
               data={weeklyDistanceData.slice(-6)}
               type="area"
@@ -281,9 +312,9 @@ export function ProgressDashboard() {
               variant="minimal"
               showGrid={false}
             />
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">Pace Progress</h4>
+          </Card>
+          <Card className="card-enhanced p-4 space-y-3">
+            <h4 className="body-small font-medium text-muted-foreground">Pace Progress</h4>
             <ProgressChart
               data={paceProgressData.slice(-6)}
               type="line"
@@ -294,20 +325,20 @@ export function ProgressDashboard() {
               variant="minimal"
               showGrid={false}
             />
-          </div>
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">Effort Level</h4>
+          </Card>
+          <Card className="card-enhanced p-4 space-y-3">
+            <h4 className="body-small font-medium text-muted-foreground">Workout Types</h4>
             <ProgressChart
-              data={effortData.slice(-6)}
-              type="bar"
-              config={chartConfigs.effort!}
-              dataKey="effort"
+              data={workoutTypeData}
+              type="pie"
+              config={chartConfigs.workoutTypes!}
+              dataKey="distance"
               xAxisKey="date"
               height={120}
               variant="minimal"
               showGrid={false}
             />
-          </div>
+          </Card>
         </div>
       </div>
     </div>

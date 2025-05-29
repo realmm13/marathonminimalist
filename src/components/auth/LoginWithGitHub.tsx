@@ -15,7 +15,7 @@ interface LoginWithGitHubProps {
 }
 
 export function LoginWithGitHub({
-  label = "Login with Github",
+  label = "Continue with Github",
   className = "w-full",
 }: LoginWithGitHubProps) {
   const [pending, setPending] = useState(false);
@@ -49,6 +49,7 @@ export function LoginWithGitHub({
       onClick={handleSignInWithGithub}
       loading={pending}
       type="button"
+      variant="outline"
       className={className}
       leftIcon={Github}
     >

@@ -1,11 +1,9 @@
-export { WorkoutCard } from './WorkoutCard';
-export { WorkoutGrid } from './WorkoutGrid';
-export { WorkoutDemo } from './WorkoutDemo';
-export { ProgressChart } from './ProgressChart';
-export { ProgressDashboard } from './ProgressDashboard';
+export { TrainingLayout } from './TrainingLayout';
 export { TrainingNavigation } from './TrainingNavigation';
 export { TrainingMobileNav } from './TrainingMobileNav';
-export { TrainingBreadcrumb } from './TrainingBreadcrumb';
-export { TrainingLayout } from './TrainingLayout';
+export { WorkoutCard } from './WorkoutCard';
+export { WorkoutGrid } from './WorkoutGrid';
+export { ProgressDashboard } from './ProgressDashboard';
+export { WorkoutDemo } from './WorkoutDemo';
 
 export type { ProgressDataPoint, ChartConfig } from './ProgressChart'; 

@@ -3,14 +3,40 @@
 import React, { useState } from 'react';
 import { WorkoutGrid } from './WorkoutGrid';
 import { WorkoutCardProps } from './WorkoutCard';
-import { WorkoutType } from '@/generated/prisma';
+import { WorkoutType, DistanceUnit } from '@/generated/prisma';
 import { addDays, addWeeks } from 'date-fns';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SegmentedControl } from '@/components/SegmentedControl';
+import { useUserSetting } from '@/hooks/useUserSetting';
+
+// Helper functions for unit conversion
+const convertDistance = (kmValue: number, unit: DistanceUnit): number => {
+  return unit === DistanceUnit.MILES ? kmValue * 0.621371 : kmValue;
+};
+
+const convertPace = (kmPace: string, unit: DistanceUnit): string => {
+  if (unit === DistanceUnit.MILES) {
+    // Convert km pace to mile pace (multiply by 1.609344)
+    const paceParts = kmPace.split(':');
+    if (paceParts.length !== 2 || !paceParts[0] || !paceParts[1]) return kmPace; // Return original if format is unexpected
+    
+    const minutes = parseInt(paceParts[0], 10);
+    const seconds = parseInt(paceParts[1].replace('/km', ''), 10);
+    
+    if (isNaN(minutes) || isNaN(seconds)) return kmPace; // Return original if parsing fails
+    
+    const totalSeconds = minutes * 60 + seconds;
+    const mileSeconds = totalSeconds * 1.609344;
+    const mileMinutes = Math.floor(mileSeconds / 60);
+    const remainingSeconds = Math.round(mileSeconds % 60);
+    return `${mileMinutes}:${remainingSeconds.toString().padStart(2, '0')}/mi`;
+  }
+  return kmPace;
+};
 
 // Sample workout data for a 14-week marathon training plan
-const generateSampleWorkouts = (): WorkoutCardProps[] => {
+const generateSampleWorkouts = (distanceUnit: DistanceUnit): WorkoutCardProps[] => {
   const startDate = new Date('2024-01-01');
   const workouts: WorkoutCardProps[] = [];
 
@@ -26,9 +52,9 @@ const generateSampleWorkouts = (): WorkoutCardProps[] => {
         week,
         day: 1,
         scheduledDate: addDays(weekStart, 0),
-        distance: 5,
+        distance: convertDistance(5, distanceUnit),
         duration: 35,
-        pace: '6:30/km',
+        pace: convertPace('6:30/km', distanceUnit),
         isCompleted: week === 1,
       },
       {
@@ -38,21 +64,21 @@ const generateSampleWorkouts = (): WorkoutCardProps[] => {
         week,
         day: 3,
         scheduledDate: addDays(weekStart, 2),
-        distance: 8,
+        distance: convertDistance(8, distanceUnit),
         duration: 50,
-        pace: '5:45/km',
+        pace: convertPace('5:45/km', distanceUnit),
         isCompleted: week === 1,
       },
       {
         name: 'Long Run',
-        description: 'Easy pace with 2 miles at marathon pace',
+        description: `Easy pace with ${distanceUnit === DistanceUnit.MILES ? '2 miles' : '3.2 km'} at marathon pace`,
         type: WorkoutType.LONG_RUN,
         week,
         day: 6,
         scheduledDate: addDays(weekStart, 5),
-        distance: week === 1 ? 12 : 14,
+        distance: convertDistance(week === 1 ? 12 : 14, distanceUnit),
         duration: week === 1 ? 75 : 85,
-        pace: '6:00/km',
+        pace: convertPace('6:00/km', distanceUnit),
         isCompleted: week === 1,
       }
     );
@@ -70,9 +96,9 @@ const generateSampleWorkouts = (): WorkoutCardProps[] => {
         week,
         day: 1,
         scheduledDate: addDays(weekStart, 0),
-        distance: 6,
+        distance: convertDistance(6, distanceUnit),
         duration: 40,
-        pace: '6:30/km',
+        pace: convertPace('6:30/km', distanceUnit),
         isCompleted: false,
       },
       {
@@ -82,9 +108,9 @@ const generateSampleWorkouts = (): WorkoutCardProps[] => {
         week,
         day: 3,
         scheduledDate: addDays(weekStart, 2),
-        distance: 10,
+        distance: convertDistance(10, distanceUnit),
         duration: 55,
-        pace: '4:45/km',
+        pace: convertPace('4:45/km', distanceUnit),
         isCompleted: false,
       },
       {
@@ -94,21 +120,21 @@ const generateSampleWorkouts = (): WorkoutCardProps[] => {
         week,
         day: 5,
         scheduledDate: addDays(weekStart, 4),
-        distance: 10,
+        distance: convertDistance(10, distanceUnit),
         duration: 60,
-        pace: '5:45/km',
+        pace: convertPace('5:45/km', distanceUnit),
         isCompleted: false,
       },
       {
         name: 'Long Run',
-        description: `Easy pace with ${Math.min(week - 1, 4)} miles at marathon pace`,
+        description: `Easy pace with ${distanceUnit === DistanceUnit.MILES ? `${Math.min(week - 1, 4)} miles` : `${Math.round(Math.min(week - 1, 4) * 1.609)} km`} at marathon pace`,
         type: WorkoutType.LONG_RUN,
         week,
         day: 7,
         scheduledDate: addDays(weekStart, 6),
-        distance: 14 + (week - 3) * 2,
+        distance: convertDistance(14 + (week - 3) * 2, distanceUnit),
         duration: 90 + (week - 3) * 10,
-        pace: '6:00/km',
+        pace: convertPace('6:00/km', distanceUnit),
         isCompleted: false,
       }
     );
@@ -261,7 +287,12 @@ const generateSampleWorkouts = (): WorkoutCardProps[] => {
 
 export function WorkoutDemo() {
   const [variant, setVariant] = useState<'calendar' | 'list' | 'compact'>('calendar');
-  const workouts = generateSampleWorkouts();
+  
+  // Get user's distance unit preference
+  const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
+  const distanceUnit = (distanceUnitValue as DistanceUnit) || DistanceUnit.MILES;
+  
+  const workouts = generateSampleWorkouts(distanceUnit);
 
   const handleWorkoutClick = (workout: WorkoutCardProps) => {
     console.log('Workout clicked:', workout);

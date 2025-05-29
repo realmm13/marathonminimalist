@@ -46,6 +46,7 @@ export const BottomDrawer: ReactFC<BottomDrawerProps> = ({
     <div
       className={cn(
         "mx-auto mb-8 h-1.5 w-12 flex-shrink-0 rounded-full bg-zinc-300 dark:bg-zinc-700",
+        "transition-colors duration-200 hover:bg-zinc-400 dark:hover:bg-zinc-600",
         classNames?.handle,
       )}
     />
@@ -55,7 +56,7 @@ export const BottomDrawer: ReactFC<BottomDrawerProps> = ({
     <>
       {handle}
       <Drawer.Title className={cn(
-          "mb-4 text-lg font-semibold text-zinc-900 dark:text-white",
+          "mb-4 heading-4 text-zinc-900 dark:text-white animate-fade-in-up",
           classNames?.title,
           !title && "sr-only"
         )}>
@@ -93,14 +94,16 @@ export const BottomDrawer: ReactFC<BottomDrawerProps> = ({
           <Drawer.Overlay
             className={cn(
               "fixed inset-0 z-[9999] bg-black/40 backdrop-blur-md dark:bg-black/60",
+              "transition-opacity duration-300",
               classNames?.overlay,
             )}
           />
           <Drawer.Content
             className={cn(
-              "fixed right-0 bottom-0 left-0 z-[9999] mx-auto flex w-[95%] flex-col rounded-t-[10px] bg-white dark:bg-zinc-900",
-              "dark:border-t dark:border-zinc-800",
-              "max-w-[500px]",
+              "fixed right-0 bottom-0 left-0 z-[9999] mx-auto flex w-[95%] flex-col rounded-t-[10px]",
+              "bg-white dark:bg-zinc-900 shadow-2xl border-t border-border/50",
+              "dark:border-zinc-800 backdrop-blur-xl",
+              "max-w-[500px] animate-slide-in",
               classNames?.content,
               {
                 "pt-6": !noHeader,
@@ -111,6 +114,7 @@ export const BottomDrawer: ReactFC<BottomDrawerProps> = ({
               <div
                 className={cn(
                   "rounded-t-[10px] bg-white px-4 dark:bg-zinc-900",
+                  "border-b border-border/30 pb-2",
                   classNames?.headerWrapper,
                 )}
               >
@@ -119,10 +123,12 @@ export const BottomDrawer: ReactFC<BottomDrawerProps> = ({
             )}
             <div
               className={cn(
-                "flex-1 overflow-y-auto bg-white px-4 pt-0 pb-6 md:pb-2 dark:bg-zinc-900",
+                "flex-1 overflow-y-auto bg-white px-4 pt-4 pb-6 md:pb-2 dark:bg-zinc-900",
+                "animate-fade-in-up",
                 noHeader && "rounded-t-[10px] pt-6",
                 classNames?.childrenWrapper,
               )}
+              style={{ animationDelay: '0.1s' }}
             >
               {children}
             </div>

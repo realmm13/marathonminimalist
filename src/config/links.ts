@@ -10,6 +10,13 @@ import {
   LucideBarChart3,
   LucideClock,
   LucideTarget,
+  LucideUser,
+  Home,
+  User,
+  Calendar,
+  Settings,
+  LucideCalendar,
+  LucideSettings,
 } from "lucide-react";
 import { clientEnv } from "@/env/client";
 
@@ -68,7 +75,7 @@ export const trainingLinks: Link[] = [
   },
   {
     label: "Workouts",
-    href: "/workout-demo",
+    href: "/workouts",
     icon: LucideActivity,
   },
   {
@@ -76,10 +83,79 @@ export const trainingLinks: Link[] = [
     href: "/progress-demo",
     icon: LucideBarChart3,
   },
+  {
+    label: "Profile",
+    href: "/profile",
+    icon: LucideUser,
+  },
 ];
 
 export const dashboardLink: Link = {
   label: "Dashboard",
   href: "/app",
+  icon: LucideTarget,
+};
+
+export interface NavLink {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+export const navLinks: NavLink[] = [
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: LucideHome,
+  },
+  {
+    href: "/workouts",
+    label: "Workouts",
+    icon: LucideActivity,
+  },
+  {
+    href: "/schedule",
+    label: "Schedule",
+    icon: LucideCalendar,
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: LucideUser,
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: LucideSettings,
+  },
+];
+
+export const workoutsLink: NavLink = {
+  href: "/workouts",
+  label: "Workouts",
+  icon: LucideActivity,
+};
+
+export const scheduleLink: NavLink = {
+  href: "/schedule",
+  label: "Schedule",
+  icon: LucideCalendar,
+};
+
+export const profileLink: NavLink = {
+  href: "/profile",
+  label: "Profile",
+  icon: LucideUser,
+};
+
+export const settingsLink: NavLink = {
+  href: "/settings",
+  label: "Settings",
+  icon: LucideSettings,
+};
+
+export const goalLink: NavLink = {
+  href: clientEnv.NEXT_PUBLIC_GOAL_LINK,
+  label: "Goal",
   icon: LucideTarget,
 };

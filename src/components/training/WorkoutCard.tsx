@@ -13,10 +13,20 @@ import {
   Circle,
   Calendar,
   Timer,
-  Activity
+  Activity,
+  Heart
 } from 'lucide-react';
 import { WorkoutType } from '@/generated/prisma';
 import { format } from 'date-fns';
+import { useUserSetting } from '@/hooks/useUserSetting';
+
+// Define distance unit constants to avoid runtime enum issues
+const DISTANCE_UNITS = {
+  KILOMETERS: 'KILOMETERS',
+  MILES: 'MILES'
+} as const;
+
+type DistanceUnitType = typeof DISTANCE_UNITS[keyof typeof DISTANCE_UNITS];
 
 export interface WorkoutCardProps {
   // Core workout data
@@ -125,8 +135,22 @@ export function WorkoutCard({
   const config = workoutTypeConfig[type];
   const Icon = config.icon;
 
+  // Get user's distance unit preference
+  const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
+  const distanceUnit = (distanceUnitValue as DistanceUnitType) || DISTANCE_UNITS.MILES;
+  
+  // Helper functions
+  const convertDistance = (kmValue: number): number => {
+    return distanceUnit === DISTANCE_UNITS.MILES ? kmValue * 0.621371 : kmValue;
+  };
+  
+  const getDistanceUnit = (): string => {
+    return distanceUnit === DISTANCE_UNITS.MILES ? 'mi' : 'km';
+  };
+
   const formatDistance = (dist: number) => {
-    return dist % 1 === 0 ? dist.toString() : dist.toFixed(1);
+    const convertedDistance = convertDistance(dist);
+    return convertedDistance.toFixed(1);
   };
 
   const formatDuration = (dur: number) => {
@@ -156,7 +180,7 @@ export function WorkoutCard({
       config.description,
       `Week ${week}`,
       scheduledDate ? format(scheduledDate, 'EEEE, MMMM do') : '',
-      distance ? `${formatDistance(distance)} kilometers` : '',
+      distance ? `${formatDistance(distance)} ${getDistanceUnit()}` : '',
       duration ? formatDuration(duration) : '',
       pace ? `at ${pace} pace` : '',
       getStatusText()
@@ -224,10 +248,10 @@ export function WorkoutCard({
     return (
       <Card
         className={cn(
-          "p-3 cursor-pointer transition-all duration-200 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-          "border border-border/50",
-          isToday && "ring-2 ring-primary/20 border-primary/30",
-          isCompleted && "bg-muted/30",
+          "card-enhanced p-4 cursor-pointer group hover-lift",
+          "focus-ring active-press",
+          isToday && "ring-2 ring-primary/20 border-primary/30 animate-pulse-subtle",
+          isCompleted && "bg-success/10 border-success/30",
           isPast && !isCompleted && "opacity-60",
           className
         )}
@@ -242,56 +266,83 @@ export function WorkoutCard({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             {getStatusIndicator()}
-            <Icon 
-              className="h-4 w-4 text-muted-foreground" 
-              aria-hidden="true"
-            />
+            <div className={cn(
+              "p-2 rounded-lg transition-all duration-200 group-hover:scale-105",
+              isCompleted ? "bg-success/20 text-success" : "bg-primary/10 text-primary"
+            )}>
+              <Icon 
+                className="h-4 w-4" 
+                aria-hidden="true"
+              />
+            </div>
           </div>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-1">
               <Badge 
-                color={config.badgeColor}
                 className={cn(
-                  "text-xs px-2 py-0.5",
-                  "dark:bg-muted/50 dark:text-muted-foreground",
+                  "badge-enhanced text-xs px-2 py-0.5",
                   config.lightColor,
                   "dark:" + config.darkColor
                 )}
+                color={config.badgeColor}
                 aria-label={`Workout type: ${config.label}`}
               >
                 {config.label}
               </Badge>
               {scheduledDate && (
                 <span 
-                  className="text-xs text-muted-foreground"
+                  className="caption"
                   aria-label={`Scheduled for ${format(scheduledDate, 'MMMM do')}`}
                 >
                   {format(scheduledDate, 'MMM d')}
                 </span>
               )}
             </div>
-            <p className="text-sm font-medium truncate mt-1">{name}</p>
+            <p className="body-small font-medium truncate">{name}</p>
           </div>
 
           {(distance || duration) && (
             <div className="text-right" aria-label="Workout metrics">
               {distance && (
                 <div 
-                  className="text-sm font-medium"
-                  aria-label={`Distance: ${formatDistance(distance)} kilometers`}
+                  className="body-small font-medium"
+                  aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
                 >
-                  {formatDistance(distance)}km
+                  {formatDistance(distance)} {getDistanceUnit()}
                 </div>
               )}
               {duration && (
                 <div 
-                  className="text-xs text-muted-foreground"
+                  className="caption"
                   aria-label={`Duration: ${formatDuration(duration)}`}
                 >
                   {formatDuration(duration)}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Compact completion button */}
+          {!isCompleted && onComplete && (
+            <div className="flex-shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log('WorkoutCard (compact): Complete button clicked for workout:', { id, name, week, day });
+                  onComplete();
+                }}
+                onKeyDown={handleCompleteKeyDown}
+                className={cn(
+                  "p-2 rounded-lg focus-ring active-press transition-all duration-200",
+                  isToday 
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                    : "bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary"
+                )}
+                aria-label={`Mark ${name} as complete`}
+              >
+                <CheckCircle2 className="h-4 w-4" />
+              </button>
             </div>
           )}
         </div>
@@ -302,11 +353,11 @@ export function WorkoutCard({
   return (
     <Card
       className={cn(
-        "p-4 cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-        "border border-border/50 bg-card/50 backdrop-blur-sm",
-        isToday && "ring-2 ring-primary/20 border-primary/30 bg-primary/5",
-        isCompleted && "bg-muted/30 border-green-200 dark:border-green-800",
-        isPast && !isCompleted && "opacity-60",
+        "card-interactive p-6 group hover-lift",
+        "glass-effect focus-ring active-press",
+        isToday && "ring-2 ring-primary/30 border-primary/40 bg-primary/5 animate-pulse-subtle",
+        isCompleted && "bg-success/10 border-success/30 hover:bg-success/15",
+        isPast && !isCompleted && "opacity-70 hover:opacity-85",
         className
       )}
       onClick={onClick}
@@ -317,74 +368,116 @@ export function WorkoutCard({
       aria-describedby={ariaDescribedBy}
       aria-pressed={onClick && isCompleted ? true : undefined}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          {getStatusIndicator()}
-          <Badge 
-            color={config.badgeColor}
+      {/* Header with enhanced visual hierarchy */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          {/* Enhanced workout type icon */}
+          <div 
             className={cn(
-              "text-xs px-2 py-1",
-              config.lightColor,
-              "dark:" + config.darkColor
+              "flex-shrink-0 p-3 rounded-xl transition-all duration-300 group-hover:scale-110 hover-lift",
+              "shadow-soft group-hover:shadow-medium",
+              isToday && "animate-glow",
+              isCompleted ? "bg-success/20 text-success" : "bg-primary/15 text-primary"
             )}
-            aria-label={`Workout type: ${config.label}`}
+            aria-hidden="true"
           >
-            <Icon className="h-3 w-3 mr-1" aria-hidden="true" />
-            {config.label}
-          </Badge>
+            <config.icon className="h-6 w-6" />
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <h3 
+              className={cn(
+                "heading-5 mb-2 transition-colors duration-200 text-balance",
+                "group-hover:text-foreground/90",
+                isToday && "text-primary font-semibold"
+              )}
+            >
+              {name}
+            </h3>
+            
+            {scheduledDate && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4" aria-hidden="true" />
+                <time dateTime={scheduledDate.toISOString()}>
+                  {format(scheduledDate, 'EEE, MMM d')}
+                </time>
+                {isToday && (
+                  <Badge 
+                    className="badge-warning animate-bounce-gentle ml-2"
+                    color="warning"
+                  >
+                    Today
+                  </Badge>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         
-        <div className="text-right">
-          <div 
-            className="text-xs text-muted-foreground"
-            aria-label={`Training week ${week}`}
-          >
-            Week {week}
-          </div>
-          {scheduledDate && (
-            <div 
-              className="text-xs text-muted-foreground"
-              aria-label={`Scheduled for ${format(scheduledDate, 'EEEE, MMMM do')}`}
-            >
-              {format(scheduledDate, 'EEE, MMM d')}
-            </div>
+        {/* Enhanced completion status */}
+        <div className="flex-shrink-0">
+          {isCompleted ? (
+            <CheckCircle2 
+              className="h-6 w-6 text-success animate-scale-in" 
+              aria-label="Completed"
+            />
+          ) : (
+            <Circle 
+              className={cn(
+                "h-6 w-6 transition-colors duration-200",
+                isToday ? "text-primary" : "text-muted-foreground group-hover:text-foreground/60"
+              )}
+              aria-label="Not completed"
+            />
           )}
         </div>
       </div>
 
-      {/* Content */}
-      <div className="space-y-2">
-        <h3 className="font-semibold text-sm leading-tight">{name}</h3>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          {description}
-        </p>
-      </div>
+      {/* Enhanced description */}
+      <p 
+        className={cn(
+          "body-small text-muted-foreground mb-4 line-clamp-2 transition-colors duration-200 text-pretty",
+          "group-hover:text-muted-foreground/80"
+        )}
+        aria-describedby={ariaDescribedBy}
+      >
+        {description}
+      </p>
 
-      {/* Metrics */}
+      {/* Enhanced metrics section */}
       {(distance || duration || pace) && (
         <div 
-          className="flex items-center gap-4 mt-4 pt-3 border-t border-border/30"
+          className="flex items-center gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
           role="group"
           aria-label="Workout metrics"
         >
           {distance && (
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+            <div className="flex items-center gap-2 group/metric hover-scale">
+              <div className="p-1.5 rounded-lg bg-muted/50 group-hover/metric:bg-primary/10 transition-colors duration-200">
+                <MapPin 
+                  className="h-4 w-4 text-muted-foreground group-hover/metric:text-primary transition-colors duration-200" 
+                  aria-hidden="true" 
+                />
+              </div>
               <span 
-                className="text-sm font-medium"
-                aria-label={`Distance: ${formatDistance(distance)} kilometers`}
+                className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
+                aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
               >
-                {formatDistance(distance)}km
+                {formatDistance(distance)} {getDistanceUnit()}
               </span>
             </div>
           )}
           
           {duration && (
-            <div className="flex items-center gap-1.5">
-              <Timer className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+            <div className="flex items-center gap-2 group/metric hover-scale">
+              <div className="p-1.5 rounded-lg bg-muted/50 group-hover/metric:bg-primary/10 transition-colors duration-200">
+                <Timer 
+                  className="h-4 w-4 text-muted-foreground group-hover/metric:text-primary transition-colors duration-200" 
+                  aria-hidden="true" 
+                />
+              </div>
               <span 
-                className="text-sm font-medium"
+                className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
                 aria-label={`Duration: ${formatDuration(duration)}`}
               >
                 {formatDuration(duration)}
@@ -393,10 +486,15 @@ export function WorkoutCard({
           )}
           
           {pace && (
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+            <div className="flex items-center gap-2 group/metric hover-scale">
+              <div className="p-1.5 rounded-lg bg-muted/50 group-hover/metric:bg-primary/10 transition-colors duration-200">
+                <Clock 
+                  className="h-4 w-4 text-muted-foreground group-hover/metric:text-primary transition-colors duration-200" 
+                  aria-hidden="true" 
+                />
+              </div>
               <span 
-                className="text-sm font-medium"
+                className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
                 aria-label={`Target pace: ${pace}`}
               >
                 {pace}
@@ -406,20 +504,37 @@ export function WorkoutCard({
         </div>
       )}
 
-      {/* Action buttons for today's workout */}
-      {isToday && !isCompleted && onComplete && (
-        <div className="mt-4 pt-3 border-t border-border/30">
+      {/* Enhanced action button for workouts */}
+      {!isCompleted && onComplete && (
+        <div className="mt-6 pt-4 border-t border-border/30">
           <button
             onClick={(e) => {
               e.stopPropagation();
+              console.log('WorkoutCard: Complete button clicked for workout:', { id, name, week, day });
               onComplete();
             }}
             onKeyDown={handleCompleteKeyDown}
-            className="w-full text-sm font-medium text-primary hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition-colors rounded px-2 py-1"
+            className={cn(
+              "w-full focus-ring active-press transition-all duration-200",
+              isToday 
+                ? "btn-primary-enhanced" 
+                : "btn-secondary hover:btn-primary-enhanced"
+            )}
             aria-label={`Mark ${name} as complete`}
           >
+            <CheckCircle2 className="h-4 w-4 mr-2" />
             Mark Complete
           </button>
+        </div>
+      )}
+
+      {/* Completion indicator for completed workouts */}
+      {isCompleted && (
+        <div className="mt-6 pt-4 border-t border-border/30">
+          <div className="flex items-center justify-center gap-2 text-success">
+            <CheckCircle2 className="h-5 w-5" />
+            <span className="font-medium">Completed</span>
+          </div>
         </div>
       )}
     </Card>

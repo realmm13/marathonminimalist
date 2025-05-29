@@ -51,13 +51,62 @@ export const createSchemaEnum = <T extends z.ZodObject<any>>(schema: T) => {
 export const getDefaultPreferenceValue = <K extends PreferenceKey>(
   key: K,
 ): UserPreferences[K] => {
-  const defaultValues = userPreferencesSchema.parse({});
-  return defaultValues[key];
+  // Simple fallback defaults to avoid parsing issues
+  const defaults: any = {
+    notifications: true,
+    sound: false,
+    analytics: true,
+    emailMarketing: true,
+    emailUpdates: true,
+    marathonDistanceUnit: "MILES",
+    marathonPaceFormat: "MIN_PER_MILE",
+    marathonWorkoutDays: [1, 3, 6],
+  };
+  
+  // Return the default if it exists, otherwise return appropriate fallback
+  if (key in defaults) {
+    return defaults[key];
+  }
+  
+  // For AI provider fields
+  const keyStr = String(key);
+  if (keyStr.startsWith('aiProviderEnabled')) {
+    return false as any;
+  }
+  if (keyStr.startsWith('aiProviderKey')) {
+    return undefined as any;
+  }
+  
+  return undefined as any;
 };
 
 // Get all default preference values as an object
 export const getDefaultPreferences = (): UserPreferences => {
-  return userPreferencesSchema.parse({});
+  // Try to parse with schema first
+  const result = userPreferencesSchema.safeParse({});
+  if (result.success) {
+    return result.data;
+  }
+  
+  // Fallback to manual defaults if schema parsing fails
+  const defaults: any = {
+    notifications: true,
+    sound: false,
+    analytics: true,
+    emailMarketing: true,
+    emailUpdates: true,
+    marathonDistanceUnit: "MILES",
+    marathonPaceFormat: "MIN_PER_MILE",
+    marathonWorkoutDays: [1, 3, 6],
+  };
+  
+  // Add AI provider defaults
+  AI_PROVIDERS.forEach((provider) => {
+    defaults[`aiProviderEnabled${provider.id}`] = false;
+    defaults[`aiProviderKey${provider.id}`] = undefined;
+  });
+  
+  return defaults as UserPreferences;
 };
 
 // Schema for updating a single preference

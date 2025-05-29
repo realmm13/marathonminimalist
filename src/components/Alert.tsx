@@ -30,14 +30,18 @@ export const Alert = React.memo(
   }: AlertProps) => {
     return (
       <AlertDialog open={open} onOpenChange={onOpenChange}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{title}</AlertDialogTitle>
+        <AlertDialogContent className="card-enhanced backdrop-blur-xl border-border/50 shadow-2xl animate-scale-in">
+          <AlertDialogHeader className="animate-fade-in-up">
+            <AlertDialogTitle className="heading-4 gradient-text">{title}</AlertDialogTitle>
             {description && (
-              <AlertDialogDescription>{description}</AlertDialogDescription>
+              <AlertDialogDescription className="body-small text-muted-foreground/80 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                {description}
+              </AlertDialogDescription>
             )}
           </AlertDialogHeader>
-          <AlertDialogFooter>{children}</AlertDialogFooter>
+          <AlertDialogFooter className="animate-fade-in-up gap-3" style={{ animationDelay: '0.2s' }}>
+            {children}
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     );

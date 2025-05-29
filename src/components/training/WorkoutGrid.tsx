@@ -64,34 +64,39 @@ export function WorkoutGrid({
 
   if (variant === 'list') {
     return (
-      <div className={cn("space-y-6", className)}>
-        {weeks.map((week) => {
+      <div className={cn("space-y-8 animate-fade-in-up", className)}>
+        {weeks.map((week, weekIndex) => {
           const progress = getWeekProgress(week.workouts);
           
           return (
-            <div key={week.number} className="space-y-3">
+            <div key={week.number} className="space-y-4 animate-slide-down" style={{ animationDelay: `${weekIndex * 100}ms` }}>
               {showWeekHeaders && (
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold">
+                  <div className="flex items-center gap-4">
+                    <h3 className="heading-3">
                       Week {week.number}
                     </h3>
                     <Badge 
-                      color={week.isCurrent ? 'blue-500' : week.isPast ? 'green-500' : 'gray-400'}
-                      size="sm"
+                      color={week.isCurrent ? 'blue' : week.isPast ? 'green' : 'gray'}
+                      className={cn(
+                        "badge-enhanced",
+                        week.isCurrent && 'badge-info animate-pulse-subtle',
+                        week.isPast && 'badge-success',
+                        !week.isCurrent && !week.isPast && 'badge-secondary'
+                      )}
                     >
                       {week.isCurrent ? 'Current' : week.isPast ? 'Complete' : 'Upcoming'}
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 body-small text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     {format(week.startDate, 'MMM d')} - {format(addDays(week.startDate, 6), 'MMM d')}
                   </div>
                 </div>
               )}
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {week.workouts.map((workout, index) => (
                   <WorkoutCard
                     key={`${week.number}-${index}`}
@@ -104,12 +109,20 @@ export function WorkoutGrid({
               </div>
               
               {progress.total > 0 && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3 body-small text-muted-foreground">
                   <TrendingUp className="h-4 w-4" />
                   <span>
                     {progress.completed} of {progress.total} workouts completed 
                     ({Math.round(progress.percentage)}%)
                   </span>
+                  <div className="flex-1 max-w-32">
+                    <div className="progress-bar h-2">
+                      <div 
+                        className="progress-fill"
+                        style={{ width: `${progress.percentage}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -121,15 +134,16 @@ export function WorkoutGrid({
 
   if (variant === 'compact') {
     return (
-      <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3", className)}>
+      <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in-up", className)}>
         {workouts.map((workout, index) => (
-          <WorkoutCard
-            key={index}
-            {...workout}
-            variant="compact"
-            onClick={() => onWorkoutClick?.(workout)}
-            onComplete={() => onWorkoutComplete?.(workout)}
-          />
+          <div key={index} className="animate-slide-down" style={{ animationDelay: `${index * 50}ms` }}>
+            <WorkoutCard
+              {...workout}
+              variant="compact"
+              onClick={() => onWorkoutClick?.(workout)}
+              onComplete={() => onWorkoutComplete?.(workout)}
+            />
+          </div>
         ))}
       </div>
     );
@@ -137,53 +151,61 @@ export function WorkoutGrid({
 
   // Calendar variant - inspired by the design reference
   return (
-    <div className={cn("space-y-8", className)}>
-      {weeks.map((week) => {
+    <div className={cn("space-y-8 animate-fade-in-up", className)}>
+      {weeks.map((week, weekIndex) => {
         const progress = getWeekProgress(week.workouts);
         
         return (
           <Card 
             key={week.number} 
             className={cn(
-              "p-6 border border-border/50 bg-card/30 backdrop-blur-sm",
-              week.isCurrent && "ring-2 ring-primary/20 border-primary/30 bg-primary/5",
-              week.isPast && "opacity-90"
+              "card-enhanced p-6 hover-lift group transition-all duration-300",
+              week.isCurrent && "ring-2 ring-primary/20 border-primary/30 bg-primary/5 animate-pulse-subtle",
+              week.isPast && "opacity-95 hover:opacity-100"
             )}
+            style={{ animationDelay: `${weekIndex * 100}ms` }}
           >
             {/* Week Header */}
             {showWeekHeaders && (
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/30">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/30 group-hover:border-border/50 transition-colors duration-200">
                 <div className="flex items-center gap-4">
-                  <div>
-                    <h3 className="text-xl font-semibold">Week {week.number}</h3>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="space-y-1">
+                    <h3 className="heading-3 gradient-text">
+                      Week {week.number}
+                    </h3>
+                    <p className="body-small text-muted-foreground">
                       {format(week.startDate, 'MMMM d')} - {format(addDays(week.startDate, 6), 'MMMM d, yyyy')}
                     </p>
                   </div>
                   
                   <Badge 
-                    color={week.isCurrent ? 'blue-500' : week.isPast ? 'green-500' : 'gray-400'}
-                    size="md"
+                    color={week.isCurrent ? 'blue' : week.isPast ? 'green' : 'gray'}
+                    className={cn(
+                      "badge-enhanced transition-all duration-200",
+                      week.isCurrent && "badge-info animate-pulse-subtle shadow-md",
+                      week.isPast && "badge-success",
+                      !week.isCurrent && !week.isPast && "badge-secondary"
+                    )}
                   >
                     {week.isCurrent ? 'Current Week' : week.isPast ? 'Completed' : 'Upcoming'}
                   </Badge>
                 </div>
                 
                 {progress.total > 0 && (
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-sm font-medium">
+                  <div className="flex items-center gap-4">
+                    <div className="text-right space-y-1">
+                      <div className="body-small font-semibold">
                         {progress.completed}/{progress.total} Complete
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="body-xs text-muted-foreground">
                         {Math.round(progress.percentage)}% progress
                       </div>
                     </div>
                     
-                    {/* Progress bar */}
-                    <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                    {/* Enhanced progress bar */}
+                    <div className="w-24 h-3 progress-bar">
                       <div 
-                        className="h-full bg-primary transition-all duration-300"
+                        className="progress-fill"
                         style={{ width: `${progress.percentage}%` }}
                       />
                     </div>
@@ -206,19 +228,23 @@ export function WorkoutGrid({
                   };
                   
                   return (
-                    <WorkoutCard
-                      key={`${week.number}-${index}`}
-                      {...workoutProps}
-                      onClick={() => onWorkoutClick?.(workoutProps)}
-                      onComplete={() => onWorkoutComplete?.(workoutProps)}
-                    />
+                    <div key={`${week.number}-${index}`} className="animate-slide-down" style={{ animationDelay: `${(weekIndex * 7 + index) * 50}ms` }}>
+                      <WorkoutCard
+                        {...workoutProps}
+                        onClick={() => onWorkoutClick?.(workoutProps)}
+                        onComplete={() => onWorkoutComplete?.(workoutProps)}
+                      />
+                    </div>
                   );
                 })
               ) : (
-                <div className="col-span-full flex items-center justify-center py-8 text-muted-foreground">
-                  <div className="text-center">
-                    <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">No workouts scheduled for this week</p>
+                <div className="col-span-full flex items-center justify-center py-12 text-muted-foreground">
+                  <div className="text-center space-y-3 animate-fade-in-up">
+                    <div className="p-4 rounded-full bg-muted/50 w-fit mx-auto">
+                      <Target className="h-8 w-8 opacity-60" />
+                    </div>
+                    <p className="body-small font-medium">No workouts scheduled</p>
+                    <p className="body-xs text-muted-foreground/80">This week is free for rest or cross-training</p>
                   </div>
                 </div>
               )}

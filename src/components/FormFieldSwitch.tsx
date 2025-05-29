@@ -1,71 +1,82 @@
-import React from "react";
-import { Switch } from "@/components/ui/switch";
+import React from 'react';
+import { Control, FieldPath, FieldValues } from 'react-hook-form';
 import {
-  FormFieldWrapper,
-  type FormFieldWrapperProps,
-} from "@/components/FormFieldWrapper";
-import { type FieldValues, type FieldPath } from "react-hook-form";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import { FormDescription } from "./ui/form"; // Import FormDescription
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 
-export interface FormFieldSwitchProps<
+interface FormFieldSwitchProps<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
-> extends Omit<
-    FormFieldWrapperProps<TFieldValues, TName>,
-    "children" | "label"
-  > {
-  label: React.ReactNode;
-  switchClassName?: string;
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> {
+  control: Control<TFieldValues>;
+  name: TName;
+  label?: string;
+  description?: string;
   disabled?: boolean;
+  className?: string;
+  switchClassName?: string;
+  required?: boolean;
 }
 
 export function FormFieldSwitch<
   TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
 >({
+  control,
+  name,
   label,
   description,
+  disabled = false,
+  className,
   switchClassName,
-  disabled,
-  ...wrapperProps
+  required = false,
 }: FormFieldSwitchProps<TFieldValues, TName>) {
   return (
-    // FormFieldWrapper likely provides the RHF context needed
-    <FormFieldWrapper<TFieldValues, TName> {...wrapperProps} label={undefined}>
-      {(field) => (
-        // Mimic structure from Checkbox/shadcn Form examples for layout
-        <div
-          className={cn(
-            "flex flex-row items-center justify-between rounded-lg border p-4",
-          )}
-        >
-          <div className="space-y-0.5">
-            <Label htmlFor={field.name} className="text-base">
-              {label}
-              {wrapperProps.required && (
-                <span className="text-destructive ml-1">*</span>
+    <FormField
+      control={control}
+      name={name}
+      render={({ field, fieldState }) => (
+        <FormItem className={cn('space-y-3', className)}>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              {label && (
+                <FormLabel className={cn(
+                  'body-small font-medium text-foreground',
+                  required && "after:content-['*'] after:ml-0.5 after:text-destructive",
+                  disabled && 'opacity-70'
+                )}>
+                  {label}
+                </FormLabel>
               )}
-            </Label>
-            {description && <FormDescription>{description}</FormDescription>}
+              {description && (
+                <FormDescription className="body-xs text-muted-foreground">
+                  {description}
+                </FormDescription>
+              )}
+            </div>
+            <FormControl>
+              <Switch
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                disabled={disabled}
+                className={cn(
+                  'transition-all duration-200 focus-ring',
+                  fieldState.error && 'border-destructive',
+                  switchClassName
+                )}
+              />
+            </FormControl>
           </div>
-          <Switch
-            id={field.name}
-            checked={field.value}
-            onCheckedChange={field.onChange}
-            onBlur={field.onBlur} // Important for RHF validation triggers
-            name={field.name}
-            required={wrapperProps.required}
-            aria-describedby={
-              description ? `${field.name}-description` : undefined
-            }
-            className={cn(switchClassName)}
-            // disabled prop can be added here if needed later
-            disabled={disabled}
-          />
-        </div>
+          <FormMessage className="body-xs text-destructive" />
+        </FormItem>
       )}
-    </FormFieldWrapper>
+    />
   );
 }

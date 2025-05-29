@@ -65,6 +65,7 @@ export function SettingsTabPasswordChange() {
             label="Current Password"
             type="password"
             placeholder="Enter your current password"
+            control={form.control}
           />
 
           <FormFieldInput
@@ -72,6 +73,7 @@ export function SettingsTabPasswordChange() {
             label="New Password"
             type="password"
             placeholder="Enter your new password"
+            control={form.control}
           />
 
           <FormFieldInput
@@ -79,6 +81,7 @@ export function SettingsTabPasswordChange() {
             label="Confirm New Password"
             type="password"
             placeholder="Confirm your new password"
+            control={form.control}
           />
 
           <div className="flex justify-end">

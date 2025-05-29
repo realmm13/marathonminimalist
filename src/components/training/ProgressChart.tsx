@@ -54,6 +54,8 @@ export interface ProgressChartProps {
   showTooltip?: boolean;
   showLegend?: boolean;
   variant?: 'default' | 'minimal' | 'detailed';
+  distanceUnit?: 'km' | 'mi';
+  paceUnit?: '/km' | '/mi';
 }
 
 const CHART_COLORS = {
@@ -64,12 +66,12 @@ const CHART_COLORS = {
   muted: '#6b7280',
 };
 
-const formatTooltipValue = (value: any, name: string) => {
+const formatTooltipValue = (value: any, name: string, distanceUnit = 'km', paceUnit = '/km') => {
   switch (name) {
     case 'pace':
-      return [`${value} min/km`, 'Pace'];
+      return [`${value} min${paceUnit}`, 'Pace'];
     case 'distance':
-      return [`${value} km`, 'Distance'];
+      return [`${value} ${distanceUnit}`, 'Distance'];
     case 'duration':
       return [`${value} min`, 'Duration'];
     case 'heartRate':
@@ -81,20 +83,25 @@ const formatTooltipValue = (value: any, name: string) => {
   }
 };
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+// Custom tooltip component with enhanced styling
+const CustomTooltip = ({ active, payload, label, distanceUnit = 'km', paceUnit = '/km' }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div 
-        className="bg-background border border-border rounded-lg p-3 shadow-lg"
-        role="tooltip"
-        aria-live="polite"
-      >
-        <p className="text-sm font-medium mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
-            {formatTooltipValue(entry.value, entry.dataKey)[1]}: {formatTooltipValue(entry.value, entry.dataKey)[0]}
-          </p>
-        ))}
+      <div className="card-enhanced p-3 shadow-lg border border-border/50 backdrop-blur-md">
+        <p className="body-small font-medium text-foreground mb-2">{label}</p>
+        {payload.map((entry: any, index: number) => {
+          const [formattedValue, formattedName] = formatTooltipValue(
+            entry.value,
+            entry.dataKey,
+            distanceUnit,
+            paceUnit
+          );
+          return (
+            <p key={index} className="body-xs" style={{ color: entry.color }}>
+              {`${formattedName}: ${formattedValue}`}
+            </p>
+          );
+        })}
       </div>
     );
   }
@@ -105,9 +112,9 @@ const TrendIndicator = ({ trend, value }: { trend?: 'up' | 'down' | 'neutral'; v
   if (!trend || !value) return null;
 
   const trendConfig = {
-    up: { icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100', label: 'Trending up' },
-    down: { icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-100', label: 'Trending down' },
-    neutral: { icon: Activity, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Stable trend' },
+    up: { icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100 dark:bg-green-900/30', label: 'Trending up' },
+    down: { icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-100 dark:bg-red-900/30', label: 'Trending down' },
+    neutral: { icon: Activity, color: 'text-blue-600', bg: 'bg-blue-100 dark:bg-blue-900/30', label: 'Stable trend' },
   };
 
   const config = trendConfig[trend];
@@ -115,7 +122,11 @@ const TrendIndicator = ({ trend, value }: { trend?: 'up' | 'down' | 'neutral'; v
 
   return (
     <div 
-      className={cn('inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium', config.bg, config.color)}
+      className={cn(
+        'inline-flex items-center gap-1 px-2 py-1 rounded-full body-xs font-medium transition-all duration-200 hover-lift',
+        config.bg, 
+        config.color
+      )}
       role="img"
       aria-label={`${config.label}: ${value}`}
     >
@@ -137,6 +148,8 @@ export function ProgressChart({
   showTooltip = true,
   showLegend = false,
   variant = 'default',
+  distanceUnit = 'km',
+  paceUnit = '/km',
 }: ProgressChartProps) {
   const chartId = useId();
   const chartColor = config.color || CHART_COLORS.primary;
@@ -155,9 +168,9 @@ export function ProgressChart({
     const formatValue = (value: number) => {
       switch (dataKey) {
         case 'pace':
-          return `${value.toFixed(1)} minutes per kilometer`;
+          return `${value.toFixed(1)} minutes per ${paceUnit.replace('/', '')}`;
         case 'distance':
-          return `${value.toFixed(1)} kilometers`;
+          return `${value.toFixed(1)} ${distanceUnit === 'mi' ? 'miles' : 'kilometers'}`;
         case 'duration':
           return `${value.toFixed(0)} minutes`;
         case 'heartRate':
@@ -170,7 +183,7 @@ export function ProgressChart({
     };
 
     return `Chart showing ${data.length} data points. Minimum: ${formatValue(min)}, Maximum: ${formatValue(max)}, Average: ${formatValue(avg)}.`;
-  }, [data, dataKey]);
+  }, [data, dataKey, distanceUnit, paceUnit]);
 
   const renderChart = () => {
     const commonProps = {
@@ -196,7 +209,7 @@ export function ProgressChart({
               tick={{ fontSize: 12 }}
               className="text-muted-foreground"
             />
-            {showTooltip && <Tooltip content={<CustomTooltip />} />}
+            {showTooltip && <Tooltip content={<CustomTooltip distanceUnit={distanceUnit} paceUnit={paceUnit} />} />}
             {showLegend && <Legend />}
             <Line
               type="monotone"
@@ -226,7 +239,7 @@ export function ProgressChart({
               tick={{ fontSize: 12 }}
               className="text-muted-foreground"
             />
-            {showTooltip && <Tooltip content={<CustomTooltip />} />}
+            {showTooltip && <Tooltip content={<CustomTooltip distanceUnit={distanceUnit} paceUnit={paceUnit} />} />}
             {showLegend && <Legend />}
             <Area
               type="monotone"
@@ -256,7 +269,7 @@ export function ProgressChart({
               tick={{ fontSize: 12 }}
               className="text-muted-foreground"
             />
-            {showTooltip && <Tooltip content={<CustomTooltip />} />}
+            {showTooltip && <Tooltip content={<CustomTooltip distanceUnit={distanceUnit} paceUnit={paceUnit} />} />}
             {showLegend && <Legend />}
             <Bar dataKey={dataKey} fill={chartColor} radius={[4, 4, 0, 0]} />
           </BarChart>
@@ -306,7 +319,7 @@ export function ProgressChart({
           aria-labelledby={`${chartId}-title`}
           aria-describedby={`${chartId}-description`}
           tabIndex={0}
-          className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+          className="focus:outline-none focus-ring rounded"
         >
           <ResponsiveContainer width="100%" height={height}>
             {chart}
@@ -320,25 +333,25 @@ export function ProgressChart({
   if (!chart) return null;
 
   return (
-    <Card className={cn('p-6', className)}>
-      <div className="flex items-center justify-between mb-4">
+    <Card className={cn('card-enhanced p-6 hover-lift group', className)}>
+      <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           {config.icon && (
-            <div className="p-2 rounded-lg bg-primary/10" aria-hidden="true">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300" aria-hidden="true">
               {config.icon}
             </div>
           )}
-          <div>
+          <div className="space-y-1">
             <h3 
               id={`${chartId}-title`}
-              className="text-lg font-semibold"
+              className="heading-4 font-semibold"
             >
               {config.title}
             </h3>
             {config.description && (
               <p 
                 id={`${chartId}-subtitle`}
-                className="text-sm text-muted-foreground"
+                className="body-small text-muted-foreground"
               >
                 {config.description}
               </p>
@@ -361,7 +374,7 @@ export function ProgressChart({
         aria-labelledby={`${chartId}-title ${config.description ? `${chartId}-subtitle` : ''}`}
         aria-describedby={`${chartId}-description`}
         tabIndex={0}
-        className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded"
+        className="focus:outline-none focus-ring rounded"
         onKeyDown={(e) => {
           // Allow keyboard users to interact with the chart
           if (e.key === 'Enter' || e.key === ' ') {

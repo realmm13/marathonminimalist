@@ -18,11 +18,15 @@ export function AnimatedFormWrapper({
     <div className={cn("flex flex-col gap-6", className)}>
       <motion.div
         layout
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{
           layout: { duration: 0.6, type: "spring", bounce: 0.2 },
+          initial: { duration: 0.5, ease: [0.33, 1, 0.68, 1] }
         }}
+        className="hover-lift"
       >
-        <Card className="overflow-hidden">{children}</Card>
+        <Card className="card-enhanced overflow-hidden shadow-lg">{children}</Card>
       </motion.div>
     </div>
   );
@@ -37,7 +41,20 @@ export function AnimatedFormHeader({
   title,
   description,
 }: AnimatedFormHeaderProps) {
-  return <AuthFormHeader title={title} description={description} />;
+  return (
+    <motion.div
+      layout
+      transition={{
+        layout: { duration: 0.5, ease: [0.33, 1, 0.68, 1] },
+      }}
+    >
+      <AuthFormHeader 
+        title={title} 
+        description={description}
+        className="bg-gradient-to-br from-background to-muted/30"
+      />
+    </motion.div>
+  );
 }
 
 interface AnimatedFormContentProps {
@@ -52,7 +69,7 @@ export function AnimatedFormContent({ children }: AnimatedFormContentProps) {
         layout: { duration: 0.5, ease: [0.33, 1, 0.68, 1] },
       }}
     >
-      <CardContent>{children}</CardContent>
+      <CardContent className="section-padding">{children}</CardContent>
     </motion.div>
   );
 }
@@ -71,12 +88,15 @@ export function AnimatedFormFields({
       {isVisible && (
         <motion.div
           key="form-fields"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ 
+            duration: 0.4,
+            ease: [0.33, 1, 0.68, 1]
+          }}
         >
-          <div className="space-y-4">{children}</div>
+          <div className="space-y-6">{children}</div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -96,13 +116,16 @@ export function AnimatedSuccessContent({
     <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
-          key="success"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
+          key="success-content"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.9, y: -20 }}
+          transition={{ 
+            duration: 0.5,
+            ease: [0.33, 1, 0.68, 1]
+          }}
         >
-          {children}
+          <div className="text-center space-y-4">{children}</div>
         </motion.div>
       )}
     </AnimatePresence>
