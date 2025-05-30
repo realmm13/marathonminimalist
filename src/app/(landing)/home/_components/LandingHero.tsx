@@ -1,5 +1,5 @@
 "use client";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Trophy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { createAvatar } from "@dicebear/core";
@@ -7,11 +7,13 @@ import { lorelei } from "@dicebear/collection";
 import { motion } from "framer-motion";
 import { APP_NAME } from "@/config/config";
 import { SmoothLoadImage } from "@/components/SmoothLoadImage";
+import { memo, useMemo } from "react";
+import EnhancedCTAButton from "./EnhancedCTAButton";
 
-// Animated avatar group component
-const AvatarGroup = ({ avatars }: { avatars: string[] }) => {
+// Memoized avatar group component for better performance
+const AvatarGroup = memo(({ avatars }: { avatars: string[] }) => {
   return (
-    <div className="flex -space-x-2">
+    <div className="flex -space-x-2" role="img" aria-label="Profile pictures of successful marathon runners">
       {avatars.map((avatar, i) => (
         <motion.div
           key={i}
@@ -23,134 +25,193 @@ const AvatarGroup = ({ avatars }: { avatars: string[] }) => {
         >
           <Image
             src={avatar}
-            alt={`User ${i + 1}`}
+            alt={`Marathon runner ${i + 1}`}
             fill
             className="object-cover"
+            sizes="32px"
+            loading="lazy"
           />
         </motion.div>
       ))}
     </div>
   );
-};
+});
 
-export default function LandingHero() {
-  // Generate DiceBear avatar seeds
-  const avatars = [1, 2, 3, 4].map((i) =>
-    createAvatar(lorelei, {
-      seed: `user-${i}`,
-      backgroundColor: ["b6e3f4", "c0aede", "d1d4f9", "ffd5dc", "ffdfbf"],
-    }).toDataUri(),
-  );
+AvatarGroup.displayName = "AvatarGroup";
+
+// Memoized stats component
+const StatsDisplay = memo(() => {
+  const stats = useMemo(() => [
+    { value: "10K+", label: "Active Runners" },
+    { value: "95%", label: "Success Rate" },
+    { value: "4.9/5", label: "User Rating" },
+  ], []);
 
   return (
-    <section className="w-full py-12 md:mt-18 md:py-24 lg:py-32">
-      <div className="container mx-auto flex flex-col items-center px-4 md:flex-row md:px-6">
+    <motion.div
+      className="flex flex-wrap justify-center gap-6 md:justify-start"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.8 }}
+    >
+      {stats.map((stat, index) => (
+        <div key={stat.label} className="text-center">
+          <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">
+            {stat.value}
+          </div>
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            {stat.label}
+          </div>
+        </div>
+      ))}
+    </motion.div>
+  );
+});
+
+StatsDisplay.displayName = "StatsDisplay";
+
+export default function LandingHero() {
+  // Memoize avatar generation to prevent unnecessary re-renders
+  const avatars = useMemo(() => {
+    const seeds = ["Felix", "Aneka", "Garland", "Mittie", "Kimberly"];
+    return seeds.map(seed => 
+      createAvatar(lorelei, { seed }).toDataUri()
+    );
+  }, []);
+
+  return (
+    <section 
+      className="relative min-h-screen w-full overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+      aria-labelledby="hero-heading"
+    >
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
         <motion.div
-          className="mb-12 flex flex-col items-center space-y-6 text-center md:mb-0 md:w-1/2 md:items-start md:text-left"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <motion.div
-            className="mb-2 inline-block rounded-full bg-violet-100 px-3 py-1 text-sm font-medium text-violet-600 dark:bg-violet-900/30 dark:text-violet-400"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-          >
-            Introducing {APP_NAME}
-          </motion.div>
-
-          <motion.h1
-            className="text-4xl leading-tight font-bold tracking-tight md:text-5xl lg:text-6xl"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
-            Boost Your Productivity{" "}
-            <span className="text-violet-600 dark:text-violet-500">10x</span>{" "}
-            With {APP_NAME}
-          </motion.h1>
-
-          <motion.p
-            className="max-w-md text-lg text-gray-600 dark:text-gray-400"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
-            Our platform helps teams collaborate more effectively, automate
-            repetitive tasks, and deliver better results in less time.
-          </motion.p>
-
-          <motion.div
-            className="flex flex-col items-center gap-4 sm:flex-row md:items-start"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
-          >
-            <Link
-              href="/signup"
-              className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-violet-600 px-6 font-medium text-white transition-all duration-300 hover:bg-violet-700 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:outline-none dark:bg-violet-600 dark:hover:bg-violet-700 dark:focus:ring-violet-500"
-            >
-              <span className="relative z-10">Get Started Free</span>
-              <span className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 opacity-0 transition-opacity duration-300 group-hover:opacity-20"></span>
-            </Link>
-
-            <Link
-              href="/demo"
-              className="group inline-flex h-12 items-center justify-center rounded-md border border-gray-200 bg-white px-6 font-medium text-gray-900 transition-all duration-300 hover:border-violet-200 hover:bg-gray-50 hover:shadow-[0_0_15px_rgba(139,92,246,0.2)] focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:outline-none dark:border-gray-800 dark:bg-gray-950 dark:text-gray-200 dark:hover:border-violet-800 dark:hover:bg-gray-900"
-            >
-              <span>Watch Demo</span>
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-          </motion.div>
-
-          <motion.div
-            className="mt-4 flex items-center justify-center space-x-4 md:justify-start"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
-          >
-            <AvatarGroup avatars={avatars} />
-            <motion.p
-              className="text-sm text-gray-600 dark:text-gray-400"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.1, duration: 0.3 }}
-            >
-              <span className="font-medium">2,000+</span> happy users
-            </motion.p>
-          </motion.div>
-        </motion.div>
-
+          className="absolute -top-40 -right-40 h-80 w-80 rounded-full bg-gradient-to-br from-amber-400/20 to-orange-500/20 blur-3xl"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5 }}
+        />
         <motion.div
-          className="relative flex justify-center md:w-1/2"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <div className="relative h-auto min-h-[280px] w-[90%] max-w-[450px]">
-            <SmoothLoadImage
-              src="/hero.png"
-              alt="Dashboard Preview"
-              objectFit="contain"
-              priority
-              className="h-full w-full"
-            />
+          className="absolute -bottom-40 -left-40 h-80 w-80 rounded-full bg-gradient-to-tr from-orange-400/20 to-red-500/20 blur-3xl"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, delay: 0.3 }}
+        />
+      </div>
+
+      <div className="container relative mx-auto flex min-h-screen items-center px-4 py-12 md:px-6">
+        <div className="grid w-full items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          {/* Left Content */}
+          <div className="flex flex-col justify-center space-y-6">
+            <motion.div
+              className="space-y-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h1 
+                id="hero-heading"
+                className="text-4xl font-bold tracking-tighter text-gray-900 dark:text-white sm:text-5xl xl:text-6xl/none"
+              >
+                Train Smarter,{" "}
+                <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                  Run Faster
+                </span>
+              </h1>
+              <p className="max-w-[600px] text-gray-600 dark:text-gray-400 md:text-xl">
+                Join thousands of runners who've achieved their marathon goals with {APP_NAME}'s 
+                personalized training plans, expert guidance, and proven strategies.
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="flex flex-col gap-4 min-[400px]:flex-row"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <EnhancedCTAButton
+                href="/dashboard"
+                variant="primary"
+                requireAuth={true}
+                authRedirect="/signup"
+                className="px-8"
+              >
+                Start Free Training
+              </EnhancedCTAButton>
+              <EnhancedCTAButton
+                href="#features"
+                variant="secondary"
+                className="px-8"
+              >
+                Learn More
+              </EnhancedCTAButton>
+            </motion.div>
+
+            {/* Social Proof */}
+            <motion.div
+              className="flex flex-col gap-4 sm:flex-row sm:items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <div className="flex items-center gap-3">
+                <AvatarGroup avatars={avatars} />
+                <div className="text-sm">
+                  <div className="flex items-center gap-1">
+                    <Trophy className="h-4 w-4 text-amber-500" />
+                    <span className="font-medium text-gray-900 dark:text-white">
+                      Join 10,000+ successful runners
+                    </span>
+                  </div>
+                  <div className="text-gray-600 dark:text-gray-400">
+                    Average improvement: 15% faster finish times
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Stats */}
+            <StatsDisplay />
           </div>
 
+          {/* Right Content - Hero Image */}
           <motion.div
-            className="absolute -bottom-6 -left-6 h-28 w-28 rounded-lg bg-violet-600 opacity-50 blur-3xl"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.5, scale: 1 }}
-            transition={{ duration: 0.8 }}
-          ></motion.div>
-          <motion.div
-            className="absolute -top-6 -right-6 h-28 w-28 rounded-lg bg-fuchsia-600 opacity-50 blur-3xl"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 0.5, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          ></motion.div>
-        </motion.div>
+            className="relative flex justify-center md:w-1/2"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            role="img"
+            aria-label="Marathon training dashboard preview showing workout plans and progress tracking"
+          >
+            <div className="relative h-auto min-h-[280px] w-[90%] max-w-[450px]">
+              <SmoothLoadImage
+                src="/hero.png"
+                alt="Marathon Training Dashboard Preview showing personalized workout plans, pace guidance, and progress tracking features"
+                objectFit="contain"
+                priority
+                className="h-full w-full"
+              />
+            </div>
+
+            {/* Decorative elements */}
+            <motion.div
+              className="absolute -bottom-6 -left-6 h-28 w-28 rounded-lg bg-amber-600 opacity-50 blur-3xl"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.5, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              aria-hidden="true"
+            />
+            <motion.div
+              className="absolute -top-6 -right-6 h-28 w-28 rounded-lg bg-orange-600 opacity-50 blur-3xl"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 0.5, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              aria-hidden="true"
+            />
+          </motion.div>
+        </div>
       </div>
     </section>
   );

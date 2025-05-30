@@ -76,13 +76,6 @@ const paceProgressDataKm: ProgressDataPoint[] = [
   { date: 'Week 14', pace: 4.2, week: 14 },
 ];
 
-const workoutTypeData: ProgressDataPoint[] = [
-  { date: 'Easy Runs', distance: 45, week: 1 },
-  { date: 'Tempo Runs', distance: 25, week: 2 },
-  { date: 'Intervals', distance: 15, week: 3 },
-  { date: 'Long Runs', distance: 15, week: 4 },
-];
-
 export function ProgressDashboard() {
   const [selectedPeriod, setSelectedPeriod] = useState('14weeks');
   
@@ -126,14 +119,6 @@ export function ProgressDashboard() {
       trend: 'down',
       trendValue: distanceUnit === LocalDistanceUnit.MILES ? '-32s/mile' : '-20s/km',
       icon: <TrendingUp className="h-4 w-4" />,
-    },
-    workoutTypes: {
-      title: 'Workout Distribution',
-      description: 'Training type breakdown',
-      color: '#f59e0b',
-      trend: 'neutral',
-      trendValue: 'Balanced',
-      icon: <Target className="h-4 w-4" />,
     },
   };
 
@@ -259,20 +244,8 @@ export function ProgressDashboard() {
           />
         </div>
 
-        {/* Workout Types - Pie Chart */}
-        <div className="animate-slide-down" style={{ animationDelay: '300ms' }}>
-          <ProgressChart
-            data={workoutTypeData}
-            type="pie"
-            config={chartConfigs.workoutTypes!}
-            dataKey="distance"
-            xAxisKey="date"
-            height={300}
-          />
-        </div>
-
         {/* Training Consistency - Bar Chart */}
-        <div className="animate-slide-down" style={{ animationDelay: '400ms' }}>
+        <div className="animate-slide-down md:col-span-2" style={{ animationDelay: '300ms' }}>
           <ProgressChart
             data={weeklyDistanceData.slice(-8)} // Last 8 weeks for consistency view
             type="bar"
@@ -299,7 +272,7 @@ export function ProgressDashboard() {
           <h3 className="heading-3">Quick Overview</h3>
           <p className="body-base text-muted-foreground">Recent training trends at a glance</p>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2">
           <Card className="card-enhanced p-4 space-y-3">
             <h4 className="body-small font-medium text-muted-foreground">Distance Trend</h4>
             <ProgressChart
@@ -320,19 +293,6 @@ export function ProgressDashboard() {
               type="line"
               config={chartConfigs.pace!}
               dataKey="pace"
-              xAxisKey="date"
-              height={120}
-              variant="minimal"
-              showGrid={false}
-            />
-          </Card>
-          <Card className="card-enhanced p-4 space-y-3">
-            <h4 className="body-small font-medium text-muted-foreground">Workout Types</h4>
-            <ProgressChart
-              data={workoutTypeData}
-              type="pie"
-              config={chartConfigs.workoutTypes!}
-              dataKey="distance"
               xAxisKey="date"
               height={120}
               variant="minimal"

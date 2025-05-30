@@ -1,4 +1,4 @@
-import { addWeeks, addDays, format, startOfWeek, isSameDay } from 'date-fns';
+import { addWeeks, addDays, format, startOfWeek, isSameDay, subWeeks, subDays } from 'date-fns';
 
 /**
  * Date utilities for training plan scheduling
@@ -16,6 +16,60 @@ export interface WorkoutSchedule {
  */
 export function calculatePlanEndDate(startDate: Date): Date {
   return addWeeks(startDate, 14);
+}
+
+/**
+ * Calculate the proper start date by working backward from race date
+ * to ensure the final workout aligns with user's preferred workout days
+ * @param raceDate - The target race date
+ * @param workoutDays - Array of preferred workout days (1=Monday, 7=Sunday)
+ * @returns The calculated start date for the training plan
+ */
+export function calculateStartDateFromRaceDate(
+  raceDate: Date,
+  workoutDays: number[]
+): Date {
+  // Sort workout days to find the last workout day of the week
+  const sortedWorkoutDays = [...workoutDays].sort();
+  const finalWorkoutDay = sortedWorkoutDays[sortedWorkoutDays.length - 1]!;
+  
+  // Get the day of week for the race date (0=Sunday, 1=Monday, etc.)
+  const raceDayOfWeek = raceDate.getDay();
+  const adjustedRaceDayOfWeek = raceDayOfWeek === 0 ? 7 : raceDayOfWeek; // Convert Sunday from 0 to 7
+  
+  // Find the final workout date - either the race date itself (if it's a workout day)
+  // or the most recent workout day before the race
+  let finalWorkoutDate: Date;
+  
+  if (workoutDays.includes(adjustedRaceDayOfWeek)) {
+    // Race is on a workout day - use the race date
+    finalWorkoutDate = raceDate;
+  } else {
+    // Race is not on a workout day - find the most recent workout day before the race
+    let daysBack = 1;
+    while (daysBack <= 7) {
+      const candidateDay = adjustedRaceDayOfWeek - daysBack;
+      const normalizedDay = candidateDay <= 0 ? candidateDay + 7 : candidateDay;
+      
+      if (workoutDays.includes(normalizedDay)) {
+        finalWorkoutDate = subDays(raceDate, daysBack);
+        break;
+      }
+      daysBack++;
+    }
+    
+    if (daysBack > 7) {
+      throw new Error('Unable to find a suitable workout day before the race date');
+    }
+  }
+  
+  // Get the start of the week containing the final workout (this will be week 14)
+  const week14Start = getTrainingWeekStart(finalWorkoutDate!);
+  
+  // Go back 13 weeks to get the start of week 1
+  const planStartDate = subWeeks(week14Start, 13);
+  
+  return planStartDate;
 }
 
 /**

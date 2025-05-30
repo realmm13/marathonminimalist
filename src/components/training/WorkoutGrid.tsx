@@ -18,6 +18,7 @@ export interface WorkoutGridProps {
   showWeekHeaders?: boolean;
   onWorkoutClick?: (workout: WorkoutCardProps) => void;
   onWorkoutComplete?: (workout: WorkoutCardProps) => void;
+  onWorkoutUncomplete?: (workout: WorkoutCardProps) => void;
 }
 
 export function WorkoutGrid({
@@ -30,6 +31,7 @@ export function WorkoutGrid({
   showWeekHeaders = true,
   onWorkoutClick,
   onWorkoutComplete,
+  onWorkoutUncomplete,
 }: WorkoutGridProps) {
   // Group workouts by week
   const workoutsByWeek = workouts.reduce((acc, workout) => {
@@ -104,6 +106,7 @@ export function WorkoutGrid({
                     variant="compact"
                     onClick={() => onWorkoutClick?.(workout)}
                     onComplete={() => onWorkoutComplete?.(workout)}
+                    onUncomplete={() => onWorkoutUncomplete?.(workout)}
                   />
                 ))}
               </div>
@@ -142,6 +145,7 @@ export function WorkoutGrid({
               variant="compact"
               onClick={() => onWorkoutClick?.(workout)}
               onComplete={() => onWorkoutComplete?.(workout)}
+              onUncomplete={() => onWorkoutUncomplete?.(workout)}
             />
           </div>
         ))}
@@ -233,6 +237,7 @@ export function WorkoutGrid({
                         {...workoutProps}
                         onClick={() => onWorkoutClick?.(workoutProps)}
                         onComplete={() => onWorkoutComplete?.(workoutProps)}
+                        onUncomplete={() => onWorkoutUncomplete?.(workoutProps)}
                       />
                     </div>
                   );

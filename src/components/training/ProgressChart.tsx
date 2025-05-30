@@ -28,8 +28,6 @@ export interface ProgressDataPoint {
   distance?: number;
   pace?: number;
   duration?: number;
-  heartRate?: number;
-  effort?: number;
   week?: number;
 }
 
@@ -74,10 +72,6 @@ const formatTooltipValue = (value: any, name: string, distanceUnit = 'km', paceU
       return [`${value} ${distanceUnit}`, 'Distance'];
     case 'duration':
       return [`${value} min`, 'Duration'];
-    case 'heartRate':
-      return [`${value} bpm`, 'Heart Rate'];
-    case 'effort':
-      return [`${value}/10`, 'Effort'];
     default:
       return [value, name];
   }
@@ -173,10 +167,6 @@ export function ProgressChart({
           return `${value.toFixed(1)} ${distanceUnit === 'mi' ? 'miles' : 'kilometers'}`;
         case 'duration':
           return `${value.toFixed(0)} minutes`;
-        case 'heartRate':
-          return `${value.toFixed(0)} beats per minute`;
-        case 'effort':
-          return `${value.toFixed(1)} out of 10`;
         default:
           return value.toFixed(1);
       }

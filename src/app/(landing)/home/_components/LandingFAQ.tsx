@@ -20,6 +20,9 @@ function FAQItem({
   toggleOpen,
   index,
 }: FAQItemProps) {
+  const questionId = `faq-question-${index}`;
+  const answerId = `faq-answer-${index}`;
+
   return (
     <motion.div
       className="border-b border-gray-200 py-5 dark:border-gray-700"
@@ -31,6 +34,9 @@ function FAQItem({
       <button
         className="flex w-full items-center justify-between text-left"
         onClick={toggleOpen}
+        aria-expanded={isOpen}
+        aria-controls={answerId}
+        id={questionId}
       >
         <h3 className="text-lg font-medium text-gray-900 dark:text-white">
           {question}
@@ -39,6 +45,7 @@ function FAQItem({
           className="ml-6 flex-shrink-0"
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
+          aria-hidden="true"
         >
           <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
         </motion.span>
@@ -51,6 +58,9 @@ function FAQItem({
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
+            id={answerId}
+            role="region"
+            aria-labelledby={questionId}
           >
             <p className="text-base text-gray-600 dark:text-gray-400">
               {answer}
@@ -65,28 +75,29 @@ function FAQItem({
 export default function LandingFAQ() {
   const faqItems = [
     {
-      question: `How much does ${APP_NAME} cost?`,
+      question: "Do I need running experience to start marathon training?",
       answer:
-        "We offer flexible pricing plans starting at $29/month. Enterprise plans with custom features are also available. Contact our sales team for more details.",
+        "Not at all! Our training plans are designed for all fitness levels, from complete beginners to experienced runners. We'll assess your current fitness and create a personalized 16-week plan that gradually builds your endurance safely.",
     },
     {
-      question: "Do you offer a free trial?",
+      question: "How long does it take to train for a marathon?",
       answer:
-        "Yes, we offer a 14-day free trial with full access to all features. No credit card required to get started.",
+        "Our comprehensive training program is 16 weeks long, which is the optimal timeframe for most runners to safely build up to marathon distance. However, we also offer 12-week and 20-week plans depending on your experience level.",
     },
     {
-      question: "How secure is my data?",
-      answer: `${APP_NAME} implements bank-level security measures including 256-bit encryption, regular security audits, and compliance with SOC 2 and GDPR requirements.`,
+      question: "What if I get injured during training?",
+      answer:
+        "Our training plans include built-in rest days and injury prevention strategies. If you do get injured, our adaptive system can modify your plan to accommodate recovery time while keeping you on track for your marathon goal.",
     },
     {
-      question: "Can I cancel my subscription anytime?",
+      question: "Can I use this app for other race distances?",
       answer:
-        "Absolutely. You can cancel your subscription at any time with no questions asked and no hidden fees.",
+        "While our primary focus is marathon training, our plans also prepare you for 5K, 10K, and half-marathon distances as stepping stones to your marathon goal. You'll be race-ready for multiple distances throughout your training.",
     },
     {
-      question: "What kind of support do you offer?",
+      question: "Do you provide nutrition and gear guidance?",
       answer:
-        "We provide 24/7 support via email, live chat, and phone for all paying customers. Free users have access to our comprehensive knowledge base and community forums.",
+        "Yes! Premium subscribers get access to detailed nutrition planning, hydration strategies, and gear recommendations. We'll help you fuel your training and prepare everything you need for race day success.",
     },
   ];
 
@@ -97,11 +108,12 @@ export default function LandingFAQ() {
   };
 
   return (
-    <section className="w-full py-24">
+    <div className="w-full py-24">
       <div className="container mx-auto px-4">
         <LandingSectionTitle
-          title="Frequently Asked Questions"
-          description={`Find answers to common questions about ${APP_NAME}, pricing, and support.`}
+          id="faq-heading"
+          title="Marathon Training Questions"
+          description="Get answers to common questions about marathon training, our plans, and how to achieve your running goals."
         />
 
         <motion.div
@@ -110,19 +122,22 @@ export default function LandingFAQ() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          role="list"
+          aria-label="Frequently asked questions"
         >
           {faqItems.map((item, index) => (
-            <FAQItem
-              key={index}
-              index={index}
-              question={item.question}
-              answer={item.answer}
-              isOpen={index === openIndex}
-              toggleOpen={() => toggleFAQ(index)}
-            />
+            <div key={index} role="listitem">
+              <FAQItem
+                index={index}
+                question={item.question}
+                answer={item.answer}
+                isOpen={index === openIndex}
+                toggleOpen={() => toggleFAQ(index)}
+              />
+            </div>
           ))}
         </motion.div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -6,27 +6,29 @@ import { motion } from "framer-motion";
 import { APP_NAME } from "@/config/config";
 
 export default function LandingFooter() {
-  // Simplified footer links with fewer categories
+  // Marathon training focused footer links
   const footerLinks = [
     {
-      title: "Product",
+      title: "Training",
       links: [
-        { label: "Features", href: "#" },
-        { label: "Pricing", href: "#" },
+        { label: "Training Plans", href: "#" },
+        { label: "Pace Calculator", href: "#" },
+        { label: "Progress Tracking", href: "#" },
       ],
     },
     {
       title: "Resources",
       links: [
-        { label: "Documentation", href: "#" },
-        { label: "Help Center", href: "#" },
+        { label: "Training Guide", href: "#" },
+        { label: "Nutrition Tips", href: "#" },
+        { label: "Race Preparation", href: "#" },
       ],
     },
     {
-      title: "Legal",
+      title: "Support",
       links: [
-        { label: "Privacy Policy", href: "#" },
-        { label: "Terms of Service", href: "#" },
+        { label: "Help Center", href: "#" },
+        { label: "Contact Coach", href: "#" },
       ],
     },
   ];
@@ -50,7 +52,7 @@ export default function LandingFooter() {
           <div className="col-span-1">
             <Logo />
             <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-              Helping businesses grow with {APP_NAME}.
+              Empowering runners to achieve their marathon dreams with science-backed training.
             </p>
             <div className="mt-4 flex space-x-4">
               {socialLinks.map((link, i) => (
@@ -66,7 +68,7 @@ export default function LandingFooter() {
             </div>
           </div>
 
-          {/* Footer navigation - simplified */}
+          {/* Footer navigation - marathon focused */}
           {footerLinks.map((section, i) => (
             <div key={i} className="col-span-1">
               <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">

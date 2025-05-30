@@ -216,11 +216,11 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0.01 240);
   
-  /* Marathon-inspired primary colors - energetic orange-red */
-  --primary: oklch(0.65 0.22 25); /* Vibrant marathon orange */
-  --primary-foreground: oklch(0.98 0.01 25);
-  --primary-hover: oklch(0.6 0.24 25); /* Darker on hover */
-  --primary-active: oklch(0.55 0.26 25); /* Even darker when active */
+  /* Marathon-inspired primary colors - neutral gray */
+  --primary: oklch(0.45 0.01 240); /* Neutral dark gray */
+  --primary-foreground: oklch(0.98 0.01 240);
+  --primary-hover: oklch(0.4 0.01 240); /* Darker on hover */
+  --primary-active: oklch(0.35 0.01 240); /* Even darker when active */
   
   /* Enhanced secondary colors - sophisticated grays */
   --secondary: oklch(0.96 0.005 240); /* Light gray with slight blue tint */
@@ -249,7 +249,7 @@
   /* Enhanced border colors */
   --border: oklch(0.92 0.005 240);
   --border-hover: oklch(0.88 0.01 240);
-  --border-focus: oklch(0.65 0.22 25); /* Primary color for focus states */
+  --border-focus: oklch(0.75 0.01 240);
   
   /* Enhanced input colors */
   --input: oklch(0.94 0.005 240);
@@ -257,10 +257,10 @@
   --input-focus: oklch(0.96 0.005 240);
   
   /* Enhanced ring colors for focus states */
-  --ring: oklch(0.65 0.22 25 / 0.3); /* Primary color with transparency */
+  --ring: oklch(0.45 0.01 240 / 0.3); /* Neutral gray with transparency */
   
   /* Enhanced chart colors for data visualization */
-  --chart-1: oklch(0.65 0.22 25); /* Primary orange */
+  --chart-1: oklch(0.45 0.01 240); /* Neutral gray */
   --chart-2: oklch(0.6 0.15 240); /* Blue */
   --chart-3: oklch(0.55 0.15 145); /* Green */
   --chart-4: oklch(0.7 0.15 65); /* Yellow */
@@ -286,11 +286,11 @@
   --popover: oklch(0.1 0.005 240);
   --popover-foreground: oklch(0.92 0.01 240);
   
-  /* Primary colors remain vibrant in dark mode */
-  --primary: oklch(0.7 0.22 25); /* Slightly brighter in dark mode */
-  --primary-foreground: oklch(0.08 0.01 25);
-  --primary-hover: oklch(0.75 0.24 25);
-  --primary-active: oklch(0.8 0.26 25);
+  /* Primary colors remain neutral in dark mode */
+  --primary: oklch(0.75 0.01 240); /* Lighter neutral gray in dark mode */
+  --primary-foreground: oklch(0.08 0.01 240);
+  --primary-hover: oklch(0.8 0.01 240);
+  --primary-active: oklch(0.85 0.01 240);
   
   /* Enhanced dark mode secondary colors */
   --secondary: oklch(0.15 0.005 240);
@@ -319,7 +319,7 @@
   /* Enhanced dark mode borders */
   --border: oklch(0.2 0.005 240);
   --border-hover: oklch(0.25 0.01 240);
-  --border-focus: oklch(0.7 0.22 25);
+  --border-focus: oklch(0.75 0.01 240);
   
   /* Enhanced dark mode inputs */
   --input: oklch(0.15 0.005 240);
@@ -327,10 +327,10 @@
   --input-focus: oklch(0.12 0.005 240);
   
   /* Enhanced dark mode ring */
-  --ring: oklch(0.7 0.22 25 / 0.4);
+  --ring: oklch(0.75 0.01 240 / 0.4);
   
   /* Enhanced dark mode chart colors */
-  --chart-1: oklch(0.7 0.22 25);
+  --chart-1: oklch(0.75 0.01 240);
   --chart-2: oklch(0.65 0.15 240);
   --chart-3: oklch(0.6 0.15 145);
   --chart-4: oklch(0.75 0.15 65);
@@ -604,6 +604,24 @@ body {
   background-color: hsl(var(--primary-active));
   transform: translateY(0);
   box-shadow: 0 1px 3px hsl(var(--primary) / 0.3);
+}
+
+/* Override transform for buttons that shouldn't move on hover */
+.btn-no-transform.btn-primary-enhanced:hover,
+.btn-no-transform.btn-secondary-enhanced:hover,
+.btn-no-transform:hover,
+button.btn-no-transform:hover,
+.btn-no-transform.btn-primary-enhanced,
+.btn-no-transform.btn-secondary-enhanced {
+  transform: none !important;
+}
+
+.btn-no-transform.btn-primary-enhanced:hover {
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.4) !important;
+}
+
+.btn-no-transform.btn-secondary-enhanced:hover {
+  box-shadow: 0 4px 12px hsl(var(--border) / 0.3) !important;
 }
 
 .btn-secondary-enhanced {
@@ -915,4 +933,17 @@ body {
   .desktop-grid {
     @apply grid grid-cols-3 gap-8;
   }
+}
+
+/* Settings button container to prevent clipping */
+.settings-button-container {
+  position: relative;
+  z-index: 10;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+}
+
+.settings-button-container button {
+  position: relative;
+  z-index: 10;
 }

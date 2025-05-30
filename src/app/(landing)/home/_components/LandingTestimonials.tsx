@@ -10,7 +10,7 @@ import LandingSectionTitle from "./LandingSectionTitle";
 // Animated stars component
 const TestimonialStars = ({ count }: { count: number }) => {
   return (
-    <div className="flex">
+    <div className="flex" role="img" aria-label={`${count} out of 5 stars`}>
       {Array(count)
         .fill(0)
         .map((_, i) => (
@@ -21,7 +21,7 @@ const TestimonialStars = ({ count }: { count: number }) => {
             transition={{ delay: i * 0.1, duration: 0.3 }}
             viewport={{ once: true, margin: "-50px" }}
           >
-            <Star className="h-4 w-4 fill-violet-400 text-violet-400" />
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
           </motion.div>
         ))}
     </div>
@@ -30,7 +30,7 @@ const TestimonialStars = ({ count }: { count: number }) => {
 
 export default function LandingTestimonials() {
   // Generate avatar data URIs with DiceBear
-  const avatars = ["sarah", "mark", "jessica"].map((seed) =>
+  const avatars = ["sarah-runner", "mark-marathoner", "jessica-athlete"].map((seed) =>
     createAvatar(lorelei, {
       seed,
       backgroundColor: ["b6e3f4", "c0aede", "d1d4f9"],
@@ -40,25 +40,25 @@ export default function LandingTestimonials() {
   const testimonials = [
     {
       avatar: avatars[0] || "",
-      name: "Sarah Johnson",
-      role: "CEO, TechStart",
-      content: `${APP_NAME} has completely transformed how we operate. The ROI has been incredible, and our team productivity is up by 40%.`,
+      name: "Sarah Chen",
+      role: "First-time Marathoner",
+      content: `This app helped me go from couch to marathon in 16 weeks! The training plan was perfect for my fitness level, and I finished in 4:15. Couldn't have done it without the pace guidance.`,
       stars: 5,
     },
     {
       avatar: avatars[1] || "",
-      name: "Mark Thompson",
-      role: "Marketing Director",
-      content: `I've tried many similar tools, but nothing compares to the ease of use and powerful features ${APP_NAME} offers.`,
+      name: "Mark Rodriguez",
+      role: "Boston Qualifier",
+      content: `After years of inconsistent training, this app helped me finally qualify for Boston with a 3:05 finish. The structured workouts and progress tracking made all the difference.`,
       stars: 5,
     },
     {
       avatar: avatars[2] || "",
-      name: "Jessica Williams",
-      role: "Product Designer",
+      name: "Jessica Thompson",
+      role: "Marathon Coach",
       content:
-        "The customer support is exceptional, and the platform keeps getting better with every update. Absolutely worth the investment.",
-      stars: 4,
+        "I recommend this app to all my athletes. The science-backed training plans and detailed analytics help runners of all levels achieve their goals safely and effectively.",
+      stars: 5,
     },
   ];
 
@@ -78,11 +78,12 @@ export default function LandingTestimonials() {
   };
 
   return (
-    <section className="w-full py-24">
+    <div className="w-full py-24">
       <div className="container mx-auto px-4">
         <LandingSectionTitle
-          title="What Our Clients Say"
-          description={`Don't just take our word for it. Here's what our customers have to say about their experience with ${APP_NAME}.`}
+          id="testimonials-heading"
+          title="Success Stories from Real Marathoners"
+          description="Join thousands of runners who have achieved their marathon dreams with our proven training system."
         />
 
         <motion.div
@@ -91,9 +92,11 @@ export default function LandingTestimonials() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          role="list"
+          aria-label="Customer testimonials"
         >
           {testimonials.map((testimonial, index) => (
-            <motion.div
+            <motion.article
               key={index}
               variants={itemVariants}
               className="relative flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white/50 p-8 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50"
@@ -102,8 +105,9 @@ export default function LandingTestimonials() {
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
                 transition: { duration: 0.3 },
               }}
+              role="listitem"
             >
-              <motion.div
+              <motion.header
                 className="mb-6 flex items-center"
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 300 }}
@@ -111,7 +115,7 @@ export default function LandingTestimonials() {
                 <div className="relative mr-4 h-12 w-12 overflow-hidden rounded-full">
                   <Image
                     src={testimonial.avatar}
-                    alt={testimonial.name}
+                    alt={`${testimonial.name} profile picture`}
                     fill
                     className="object-cover"
                   />
@@ -122,19 +126,19 @@ export default function LandingTestimonials() {
                     {testimonial.role}
                   </p>
                 </div>
-              </motion.div>
+              </motion.header>
 
-              <p className="mb-6 flex-grow text-gray-600 italic dark:text-gray-300">
+              <blockquote className="mb-6 flex-grow text-gray-600 italic dark:text-gray-300">
                 "{testimonial.content}"
-              </p>
+              </blockquote>
 
-              <div className="flex items-center">
+              <footer className="flex items-center">
                 <TestimonialStars count={testimonial.stars} />
-              </div>
-            </motion.div>
+              </footer>
+            </motion.article>
           ))}
         </motion.div>
       </div>
-    </section>
+    </div>
   );
 }

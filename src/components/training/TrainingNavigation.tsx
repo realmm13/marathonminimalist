@@ -44,7 +44,7 @@ export function TrainingNavigation({
                   "flex items-center gap-3 rounded-lg px-4 py-3 body-small font-medium transition-all duration-200",
                   "focus-ring hover-lift group",
                   active
-                    ? "bg-primary text-primary-foreground shadow-md"
+                    ? "bg-background text-foreground shadow-md border border-border/30"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
                 aria-current={active ? "page" : undefined}
@@ -53,7 +53,7 @@ export function TrainingNavigation({
                 {Icon && (
                   <div className={cn(
                     "transition-all duration-200 group-hover:scale-110",
-                    active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-accent-foreground"
+                    active ? "text-foreground" : "text-muted-foreground group-hover:text-accent-foreground"
                   )}>
                     <Icon size={18} aria-hidden="true" />
                   </div>
@@ -86,7 +86,7 @@ export function TrainingNavigation({
                   "flex items-center justify-center rounded-lg p-3 transition-all duration-200",
                   "focus-ring hover-lift group",
                   active
-                    ? "bg-primary text-primary-foreground shadow-md"
+                    ? "bg-background text-foreground shadow-md border border-border/30"
                     : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
                 title={link.label}
@@ -134,7 +134,7 @@ export function TrainingNavigation({
                     "group relative flex cursor-pointer items-center gap-3 body-small font-medium transition-all duration-200",
                     "focus-ring rounded-lg px-3 py-2 hover-scale",
                     active
-                      ? "text-primary"
+                      ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                   aria-current={active ? "page" : undefined}
@@ -145,8 +145,8 @@ export function TrainingNavigation({
                       <div className={cn(
                         "transform transition-all duration-200 group-hover:scale-110",
                         active 
-                          ? "text-primary" 
-                          : "text-muted-foreground group-hover:text-primary"
+                          ? "text-foreground" 
+                          : "text-muted-foreground group-hover:text-foreground"
                       )}>
                         <Icon size={18} aria-hidden="true" />
                       </div>
@@ -160,7 +160,7 @@ export function TrainingNavigation({
                   </div>
                   {active && (
                     <motion.div
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/50 via-primary to-primary/50 rounded-full"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-foreground/50 via-foreground to-foreground/50 rounded-full"
                       layoutId="activeTab"
                       initial={false}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}

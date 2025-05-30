@@ -1,11 +1,11 @@
 "use client";
 import {
-  Rocket,
-  Shield,
-  Zap,
-  Users,
-  Globe,
-  BarChart,
+  Calendar,
+  Timer,
+  TrendingUp,
+  Trophy,
+  Target,
+  Activity,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -17,51 +17,51 @@ import LandingSectionTitle from "./LandingSectionTitle";
 
 export default function LandingFeatures() {
   const features: {
-    icon: typeof Rocket;
+    icon: typeof Calendar;
     title: string;
     description: string;
     gradient: GradientType;
   }[] = [
     {
-      icon: Rocket,
-      title: "Lightning Fast",
+      icon: Calendar,
+      title: "Personalized Training Plans",
       description:
-        "Our platform is optimized for speed, ensuring you get results in milliseconds.",
+        "Science-backed 16-week marathon training programs tailored to your fitness level and goals.",
       gradient: "blue",
     },
     {
-      icon: Shield,
-      title: "Secure By Design",
+      icon: Timer,
+      title: "Smart Pace Guidance",
       description:
-        "Enterprise-grade security with end-to-end encryption and regular audits.",
+        "Real-time pace calculations and race day strategy to help you maintain optimal speed throughout your marathon.",
       gradient: "green",
     },
     {
-      icon: Zap,
-      title: "AI-Powered",
+      icon: TrendingUp,
+      title: "Progress Tracking",
       description:
-        "Cutting-edge artificial intelligence to automate and enhance your workflow.",
+        "Comprehensive analytics to monitor your training progress, weekly mileage, and performance improvements.",
       gradient: "amber",
     },
     {
-      icon: Users,
-      title: "Team Collaboration",
+      icon: Trophy,
+      title: "Race Day Ready",
       description:
-        "Seamless collaboration tools to help your team work together effectively from anywhere.",
+        "Complete race preparation including nutrition planning, gear recommendations, and mental preparation strategies.",
       gradient: "purple",
     },
     {
-      icon: Globe,
-      title: "Global Support",
+      icon: Target,
+      title: "Goal Achievement",
       description:
-        "24/7 support available worldwide in multiple languages to assist you whenever needed.",
+        "Set and track specific marathon goals with milestone celebrations and adaptive training adjustments.",
       gradient: "indigo",
     },
     {
-      icon: BarChart,
-      title: "Advanced Analytics",
+      icon: Activity,
+      title: "Workout Variety",
       description:
-        "Comprehensive analytics dashboard with actionable insights to optimize your business.",
+        "Diverse training sessions including easy runs, tempo runs, intervals, and long runs to build endurance and speed.",
       gradient: "orange",
     },
   ];
@@ -82,11 +82,12 @@ export default function LandingFeatures() {
   };
 
   return (
-    <section className="w-full py-20">
+    <div className="w-full py-20">
       <div className="container mx-auto px-4">
         <LandingSectionTitle
-          title={`Why Choose ${APP_NAME}`}
-          description="Our platform combines powerful features with intuitive design to deliver an exceptional experience."
+          id="features-heading"
+          title="Everything You Need to Train for a Marathon"
+          description="Our comprehensive platform provides all the tools and guidance you need to successfully complete your first marathon or achieve a new personal best."
         />
 
         <motion.div
@@ -95,6 +96,8 @@ export default function LandingFeatures() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
+          role="list"
+          aria-label="Marathon training features"
         >
           {features.map((feature, index) => (
             <motion.div
@@ -102,6 +105,7 @@ export default function LandingFeatures() {
               variants={itemVariants}
               className="group-md relative"
               whileHover={{ y: -5, transition: { duration: 0.2 } }}
+              role="listitem"
             >
               <CardWithIcon
                 icon={feature.icon}
@@ -114,6 +118,6 @@ export default function LandingFeatures() {
           ))}
         </motion.div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -85,6 +85,13 @@ export interface LongRunWorkout {
   targetMarathonPace: string; // Format: "MM:SS" per km/mile
   estimatedDuration: number; // in minutes
   instructions: string[];
+  // Race day specific properties (only for Week 14)
+  isRaceDay?: boolean;
+  raceDetails?: {
+    startTime: string;
+    location: string;
+    instructions: string;
+  };
 }
 
 // Training plan generation types

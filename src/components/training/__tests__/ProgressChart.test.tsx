@@ -71,10 +71,10 @@ const renderWithWrapper = (component: React.ReactElement) => {
 
 describe('ProgressChart', () => {
   const mockData: ProgressDataPoint[] = [
-    { date: '2024-01-01', distance: 5.2, pace: 5.5, duration: 28, heartRate: 145, effort: 7 },
-    { date: '2024-01-02', distance: 8.1, pace: 5.8, duration: 47, heartRate: 152, effort: 8 },
-    { date: '2024-01-03', distance: 3.5, pace: 5.2, duration: 18, heartRate: 138, effort: 6 },
-    { date: '2024-01-04', distance: 10.0, pace: 6.0, duration: 60, heartRate: 158, effort: 9 },
+    { date: '2024-01-01', distance: 5.2, pace: 5.5, duration: 28 },
+    { date: '2024-01-02', distance: 8.1, pace: 5.8, duration: 47 },
+    { date: '2024-01-03', distance: 3.5, pace: 5.2, duration: 18 },
+    { date: '2024-01-04', distance: 10.0, pace: 6.0, duration: 60 },
   ];
 
   const mockConfig: ChartConfig = {
@@ -233,7 +233,7 @@ describe('ProgressChart', () => {
       expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
 
       rerender(
-        <ProgressChart data={mockData} config={mockConfig} type="line" dataKey="heartRate" />
+        <ProgressChart data={mockData} config={mockConfig} type="line" dataKey="duration" />
       );
       expect(screen.getByTestId('responsive-container')).toBeInTheDocument();
     });

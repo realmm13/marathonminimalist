@@ -153,9 +153,3 @@ export const settingsLink: NavLink = {
   label: "Settings",
   icon: LucideSettings,
 };
-
-export const goalLink: NavLink = {
-  href: clientEnv.NEXT_PUBLIC_GOAL_LINK,
-  label: "Goal",
-  icon: LucideTarget,
-};

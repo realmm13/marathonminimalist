@@ -146,7 +146,7 @@ export const SimpleDialog = ({
         <CustomButton
           variant="outline"
           onClick={handleCancel}
-          className={cn("btn-secondary-enhanced", classNames.cancelButton)}
+          className={cn("btn-secondary-enhanced btn-no-transform", classNames.cancelButton)}
         >
           {cancelText}
         </CustomButton>
@@ -154,7 +154,7 @@ export const SimpleDialog = ({
       {onSubmit && (
         <CustomButton
           onClick={handleSubmit}
-          className={cn("btn-primary-enhanced", classNames.submitButton)}
+          className={cn("btn-primary-enhanced btn-no-transform", classNames.submitButton)}
         >
           {submitText}
         </CustomButton>
@@ -191,7 +191,7 @@ export const SimpleDialog = ({
       {trigger && open === undefined && (
         <DialogTrigger asChild>
           {typeof trigger === "string" ? (
-            <CustomButton className="btn-primary-enhanced">{trigger}</CustomButton>
+            <CustomButton className="btn-primary-enhanced btn-no-transform">{trigger}</CustomButton>
           ) : (
             trigger
           )}
@@ -217,7 +217,7 @@ export const SimpleDialog = ({
               <CustomButton
                 variant="outline"
                 onClick={handleCancel}
-                className={cn("btn-secondary-enhanced", classNames.cancelButton)}
+                className={cn("btn-secondary-enhanced btn-no-transform", classNames.cancelButton)}
               >
                 {cancelText}
               </CustomButton>
@@ -225,7 +225,7 @@ export const SimpleDialog = ({
             {onSubmit && (
               <CustomButton
                 onClick={handleSubmit}
-                className={cn("btn-primary-enhanced", classNames.submitButton)}
+                className={cn("btn-primary-enhanced btn-no-transform", classNames.submitButton)}
               >
                 {submitText}
               </CustomButton>

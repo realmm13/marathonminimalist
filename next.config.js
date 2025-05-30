@@ -19,6 +19,7 @@ if (process.env.NODE_ENV === "production") {
 const config = {
   experimental: {
     viewTransition: true,
+    optimizePackageImports: ['framer-motion', 'lucide-react', '@dicebear/core'],
   },
 
   env: {
@@ -35,6 +36,37 @@ const config = {
         pathname: "/f/**", // Allow images from the /f/ path on utfs.io
       },
     ],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+  },
+
+  // Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  
+  // Bundle optimization
+  webpack: (config, { dev, isServer }) => {
+    // Optimize bundle size in production
+    if (!dev && !isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+          framerMotion: {
+            test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+            name: 'framer-motion',
+            chunks: 'all',
+          },
+        },
+      };
+    }
+    return config;
   },
 
   eslint: {

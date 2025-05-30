@@ -26,6 +26,13 @@ export interface ScheduledWorkout {
   intervals?: any; // JSON data for interval workouts
   instructions: string[];
   workoutData: TempoRunWorkout | IntervalWorkout | LongRunWorkout;
+  // Race day specific properties (only for Week 14)
+  isRaceDay?: boolean;
+  raceDetails?: {
+    startTime: string;
+    location: string;
+    instructions: string;
+  };
 }
 
 export interface TrainingSchedulerParams {
@@ -45,6 +52,7 @@ export interface ScheduledTrainingPlan {
     tempoRuns: number;
     intervalSessions: number;
     longRuns: number;
+    marathonRaces: number;
     easyRuns: number;
   };
 }
@@ -206,15 +214,20 @@ export class TrainingScheduler {
     return {
       name: longRun.name,
       description: longRun.description,
-      type: WorkoutType.LONG_RUN,
+      type: longRun.type, // This will be MARATHON_RACE for Week 14, LONG_RUN for others
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
       distance: longRun.totalDistance,
       duration: longRun.estimatedDuration,
-      pace: longRun.targetEasyPace,
+      pace: longRun.targetMarathonPace, // Use marathon pace for race day
       instructions: longRun.instructions,
-      workoutData: longRun
+      workoutData: longRun,
+      // Add race day specific properties for Week 14
+      ...(schedule.week === 14 && longRun.isRaceDay && {
+        isRaceDay: true,
+        raceDetails: longRun.raceDetails
+      })
     };
   }
 
@@ -282,6 +295,7 @@ export class TrainingScheduler {
       tempoRuns: 0,
       intervalSessions: 0,
       longRuns: 0,
+      marathonRaces: 0,
       easyRuns: 0
     };
 
@@ -295,6 +309,9 @@ export class TrainingScheduler {
           break;
         case WorkoutType.LONG_RUN:
           summary.longRuns++;
+          break;
+        case WorkoutType.MARATHON_RACE:
+          summary.marathonRaces++;
           break;
         case WorkoutType.EASY_RUN:
           summary.easyRuns++;
@@ -339,6 +356,8 @@ export class TrainingScheduler {
       duration: workout.duration,
       pace: workout.pace,
       intervals: workout.intervals ? JSON.stringify(workout.intervals) : null,
+      isRaceDay: workout.isRaceDay || false,
+      raceDetails: workout.raceDetails ? JSON.stringify(workout.raceDetails) : null,
       trainingPlanId,
       scheduledDate: formatDateForDB(workout.scheduledDate)
     }));

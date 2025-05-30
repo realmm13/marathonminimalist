@@ -4,10 +4,11 @@ import { z } from "zod";
 import { TrainingScheduler, type ScheduledTrainingPlan } from "@/lib/training/training-scheduler";
 import { userPreferencesSchema } from "@/types/user-preferences";
 import { TrainingPreferences } from "@/types/training";
+import { calculateStartDateFromRaceDate } from "@/lib/training/date-utils";
 
 const generatePlanSchema = z.object({
-  startDate: z.string().optional(), // ISO date string, defaults to today
-  workoutDays: z.array(z.number().min(1).max(7)).optional(), // Days of week, defaults to [2,4,6] (Tue, Thu, Sat)
+  startDate: z.string().optional(), // ISO date string, defaults to calculated from race date
+  workoutDays: z.array(z.number().min(1).max(7)).optional(), // Days of week, defaults to user preferences
 });
 
 const markWorkoutCompleteSchema = z.object({
@@ -17,9 +18,10 @@ const markWorkoutCompleteSchema = z.object({
   actualDistance: z.number().optional(),
   actualDuration: z.number().optional(), // in minutes
   actualPace: z.string().optional(),
-  effortLevel: z.number().min(1).max(10).optional(),
-  weather: z.string().optional(),
-  temperature: z.number().optional(),
+});
+
+const markWorkoutIncompleteSchema = z.object({
+  workoutId: z.string(), // Unique identifier for the workout (week-day combination)
 });
 
 export const trainingRouter = createTRPCRouter({
@@ -45,6 +47,21 @@ export const trainingRouter = createTRPCRouter({
       // Parse user preferences
       const preferences = userPreferencesSchema.parse(user.preferences || {});
       
+      console.log("User marathon settings:", {
+        goalMarathonTime: user.goalMarathonTime,
+        current5KTime: user.current5KTime,
+        marathonDate: user.marathonDate,
+        preferences: preferences
+      });
+      
+      // Check if user has completed their profile setup
+      if (!user.goalMarathonTime) {
+        throw new TRPCError({
+          code: "PRECONDITION_FAILED",
+          message: "Please complete your profile setup by setting your goal marathon time in the Profile page.",
+        });
+      }
+      
       // Create training preferences object
       const trainingPreferences: TrainingPreferences = {
         distanceUnit: preferences.marathonDistanceUnit || "MILES",
@@ -52,20 +69,52 @@ export const trainingRouter = createTRPCRouter({
         workoutDays: input.workoutDays || preferences.marathonWorkoutDays || [2, 4, 6], // Default: Tue, Thu, Sat
       };
 
-      // Determine start date
-      const startDate = input.startDate ? new Date(input.startDate) : new Date();
+      // Determine start date - prioritize race date alignment over manual start date
+      let startDate: Date;
+      const workoutDays = input.workoutDays || preferences.marathonWorkoutDays || [2, 4, 6];
+      
+      if (user.marathonDate) {
+        // Calculate start date from race date to ensure proper alignment
+        console.log("Calculating start date from race date:", user.marathonDate);
+        console.log("User workout days:", workoutDays);
+        startDate = calculateStartDateFromRaceDate(user.marathonDate, workoutDays);
+        console.log("Calculated start date:", startDate);
+      } else if (input.startDate) {
+        // Use provided start date
+        startDate = new Date(input.startDate);
+        console.log("Using provided start date:", startDate);
+      } else {
+        // Fallback to today
+        startDate = new Date();
+        console.log("Using fallback start date (today):", startDate);
+      }
       
       // Create training scheduler
       const scheduler = new TrainingScheduler({
         startDate,
         goalMarathonTime: user.goalMarathonTime || "04:00:00",
-        workoutDays: input.workoutDays || [2, 4, 6],
+        workoutDays: workoutDays,
         preferences: trainingPreferences,
       });
 
       try {
+        console.log("Starting training plan generation...");
+        console.log("User data:", { 
+          goalMarathonTime: user.goalMarathonTime, 
+          preferences: preferences,
+          trainingPreferences 
+        });
+        
         // Generate the training plan
+        console.log("Creating TrainingScheduler with params:", {
+          startDate,
+          goalMarathonTime: user.goalMarathonTime || "04:00:00",
+          workoutDays: workoutDays,
+          preferences: trainingPreferences,
+        });
+        
         const plan = scheduler.generateScheduledPlan();
+        console.log("Training plan generated successfully, workouts count:", plan.workouts.length);
         
         // Get workout completions for this user
         const completions = await ctx.db.workoutLog.findMany({
@@ -83,11 +132,10 @@ export const trainingRouter = createTRPCRouter({
             actualDistance: true,
             actualDuration: true,
             actualPace: true,
-            effortLevel: true,
-            weather: true,
-            temperature: true,
           }
         });
+
+        console.log("Found completions:", completions.length);
 
         // Create a map of completed workouts by workoutIdentifier
         const completionMap = new Map<string, typeof completions[0]>();
@@ -109,6 +157,8 @@ export const trainingRouter = createTRPCRouter({
           };
         });
         
+        console.log("Successfully processed workouts with completion status");
+        
         return {
           success: true,
           plan: {
@@ -124,6 +174,11 @@ export const trainingRouter = createTRPCRouter({
         };
       } catch (error) {
         console.error("Error generating training plan:", error);
+        console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
+        console.error("Error details:", {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          name: error instanceof Error ? error.name : 'Unknown',
+        });
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to generate training plan",
@@ -169,9 +224,6 @@ export const trainingRouter = createTRPCRouter({
             actualDistance: input.actualDistance,
             actualDuration: input.actualDuration,
             actualPace: input.actualPace,
-            effortLevel: input.effortLevel,
-            weather: input.weather,
-            temperature: input.temperature,
             // Store the workout identifier (e.g., "1-2" for week 1, day 2)
             workoutIdentifier: input.workoutId,
           }
@@ -189,6 +241,57 @@ export const trainingRouter = createTRPCRouter({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to mark workout as complete",
+        });
+      }
+    }),
+
+  markWorkoutIncomplete: protectedProcedure
+    .input(markWorkoutIncompleteSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        // Parse the workoutId to get week and day
+        const [week, day] = input.workoutId.split('-').map(Number);
+        if (!week || !day) {
+          throw new TRPCError({ 
+            code: "BAD_REQUEST", 
+            message: "Invalid workout ID format. Expected 'week-day' format." 
+          });
+        }
+
+        // Find the existing workout log by workoutIdentifier
+        const existingLog = await ctx.db.workoutLog.findFirst({
+          where: {
+            userId: ctx.session.user.id,
+            workoutIdentifier: input.workoutId,
+          }
+        });
+
+        if (!existingLog) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Workout completion not found"
+          });
+        }
+
+        // Delete the workout log entry
+        await ctx.db.workoutLog.delete({
+          where: {
+            id: existingLog.id,
+          }
+        });
+
+        return {
+          success: true,
+          message: "Workout marked as incomplete",
+        };
+      } catch (error) {
+        console.error("Error marking workout incomplete:", error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to mark workout as incomplete",
         });
       }
     }),

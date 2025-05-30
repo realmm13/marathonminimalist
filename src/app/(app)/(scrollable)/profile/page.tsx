@@ -10,17 +10,20 @@ import { FormFieldInput } from "@/components/FormFieldInput";
 import { toast } from "sonner";
 import { EditProfileFormWithData } from '@/components/forms/EditProfileForm/EditProfileFormWithData';
 import { api } from "@/trpc/react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-// Simplified schema with automatic pace format based on distance unit
-const marathonSettingsSchema = z.object({
+// Combined schema for both profile and marathon settings
+const combinedSettingsSchema = z.object({
+  // Profile fields
+  name: z.string().min(1, "Name is required"),
+  // Marathon settings fields
   distanceUnit: z.enum(["MILES", "KILOMETERS"]),
   goalMarathonTime: z.string().optional(),
   current5KTime: z.string().optional(),
   marathonDate: z.string().optional(),
 });
 
-type MarathonSettingsFormData = z.infer<typeof marathonSettingsSchema>;
+type CombinedSettingsFormData = z.infer<typeof combinedSettingsSchema>;
 
 // Function to format time input to HH:MM:SS format
 const formatMarathonTime = (value: string): string => {
@@ -55,9 +58,12 @@ const validateMarathonTime = (value: string): boolean => {
 };
 
 export default function ProfilePage() {
-  const form = useForm<MarathonSettingsFormData>({
-    resolver: zodResolver(marathonSettingsSchema),
+  const profileFormRef = useRef<{ submitForm: () => Promise<void> }>(null);
+  
+  const form = useForm<CombinedSettingsFormData>({
+    resolver: zodResolver(combinedSettingsSchema),
     defaultValues: {
+      name: "",
       distanceUnit: "MILES",
       goalMarathonTime: "",
       current5KTime: "",
@@ -65,48 +71,65 @@ export default function ProfilePage() {
     },
   });
 
-  // Load existing marathon settings
+  // Load existing data
+  const { data: user } = api.user.getUserForSimpleProfile.useQuery();
   const { data: marathonSettings, isLoading } = api.user.getMarathonSettings.useQuery();
-  const updateMarathonSettings = api.user.updateMarathonSettings.useMutation({
-    onSuccess: () => {
-      toast.success("Marathon training settings saved!");
-    },
-    onError: (error) => {
-      console.error("Error saving settings:", error);
-      toast.error("Failed to save settings");
-    },
-  });
+  
+  // Mutations
+  const updateProfile = api.user.updateProfile.useMutation();
+  const updateMarathonSettings = api.user.updateMarathonSettings.useMutation();
+  const utils = api.useUtils();
 
   // Update form when data loads
   useEffect(() => {
-    if (marathonSettings) {
+    if (user && marathonSettings) {
       form.reset({
+        name: user.name || "",
         distanceUnit: marathonSettings.distanceUnit as "MILES" | "KILOMETERS",
         goalMarathonTime: marathonSettings.goalMarathonTime,
         current5KTime: marathonSettings.current5KTime,
         marathonDate: marathonSettings.marathonDate,
       });
     }
-  }, [marathonSettings, form]);
+  }, [user, marathonSettings, form]);
 
-  const onSubmit = async (data: MarathonSettingsFormData) => {
+  const onSubmit = async (data: CombinedSettingsFormData) => {
     try {
-      await updateMarathonSettings.mutateAsync(data);
+      // Update profile (name)
+      await updateProfile.mutateAsync({
+        name: data.name,
+      });
+
+      // Update marathon settings
+      await updateMarathonSettings.mutateAsync({
+        distanceUnit: data.distanceUnit,
+        goalMarathonTime: data.goalMarathonTime,
+        current5KTime: data.current5KTime,
+        marathonDate: data.marathonDate,
+      });
+
+      // Invalidate queries to refresh data
+      await utils.user.getCurrentUser.invalidate();
+      await utils.user.getUserForEditingProfile.invalidate();
+      await utils.user.getUserForSimpleProfile.invalidate();
+      await utils.user.getMarathonSettings.invalidate();
+
+      toast.success("Settings saved successfully!");
     } catch (error) {
-      // Error handling is done in the mutation
+      console.error("Error saving settings:", error);
+      toast.error("Failed to save settings");
     }
   };
 
-  if (isLoading) {
+  const isSubmitting = updateProfile.isPending || updateMarathonSettings.isPending;
+
+  if (isLoading || !user) {
     return (
       <div className="container-enhanced py-2">
         <div className="mb-3 animate-slide-down">
           <h1 className="heading-1 mb-4 text-gradient">
             Profile Settings
           </h1>
-          <p className="body-large text-muted-foreground max-w-2xl">
-            Manage marathon training preferences to personalize your experience.
-          </p>
         </div>
         <div className="card-enhanced p-8 animate-fade-in-up max-w-4xl mx-auto">
           <div className="flex items-center justify-center py-8">
@@ -124,34 +147,41 @@ export default function ProfilePage() {
         <h1 className="heading-1 mb-4 text-gradient">
           Profile Settings
         </h1>
-        <p className="body-large text-muted-foreground max-w-2xl">
-          Manage marathon training preferences to personalize your experience.
-        </p>
       </div>
 
       {/* Single combined card */}
       <div className="card-enhanced p-8 animate-fade-in-up max-w-4xl mx-auto">
-        {/* Personal Information Section */}
-        <div className="mb-12">
-          <div className="mb-6">
-            <h2 className="heading-3 mb-2">Personal Information</h2>
-            <p className="body-small text-muted-foreground">Update your profile details</p>
-          </div>
-          <EditProfileFormWithData hideSaveButton={true} />
-        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 pb-12">
+            {/* Personal Information Section */}
+            <div className="mb-12">
+              <div className="mb-6">
+                <h2 className="heading-3 mb-2">Personal Information</h2>
+                <p className="body-small text-muted-foreground">Update your profile details</p>
+              </div>
+              
+              {/* Name field */}
+              <div className="space-y-6">
+                <FormFieldInput
+                  control={form.control}
+                  name="name"
+                  label="Name"
+                  placeholder="Enter your name"
+                  required
+                />
+              </div>
+            </div>
 
-        {/* Divider */}
-        <div className="border-t border-border/50 my-8"></div>
+            {/* Divider */}
+            <div className="border-t border-border/50 my-8"></div>
 
-        {/* Marathon Training Settings Section */}
-        <div>
-          <div className="mb-6">
-            <h2 className="heading-3 mb-2">Marathon Training Settings</h2>
-            <p className="body-small text-muted-foreground">Configure your marathon goals and training preferences</p>
-          </div>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            {/* Marathon Training Settings Section */}
+            <div>
+              <div className="mb-6">
+                <h2 className="heading-3 mb-2">Marathon Training Settings</h2>
+                <p className="body-small text-muted-foreground">Configure your marathon goals and training preferences</p>
+              </div>
+              
               <div className="space-y-6">
                 <div>
                   <h4 className="heading-5 mb-2">Distance Preferences</h4>
@@ -172,7 +202,7 @@ export default function ProfilePage() {
                           onChange={field.onChange}
                           size="md"
                           className="w-full bg-muted border-0 shadow-none"
-                          activeTabClassName="bg-primary text-primary-foreground shadow-sm border-0"
+                          activeTabClassName="bg-background text-foreground shadow-sm border border-border/30"
                         />
                       )}
                     />
@@ -239,17 +269,20 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full"
-                  disabled={updateMarathonSettings.isPending}
-                >
-                  {updateMarathonSettings.isPending ? "Saving..." : "Save Settings"}
-                </Button>
+                <div className="pt-4 pb-4 settings-button-container">
+                  <Button 
+                    type="submit" 
+                    variant="ghost"
+                    className="w-full bg-white text-black hover:bg-gray-100 border border-gray-300 shadow-sm font-medium btn-no-transform"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Saving..." : "Save Settings"}
+                  </Button>
+                </div>
               </div>
-            </form>
-          </Form>
-        </div>
+            </div>
+          </form>
+        </Form>
       </div>
     </div>
   );

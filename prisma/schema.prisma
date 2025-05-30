@@ -6,65 +6,45 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL") //uncomment for supabase
 }
 
 model User {
-  id            String    @id
-  createdAt     DateTime
-  updatedAt     DateTime? @updatedAt
-  name          String
-  email         String    @unique
-  emailVerified Boolean
-  image         String?
-  bio           String?
-
-  // images → direct URL uploads
-  avatarImageUrl String?
-  coverImageUrl  String?
-
-  // images → UploadThing keys
-  avatarImageUTKey String?
-  coverImageUTKey  String?
-
-  // images → DB relations
-  avatarImageId  String?   @unique
-  avatarImage    UTImage?  @relation("AvatarImage", fields: [avatarImageId], references: [id], onDelete: SetNull)
-  coverImageId   String?   @unique
-  coverImage     UTImage?  @relation("CoverImage", fields: [coverImageId], references: [id], onDelete: SetNull)
-  uploadedImages UTImage[] @relation("UploadedImages") // Relation for all uploaded images by user
-
-  timezone String? @default("Etc/GMT")
-
-  preferences Json? @default("{}")
-
-  // Marathon-specific fields
-  goalMarathonTime String?        // Format: "HH:MM:SS" (e.g., "03:30:00")
-  current5KTime    String?        // Format: "MM:SS" (e.g., "22:30")
-  marathonDate     DateTime?      // Target marathon date
-  experienceLevel  ExperienceLevel @default(BEGINNER)
-
-  sessions Session[]
-  accounts Account[]
-
-  // better-auth-admin
-  role       String    @default("user")
-  banReason  String?
-  banExpires DateTime?
-  banned     Boolean   @default(false)
-
-  // better-auth-username
-  username        String?
-  displayUsername String?
-
-  onboarded Boolean @default(false)
-
-  // Relations to marathon training models
-  trainingPlans TrainingPlan[]
-  workoutLogs   WorkoutLog[]
+  id                      String                  @id
+  createdAt               DateTime
+  updatedAt               DateTime?               @updatedAt
+  name                    String
+  email                   String                  @unique
+  emailVerified           Boolean
+  image                   String?
+  bio                     String?
+  avatarImageUrl          String?
+  coverImageUrl           String?
+  avatarImageUTKey        String?
+  coverImageUTKey         String?
+  avatarImageId           String?                 @unique
+  coverImageId            String?                 @unique
+  timezone                String?                 @default("Etc/GMT")
+  preferences             Json?                   @default("{}")
+  role                    String                  @default("user")
+  banReason               String?
+  banExpires              DateTime?
+  banned                  Boolean                 @default(false)
+  username                String?                 @unique
+  displayUsername         String?
+  onboarded               Boolean                 @default(false)
+  current5KTime           String?
+  experienceLevel         ExperienceLevel         @default(BEGINNER)
+  goalMarathonTime        String?
+  marathonDate            DateTime?
+  accounts                Account[]
   crossTrainingActivities CrossTrainingActivity[]
+  sessions                Session[]
+  trainingPlans           TrainingPlan[]
+  avatarImage             UTImage?                @relation("AvatarImage", fields: [avatarImageId], references: [id])
+  coverImage              UTImage?                @relation("CoverImage", fields: [coverImageId], references: [id])
+  uploadedImages          UTImage[]               @relation("UploadedImages")
+  workoutLogs             WorkoutLog[]
 
-  @@unique([username])
   @@map("users")
 }
 
@@ -77,8 +57,8 @@ model Session {
   ipAddress      String?
   userAgent      String?
   userId         String
-  user           User      @relation(fields: [userId], references: [id])
   impersonatedBy String?
+  user           User      @relation(fields: [userId], references: [id])
 
   @@map("session")
 }
@@ -88,7 +68,6 @@ model Account {
   accountId             String
   providerId            String
   userId                String
-  user                  User      @relation(fields: [userId], references: [id])
   accessToken           String?
   refreshToken          String?
   idToken               String?
@@ -98,6 +77,7 @@ model Account {
   password              String?
   createdAt             DateTime
   updatedAt             DateTime? @updatedAt
+  user                  User      @relation(fields: [userId], references: [id])
 
   @@map("accounts")
 }
@@ -114,17 +94,95 @@ model Verification {
 }
 
 model UTImage {
-  id        String   @id @default(cuid())
-  key       String   @unique // The key returned by UploadThing
-  userId    String
-  user      User     @relation("UploadedImages", fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  usedAsAvatarByUser User? @relation("AvatarImage")
-  usedAsCoverByUser  User? @relation("CoverImage")
+  id                 String   @id @default(cuid())
+  key                String   @unique
+  userId             String
+  createdAt          DateTime @default(now())
+  usedAsAvatarByUser User?    @relation("AvatarImage")
+  usedAsCoverByUser  User?    @relation("CoverImage")
+  user               User     @relation("UploadedImages", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@map("ut_images")
+}
+
+model TrainingPlan {
+  id              String          @id @default(cuid())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  name            String
+  description     String?
+  startDate       DateTime
+  endDate         DateTime
+  userId          String
+  experienceLevel ExperienceLevel
+  goalTime        String?
+  workoutDays     Json
+  isActive        Boolean         @default(true)
+  isCompleted     Boolean         @default(false)
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workoutLogs     WorkoutLog[]
+  workouts        Workout[]
+
+  @@map("training_plans")
+}
+
+model Workout {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  name           String
+  description    String?
+  type           WorkoutType
+  week           Int
+  day            Int
+  distance       Float?
+  duration       Int?
+  pace           String?
+  intervals      Json?
+  isRaceDay      Boolean      @default(false)
+  raceDetails    Json?
+  trainingPlanId String
+  workoutLogs    WorkoutLog[]
+  trainingPlan   TrainingPlan @relation(fields: [trainingPlanId], references: [id], onDelete: Cascade)
+
+  @@map("workouts")
+}
+
+model WorkoutLog {
+  id                String        @id @default(cuid())
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  completedAt       DateTime
+  notes             String?
+  actualDistance    Float?
+  actualDuration    Int?
+  actualPace        String?
+  userId            String
+  workoutId         String?
+  trainingPlanId    String?
+  workoutIdentifier String?
+  trainingPlan      TrainingPlan? @relation(fields: [trainingPlanId], references: [id])
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workout           Workout?      @relation(fields: [workoutId], references: [id])
+
+  @@map("workout_logs")
+}
+
+model CrossTrainingActivity {
+  id          String            @id @default(cuid())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  type        CrossTrainingType
+  name        String
+  description String?
+  duration    Int
+  notes       String?
+  completedAt DateTime
+  userId      String
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("cross_training_activities")
 }
 
 enum ExperienceLevel {
@@ -149,6 +207,7 @@ enum WorkoutType {
   LONG_RUN
   EASY_RUN
   RECOVERY_RUN
+  MARATHON_RACE
 }
 
 enum CrossTrainingType {
@@ -158,124 +217,4 @@ enum CrossTrainingType {
   SWIMMING
   PILATES
   OTHER
-}
-
-model TrainingPlan {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Plan details
-  name        String
-  description String?
-  startDate   DateTime
-  endDate     DateTime  // Calculated as startDate + 14 weeks
-  
-  // User relationship
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // Plan configuration
-  experienceLevel ExperienceLevel
-  goalTime        String?         // Target marathon time
-  workoutDays     Json            // Array of preferred workout days [1,3,5] (Mon, Wed, Fri)
-  
-  // Plan status
-  isActive        Boolean @default(true)
-  isCompleted     Boolean @default(false)
-  
-  // Relations
-  workouts        Workout[]
-  workoutLogs     WorkoutLog[]
-
-  @@map("training_plans")
-}
-
-model Workout {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Workout details
-  name        String
-  description String?
-  type        WorkoutType
-  week        Int      // Week number in training plan (1-14)
-  day         Int      // Day of week (1-7)
-  
-  // Workout specifications
-  distance    Float?   // Distance in kilometers
-  duration    Int?     // Duration in minutes
-  pace        String?  // Target pace (e.g., "5:30")
-  intervals   Json?    // Interval specifications for 800m workouts
-  
-  // Training plan relationship
-  trainingPlanId String
-  trainingPlan   TrainingPlan @relation(fields: [trainingPlanId], references: [id], onDelete: Cascade)
-  
-  // Relations
-  workoutLogs    WorkoutLog[]
-
-  @@map("workouts")
-}
-
-model WorkoutLog {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Log details
-  completedAt DateTime
-  notes       String?
-  
-  // Performance data
-  actualDistance Float?   // Actual distance completed
-  actualDuration Int?     // Actual duration in minutes
-  actualPace     String?  // Actual pace achieved
-  
-  // Effort and conditions
-  effortLevel    Int?     // 1-10 scale
-  weather        String?
-  temperature    Float?
-  
-  // Custom workout identifier (e.g., "1-2" for week 1, day 2)
-  workoutIdentifier String?
-  
-  // Relationships
-  userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  workoutId      String?
-  workout        Workout? @relation(fields: [workoutId], references: [id], onDelete: SetNull)
-  
-  trainingPlanId String?
-  trainingPlan   TrainingPlan? @relation(fields: [trainingPlanId], references: [id], onDelete: SetNull)
-
-  @@map("workout_logs")
-}
-
-model CrossTrainingActivity {
-  id          String   @id @default(cuid())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Activity details
-  type        CrossTrainingType
-  name        String
-  description String?
-  
-  // Performance data
-  duration    Int      // Duration in minutes
-  intensity   Int?     // 1-10 scale
-  calories    Int?
-  notes       String?
-  
-  // Completion data
-  completedAt DateTime
-  
-  // User relationship
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("cross_training_activities")
 }

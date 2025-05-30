@@ -5,12 +5,14 @@ interface LandingSectionTitleProps {
   title: string;
   description: string;
   className?: string;
+  id?: string;
 }
 
 export default function LandingSectionTitle({
   title,
   description,
   className = "",
+  id,
 }: LandingSectionTitleProps) {
   return (
     <motion.div
@@ -20,7 +22,7 @@ export default function LandingSectionTitle({
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.5 }}
     >
-      <h2 className="mb-4 text-3xl font-bold md:text-4xl">{title}</h2>
+      <h2 id={id} className="mb-4 text-3xl font-bold md:text-4xl">{title}</h2>
       <p className="mx-auto max-w-2xl text-gray-600 dark:text-gray-400">
         {description}
       </p>

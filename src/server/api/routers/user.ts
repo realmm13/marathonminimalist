@@ -19,6 +19,8 @@ const marathonSettingsSchema = z.object({
   goalMarathonTime: z.string().optional(),
   current5KTime: z.string().optional(),
   marathonDate: z.string().optional(),
+  paceFormat: z.enum(["MIN_PER_MILE", "MIN_PER_KM"]).optional(),
+  workoutDays: z.array(z.number().min(1).max(7)).optional(),
 });
 
 export const userRouter = createTRPCRouter({
@@ -279,46 +281,59 @@ export const userRouter = createTRPCRouter({
   updateMarathonSettings: protectedProcedure
     .input(marathonSettingsSchema)
     .mutation(async ({ ctx, input }) => {
-      // Update user marathon fields
-      const updateData: any = {};
+      console.log("Updating marathon settings for user:", ctx.session.user.id);
+      console.log("Input data:", input);
       
-      if (input.goalMarathonTime) {
-        updateData.goalMarathonTime = input.goalMarathonTime;
+      try {
+        // Get current user preferences
+        const currentUser = await ctx.db.user.findUnique({
+          where: { id: ctx.session.user.id },
+          select: { preferences: true }
+        });
+
+        const currentPreferences = userPreferencesSchema.parse(currentUser?.preferences || {});
+        console.log("Current preferences:", currentPreferences);
+
+        // Update preferences with new marathon settings
+        const updatedPreferences = {
+          ...currentPreferences,
+          marathonDistanceUnit: input.distanceUnit,
+          marathonPaceFormat: input.paceFormat || currentPreferences.marathonPaceFormat,
+          marathonWorkoutDays: input.workoutDays || currentPreferences.marathonWorkoutDays,
+        };
+        
+        console.log("Updated preferences:", updatedPreferences);
+
+        // Update user with new marathon settings and preferences
+        const updatedUser = await ctx.db.user.update({
+          where: { id: ctx.session.user.id },
+          data: {
+            goalMarathonTime: input.goalMarathonTime,
+            current5KTime: input.current5KTime,
+            marathonDate: input.marathonDate ? new Date(input.marathonDate) : null,
+            preferences: updatedPreferences,
+          },
+          select: {
+            id: true,
+            goalMarathonTime: true,
+            current5KTime: true,
+            marathonDate: true,
+            preferences: true,
+          },
+        });
+
+        console.log("User updated successfully:", updatedUser);
+
+        return {
+          success: true,
+          user: updatedUser,
+        };
+      } catch (error) {
+        console.error("Error updating marathon settings:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update marathon settings",
+        });
       }
-      if (input.current5KTime) {
-        updateData.current5KTime = input.current5KTime;
-      }
-      if (input.marathonDate) {
-        updateData.marathonDate = new Date(input.marathonDate);
-      }
-
-      // Update user preferences for distance unit
-      const user = await ctx.db.user.findUnique({
-        where: { id: ctx.session.user.id },
-        select: { preferences: true },
-      });
-
-      if (!user) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
-      }
-
-      const currentPreferences = userPreferencesSchema
-        .partial()
-        .parse(user.preferences || {});
-
-      const updatedPreferences = {
-        ...currentPreferences,
-        marathonDistanceUnit: input.distanceUnit,
-        marathonPaceFormat: input.distanceUnit === "MILES" ? "MIN_PER_MILE" : "MIN_PER_KM",
-      };
-
-      updateData.preferences = updatedPreferences;
-
-      await ctx.db.user.update({
-        where: { id: ctx.session.user.id },
-        data: updateData,
-      });
-
-      return { success: true };
     }),
 });

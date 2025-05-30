@@ -4,6 +4,8 @@ import React, { useState, useMemo } from 'react';
 import { api } from '@/trpc/react';
 import { WorkoutGrid } from '@/components/training/WorkoutGrid';
 import { WorkoutCardProps } from '@/components/training/WorkoutCard';
+import { WorkoutDetailModal } from '@/components/training/WorkoutDetailModal';
+import { useDialog } from '@/components/DialogManager';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SegmentedControl } from '@/components/SegmentedControl';
@@ -21,6 +23,8 @@ import { format, addDays } from 'date-fns';
 import { WorkoutType } from '@/generated/prisma';
 import { useUserSetting } from '@/hooks/useUserSetting';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
 
 // Define distance unit constants to avoid runtime enum issues
 const DISTANCE_UNITS = {
@@ -32,8 +36,11 @@ type DistanceUnitType = typeof DISTANCE_UNITS[keyof typeof DISTANCE_UNITS];
 
 export default function WorkoutsPage() {
   // View state management
-  const [currentView, setCurrentView] = useState<'list' | 'compact'>('list');
-  
+  const [currentView, setCurrentView] = React.useState<'list' | 'compact'>('list');
+
+  // Dialog hook for workout details
+  const { openDialog } = useDialog();
+
   // Get user's distance unit preference
   const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
   const distanceUnit = (distanceUnitValue as DistanceUnitType) || DISTANCE_UNITS.MILES;
@@ -54,6 +61,12 @@ export default function WorkoutsPage() {
       console.log('Training plan generated successfully:', trainingPlanData);
     }
   }, [planError, trainingPlanData]);
+
+  // Check if the error is due to incomplete profile setup
+  const isProfileIncomplete = planError?.data?.code === "PRECONDITION_FAILED";
+  const errorMessage = isProfileIncomplete 
+    ? "Please complete your profile setup by setting your goal marathon time in the Profile page."
+    : "Training Plan Not Available";
 
   // Calculate completion statistics
   const completionStats = useMemo(() => {
@@ -148,7 +161,19 @@ export default function WorkoutsPage() {
 
   const handleWorkoutClick = (workout: WorkoutCardProps) => {
     console.log('Workout clicked:', workout);
-    // TODO: Navigate to workout detail page or open modal
+    
+    // Open workout detail modal
+    openDialog({
+      title: workout.name,
+      component: WorkoutDetailModal,
+      props: {
+        workout,
+        onComplete: () => handleWorkoutComplete(workout),
+        onUncomplete: () => handleWorkoutUncomplete(workout),
+      },
+      size: 'lg',
+      showCloseButton: true,
+    });
   };
 
   // Mutation for marking workouts as complete
@@ -160,6 +185,18 @@ export default function WorkoutsPage() {
     },
     onError: (error) => {
       console.error('Error marking workout complete:', error);
+      // TODO: Show error toast
+    },
+  });
+
+  // Mutation for marking workouts as incomplete
+  const markWorkoutIncompleteMutation = api.training.markWorkoutIncomplete.useMutation({
+    onSuccess: () => {
+      // Refetch the training plan to update completion status
+      void utils.training.generatePlan.invalidate();
+    },
+    onError: (error) => {
+      console.error('Error marking workout incomplete:', error);
       // TODO: Show error toast
     },
   });
@@ -192,41 +229,76 @@ export default function WorkoutsPage() {
     });
   };
 
+  const handleWorkoutUncomplete = (workout: WorkoutCardProps) => {
+    console.log('handleWorkoutUncomplete called with:', workout);
+    console.log('Workout ID:', workout.id);
+    
+    if (!workout.isCompleted) {
+      console.log('Workout is not completed:', workout);
+      return;
+    }
+
+    // Ensure workout has a valid ID
+    if (!workout.id) {
+      console.error('Workout ID is missing');
+      return;
+    }
+
+    console.log('Marking workout as incomplete:', workout.id);
+
+    // Mark workout as incomplete
+    markWorkoutIncompleteMutation.mutate({
+      workoutId: workout.id,
+    });
+  };
+
   // View options for segmented control
   const viewOptions = [
     { value: 'list', label: 'List' },
     { value: 'compact', label: 'Compact' }
   ];
 
-  if (isLoading) {
+  const router = useRouter();
+
+  // Show loading state
+  if (isLoadingPlan) {
     return (
-      <div className="container-enhanced py-2">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center space-y-4">
-            <Spinner size="lg" />
-            <p className="text-muted-foreground">Generating your personalized training plan...</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading training plan...</p>
           </div>
         </div>
       </div>
     );
   }
 
-  if (!trainingPlanData || !trainingPlanData.success) {
+  // Show error state
+  if (planError || !trainingPlanData?.success) {
     return (
-      <div className="container-enhanced py-2">
-        <div className="flex items-center justify-center py-12">
-          <Card className="p-8 max-w-md text-center">
-            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="heading-4 mb-2">Training Plan Not Available</h3>
-            <p className="body-small text-muted-foreground mb-4">
-              Please complete your profile settings to generate your personalized training plan.
-            </p>
-            <Link href="/profile">
-              <button className="btn-primary flex items-center gap-2 mx-auto">
-                <Settings className="h-4 w-4" />
-                Complete Profile Setup
-              </button>
-            </Link>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md p-8 text-center">
+            <div className="mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                <AlertCircle className="w-8 h-8 text-muted-foreground" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">{errorMessage}</h2>
+              <p className="text-muted-foreground mb-6">
+                {isProfileIncomplete 
+                  ? "Set your goal marathon time and preferences to generate your personalized training plan."
+                  : "Please complete your profile settings to generate your personalized training plan."
+                }
+              </p>
+              <Button 
+                onClick={() => router.push('/profile')}
+                className="w-full"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                {isProfileIncomplete ? "Complete Profile Setup" : "Complete Profile Setup"}
+              </Button>
+            </div>
           </Card>
         </div>
       </div>
@@ -350,6 +422,7 @@ export default function WorkoutsPage() {
           variant={currentView}
           onWorkoutClick={handleWorkoutClick}
           onWorkoutComplete={handleWorkoutComplete}
+          onWorkoutUncomplete={handleWorkoutUncomplete}
         />
       </div>
     </div>

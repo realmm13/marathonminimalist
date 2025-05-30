@@ -111,13 +111,15 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
   
   const easyRunDistance = week === 14 ? 0 : (slowRunDurationMinutes / easyPaceMinutes);
   
-  // Total distance
-  const totalDistance = easyRunDistance + marathonPaceDistance;
+  // Total distance for Week 14 should be full marathon distance
+  const totalDistance = week === 14 
+    ? (preferences.distanceUnit === DistanceUnit.KILOMETERS ? 42.195 : 26.2) // Full marathon distance
+    : easyRunDistance + marathonPaceDistance;
   
   // Estimate total duration
   const marathonPaceMinutes = paces.marathonPace.minutes + (paces.marathonPace.seconds / 60);
   const estimatedDuration = week === 14 
-    ? Math.round(marathonPaceDistance * marathonPaceMinutes)
+    ? Math.round(totalDistance * marathonPaceMinutes) // Full marathon duration
     : slowRunDurationMinutes + Math.round(marathonPaceDistance * marathonPaceMinutes);
   
   // Format paces for display
@@ -135,19 +137,28 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
   );
   
   return {
-    name: `Week ${week} Long Run`,
+    name: week === 14 ? 'Marathon Race' : `Week ${week} Long Run`,
     description: week === 14 
-      ? `${marathonPaceDistance.toFixed(1)} ${preferences.distanceUnit.toLowerCase()} at marathon pace`
+      ? `Marathon Race - ${totalDistance} ${preferences.distanceUnit.toLowerCase()}`
       : `${slowRunDurationMinutes} mins easy + ${marathonPaceDistance.toFixed(1)} ${preferences.distanceUnit.toLowerCase()} at marathon pace`,
-    type: WorkoutType.LONG_RUN,
+    type: week === 14 ? WorkoutType.MARATHON_RACE : WorkoutType.LONG_RUN,
     week,
     easyRunDistance,
-    marathonPaceDistance,
+    marathonPaceDistance: week === 14 ? totalDistance : marathonPaceDistance,
     totalDistance,
     targetEasyPace: easyPaceFormatted,
     targetMarathonPace: marathonPaceFormatted,
     estimatedDuration,
-    instructions
+    instructions,
+    // Add race day specific properties for Week 14
+    ...(week === 14 && {
+      isRaceDay: true,
+      raceDetails: {
+        startTime: '07:00', // Default start time
+        location: 'TBD - Set in user preferences',
+        instructions: 'Marathon Race Day - Execute your race plan and trust your training!'
+      }
+    })
   };
 }
 
