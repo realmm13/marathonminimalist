@@ -28,7 +28,7 @@ describe('TrainingNavigation', () => {
       expect(screen.getByRole('navigation')).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /dashboard/i })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /workouts/i })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: /progress/i })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /profile/i })).toBeInTheDocument();
     });
 
     it('renders with proper navigation structure', () => {
@@ -44,7 +44,7 @@ describe('TrainingNavigation', () => {
   });
 
   describe('Active State Management', () => {
-    it('marks dashboard as active when on /app path', () => {
+    it('marks dashboard as active when on dashboard path', () => {
       mockUsePathname.mockReturnValue('/app');
       render(<TrainingNavigation />);
       
@@ -52,16 +52,8 @@ describe('TrainingNavigation', () => {
       expect(dashboardLink).toHaveAttribute('aria-current', 'page');
     });
 
-    it('marks progress as active when on progress path', () => {
-      mockUsePathname.mockReturnValue('/progress-demo');
-      render(<TrainingNavigation />);
-      
-      const progressLink = screen.getByRole('link', { name: /progress.*current page/i });
-      expect(progressLink).toHaveAttribute('aria-current', 'page');
-    });
-
     it('marks workouts as active when on workout path', () => {
-      mockUsePathname.mockReturnValue('/workout-demo');
+      mockUsePathname.mockReturnValue('/workouts');
       render(<TrainingNavigation />);
       
       const workoutsLink = screen.getByRole('link', { name: /workouts.*current page/i });
@@ -86,15 +78,15 @@ describe('TrainingNavigation', () => {
     });
 
     it('uses aria-current for active page', () => {
-      mockUsePathname.mockReturnValue('/progress-demo');
+      mockUsePathname.mockReturnValue('/workouts');
       render(<TrainingNavigation />);
       
-      const progressLink = screen.getByRole('link', { name: /progress.*current page/i });
-      expect(progressLink).toHaveAttribute('aria-current', 'page');
+      const workoutsLink = screen.getByRole('link', { name: /workouts.*current page/i });
+      expect(workoutsLink).toHaveAttribute('aria-current', 'page');
     });
 
     it('provides descriptive link text with current page indicator', () => {
-      mockUsePathname.mockReturnValue('/workout-demo');
+      mockUsePathname.mockReturnValue('/workouts');
       render(<TrainingNavigation />);
       
       const workoutsLink = screen.getByRole('link', { name: /workouts.*current page/i });
@@ -130,11 +122,11 @@ describe('TrainingNavigation', () => {
       render(<TrainingNavigation variant="compact" />);
       
       const nav = screen.getByRole('navigation');
-      expect(nav).toHaveClass('flex', 'items-center', 'space-x-1');
+      expect(nav).toHaveClass('flex', 'items-center', 'space-x-2');
     });
 
     it('applies active state styling', () => {
-      mockUsePathname.mockReturnValue('/workout-demo');
+      mockUsePathname.mockReturnValue('/workouts');
       render(<TrainingNavigation />);
       
       const workoutsLink = screen.getByRole('link', { name: /workouts.*current page/i });
@@ -163,8 +155,7 @@ describe('TrainingNavigation', () => {
       render(<TrainingNavigation />);
       
       expect(screen.getByRole('link', { name: /dashboard/i })).toHaveAttribute('href', '/app');
-      expect(screen.getByRole('link', { name: /workouts/i })).toHaveAttribute('href', '/workout-demo');
-      expect(screen.getByRole('link', { name: /progress/i })).toHaveAttribute('href', '/progress-demo');
+      expect(screen.getByRole('link', { name: /workouts/i })).toHaveAttribute('href', '/workouts');
     });
   });
 

@@ -7,7 +7,6 @@ import {
   LucideFileText,
   LucideMessageSquare,
   LucideActivity,
-  LucideBarChart3,
   LucideClock,
   LucideTarget,
   LucideUser,
@@ -77,11 +76,6 @@ export const trainingLinks: Link[] = [
     label: "Workouts",
     href: "/workouts",
     icon: LucideActivity,
-  },
-  {
-    label: "Progress",
-    href: "/progress-demo",
-    icon: LucideBarChart3,
   },
   {
     label: "Profile",

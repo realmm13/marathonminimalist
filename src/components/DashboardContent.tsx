@@ -2,7 +2,6 @@
 
 import { Card } from "@/components/ui/card";
 import { Search, Target } from "lucide-react";
-import { ProgressDashboard } from '@/components/training/ProgressDashboard';
 import { Badge } from '@/components/ui/badge';
 import { 
   Activity, 
@@ -40,9 +39,28 @@ export function DashboardContent() {
         </div>
       </div>
 
-      {/* Full-width Progress Dashboard */}
-      <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-        <ProgressDashboard />
+      {/* Training Overview */}
+      <div className="animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
+        <Card className="card-enhanced p-6">
+          <h3 className="heading-5 mb-4 flex items-center gap-2">
+            <Activity className="h-5 w-5 text-primary" />
+            Training Overview
+          </h3>
+          <div className="grid gap-6 md:grid-cols-3">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-2">16</div>
+              <div className="body-small text-muted-foreground">Weeks to Marathon</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-2">65%</div>
+              <div className="body-small text-muted-foreground">Training Complete</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary mb-2">42</div>
+              <div className="body-small text-muted-foreground">Peak Weekly Miles</div>
+            </div>
+          </div>
+        </Card>
       </div>
 
       {/* Enhanced Quick Stats Card - moved to bottom */}
