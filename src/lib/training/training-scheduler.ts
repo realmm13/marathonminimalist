@@ -162,6 +162,12 @@ export class TrainingScheduler {
       preferences: this.params.preferences
     });
 
+    // Convert distance to kilometers for database storage
+    // The tempo run returns distance in user's preferred unit, but we need to store in km
+    const distanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
+      ? tempoRun.tempoDistance * 1.60934 // Convert miles to km
+      : tempoRun.tempoDistance; // Already in km
+
     return {
       name: tempoRun.name,
       description: tempoRun.description,
@@ -169,7 +175,7 @@ export class TrainingScheduler {
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
-      distance: tempoRun.tempoDistance,
+      distance: distanceInKm, // Store in kilometers for database
       duration: tempoRun.estimatedDuration,
       pace: tempoRun.targetPace,
       instructions: tempoRun.instructions,
@@ -187,6 +193,11 @@ export class TrainingScheduler {
       preferences: this.params.preferences
     });
 
+    // Convert distance to kilometers for database storage
+    const distanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
+      ? intervalWorkout.totalDistance * 1.60934 // Convert miles to km
+      : intervalWorkout.totalDistance; // Already in km
+
     return {
       name: intervalWorkout.name,
       description: intervalWorkout.description,
@@ -194,7 +205,7 @@ export class TrainingScheduler {
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
-      distance: intervalWorkout.totalDistance,
+      distance: distanceInKm, // Store in kilometers for database
       duration: intervalWorkout.estimatedDuration,
       pace: intervalWorkout.intervals[0]?.targetPace,
       intervals: intervalWorkout.intervals,
@@ -213,6 +224,11 @@ export class TrainingScheduler {
       preferences: this.params.preferences
     });
 
+    // Convert distance to kilometers for database storage
+    const distanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
+      ? longRun.totalDistance * 1.60934 // Convert miles to km
+      : longRun.totalDistance; // Already in km
+
     return {
       name: longRun.name,
       description: longRun.description,
@@ -220,7 +236,7 @@ export class TrainingScheduler {
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
-      distance: longRun.totalDistance,
+      distance: distanceInKm, // Store in kilometers for database
       duration: longRun.estimatedDuration,
       pace: longRun.targetMarathonPace, // Use marathon pace for race day
       instructions: longRun.instructions,
@@ -239,17 +255,23 @@ export class TrainingScheduler {
   private createEasyRunWorkout(schedule: WorkoutSchedule): ScheduledWorkout {
     // For easy runs, we'll create a simple workout
     // Distance varies by week but is generally shorter than long runs
-    const easyDistance = this.calculateEasyRunDistance(schedule.week);
-    const estimatedDuration = Math.round(easyDistance * 8); // Assume 8 min/km easy pace
+    const easyDistanceInUserUnit = this.calculateEasyRunDistance(schedule.week);
+    
+    // Convert to kilometers for database storage
+    const easyDistanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
+      ? easyDistanceInUserUnit * 1.60934 // Convert miles to km
+      : easyDistanceInUserUnit; // Already in km
+    
+    const estimatedDuration = Math.round(easyDistanceInKm * 8); // Assume 8 min/km easy pace
 
     return {
       name: `Week ${schedule.week} Easy Run`,
-      description: `${easyDistance.toFixed(1)} ${this.params.preferences.distanceUnit.toLowerCase()} easy pace`,
+      description: `${easyDistanceInUserUnit.toFixed(1)} ${this.params.preferences.distanceUnit.toLowerCase()} easy pace`,
       type: WorkoutType.EASY_RUN,
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
-      distance: easyDistance,
+      distance: easyDistanceInKm, // Store in kilometers for database
       duration: estimatedDuration,
       pace: '8:00', // Default easy pace, should be calculated properly
       instructions: [
@@ -260,10 +282,10 @@ export class TrainingScheduler {
       ],
       workoutData: {
         name: `Week ${schedule.week} Easy Run`,
-        description: `${easyDistance.toFixed(1)} ${this.params.preferences.distanceUnit.toLowerCase()} easy pace`,
+        description: `${easyDistanceInUserUnit.toFixed(1)} ${this.params.preferences.distanceUnit.toLowerCase()} easy pace`,
         type: WorkoutType.EASY_RUN,
         week: schedule.week,
-        totalDistance: easyDistance,
+        totalDistance: easyDistanceInKm, // Store in km for consistency
         estimatedDuration: estimatedDuration,
         instructions: []
       } as any // Simplified for easy runs
