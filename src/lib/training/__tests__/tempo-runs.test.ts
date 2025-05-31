@@ -168,8 +168,16 @@ describe('Tempo Run Algorithm', () => {
       const result = generateTempoRun(baseParams);
       
       expect(result.description).toContain('training pace');
-      expect(result.instructions).toContain('Warm up with 1 mile easy jog');
-      expect(result.instructions).toContain('Cool down with 1 mile easy jog');
+      expect(result.instructions.some(instruction => 
+        instruction.includes('Warm up with 1 mile easy jog at')
+      )).toBe(true);
+      expect(result.instructions.some(instruction => 
+        instruction.includes('Cool down with 1 mile easy jog at')
+      )).toBe(true);
+      // Should include specific easy pace information
+      expect(result.instructions.some(instruction => 
+        instruction.includes('9:01/mi')
+      )).toBe(true);
     });
 
     test('should mention target pace in description', () => {
