@@ -123,11 +123,13 @@ export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
     preferences
   );
   
-  // Get structure
+  // Get structure with pace information
   const structure = getTempoRunStructure(
     warmUpDistance,
     tempoDistance,
     coolDownDistance,
+    formatPaceForUser(paces.easyPace, preferences),
+    trainingPaceFormatted,
     preferences
   );
   
@@ -159,48 +161,33 @@ function getTempoRunInstructions(
   const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   const warmUpCoolDown = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '1.6km' : '1 mile';
   
-  // Calculate easy pace for warm-up/cool-down context
-  const timeParts = marathonPace.match(/(\d+):(\d+)/);
-  let easyPaceDisplay = 'easy pace';
-  if (timeParts) {
-    const marathonMinutes = parseInt(timeParts[1]!);
-    const marathonSeconds = parseInt(timeParts[2]!);
-    const marathonPaceSeconds = marathonMinutes * 60 + marathonSeconds;
-    const easyPaceSeconds = marathonPaceSeconds + 60; // Add 60 seconds for easy pace
-    const easyMinutes = Math.floor(easyPaceSeconds / 60);
-    const easySecondsRemainder = easyPaceSeconds % 60;
-    const paceUnit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '/km' : '/mi';
-    easyPaceDisplay = `${easyMinutes}:${easySecondsRemainder.toString().padStart(2, '0')}${paceUnit}`;
-  }
-  
   return [
-    `Warm up with ${warmUpCoolDown} easy jog at ${easyPaceDisplay} to prepare your body for sustained tempo effort`,
-    `The warmup gradually increases your heart rate and prepares muscles for the tempo effort`,
-    `Without proper warmup, jumping into tempo pace can lead to early fatigue or injury`,
+    `Warm up with ${warmUpCoolDown} easy jog`,
     `Run ${distance.toFixed(1)} ${unit} at training pace: ${trainingPace}`,
-    `Training pace should feel "comfortably hard" - sustainable for the full marathon distance`,
+    `Cool down with ${warmUpCoolDown} easy jog`,
+    'Training pace should feel "comfortably hard" - sustainable for the full marathon distance',
     `This pace is 10-12 seconds faster than your goal marathon pace (${marathonPace})`,
-    `Building in this cushion helps ensure you can maintain pace on race day`,
-    `Cool down with ${warmUpCoolDown} easy jog at ${easyPaceDisplay} to aid recovery`,
-    `The easy-paced warm-up and cool-down segments add significant time to your total workout duration`,
-    `Focus on smooth, efficient running form at this effort level`,
-    `If you feel you\'re pushing too hard, you may need to adjust your marathon goal time`
+    'Building in this cushion helps ensure you can maintain pace on race day',
+    'Focus on smooth, efficient running form at this effort level',
+    'If you feel you\'re pushing too hard, you may need to adjust your marathon goal time'
   ];
 }
 
 /**
- * Get detailed structure breakdown for tempo runs
+ * Generate structure description for tempo run
  */
 function getTempoRunStructure(
   warmUpDistance: number,
   tempoDistance: number,
   coolDownDistance: number,
+  easyPace: string,
+  trainingPace: string,
   preferences: TrainingPreferences
 ): string {
   const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   const unitSingular = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   
-  return `Warm-up (${warmUpDistance.toFixed(1)} ${warmUpDistance === 1 ? unitSingular : unit}) → Tempo segment (${tempoDistance.toFixed(1)} ${tempoDistance === 1 ? unitSingular : unit}) → Cool-down (${coolDownDistance.toFixed(1)} ${coolDownDistance === 1 ? unitSingular : unit})`;
+  return `Warm-up (${warmUpDistance.toFixed(1)} ${warmUpDistance === 1 ? unitSingular : unit} at ${easyPace}) → Tempo segment (${tempoDistance.toFixed(1)} ${tempoDistance === 1 ? unitSingular : unit} at ${trainingPace}) → Cool-down (${coolDownDistance.toFixed(1)} ${coolDownDistance === 1 ? unitSingular : unit} at ${easyPace})`;
 }
 
 /**

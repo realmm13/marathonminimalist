@@ -188,7 +188,7 @@ export function ScheduleCalendar({
       : selectedWorkoutDays.includes(dayOfWeek);
     
     const isEditingThisWeek = weekNumber === customizingWeek;
-    const hasOverride = weekNumber ? (weeklyOverrides?.[weekNumber]?.length ?? 0) > 0 : false;
+    const hasOverride = weekNumber && weeklyOverrides && weeklyOverrides[weekNumber]?.length > 0;
     const isClickable = !weekNumber || isEditingThisWeek;
 
     return (
@@ -252,7 +252,7 @@ export function ScheduleCalendar({
     });
 
     const currentWeekDays = getWorkoutDaysForWeek(selectedWeek);
-    const hasWeekOverride = (weeklyOverrides?.[selectedWeek]?.length ?? 0) > 0;
+    const hasWeekOverride = weeklyOverrides && weeklyOverrides[selectedWeek]?.length > 0;
 
     return (
       <div className={cn("space-y-4", className)}>
