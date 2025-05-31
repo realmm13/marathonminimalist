@@ -258,7 +258,9 @@ export const WorkoutDetailModal = React.memo<WorkoutDetailModalProps>(function W
           
           <div>
             <h4 className="font-medium mb-1">Structure</h4>
-            <p className="text-sm text-muted-foreground">{config.structure}</p>
+            <p className="text-sm text-muted-foreground">
+              {workout.structure || config.structure}
+            </p>
           </div>
           
           <div>
