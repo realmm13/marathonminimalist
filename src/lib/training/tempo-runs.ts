@@ -54,7 +54,8 @@ function getTempoDistance(week: number): number {
 
 /**
  * Generate a single tempo run workout
- * Uses exact marathon pace (MP) as specified in the training plan
+ * Uses training pace that's 10-12 seconds faster than marathon pace (MP)
+ * This builds in a cushion as recommended for marathon training
  */
 export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
   const { goalMarathonTime, week, preferences } = params;
@@ -91,32 +92,46 @@ export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
   
   const totalDistance = warmUpDistance + tempoDistance + coolDownDistance;
   
-  // Estimate duration (marathon pace + easier warm-up/cool-down)
-  const marathonPaceMinutes = paces.marathonPace.minutes + (paces.marathonPace.seconds / 60);
+  // Calculate training pace (10-12 seconds faster than marathon pace)
+  // Using 11 seconds as the middle of the recommended 10-12 second range
+  const marathonPaceSeconds = paces.marathonPace.minutes * 60 + paces.marathonPace.seconds;
+  const trainingPaceSeconds = Math.max(marathonPaceSeconds - 11, 180); // minimum 3:00/mile
+  const trainingPace = {
+    minutes: Math.floor(trainingPaceSeconds / 60),
+    seconds: trainingPaceSeconds % 60
+  };
+  
+  // Estimate duration (training pace + easier warm-up/cool-down)
+  const trainingPaceMinutes = trainingPace.minutes + (trainingPace.seconds / 60);
   const easyPaceMinutes = paces.easyPace.minutes + (paces.easyPace.seconds / 60);
   
   const estimatedDuration = Math.round(
     (warmUpDistance * easyPaceMinutes) + 
-    (tempoDistance * marathonPaceMinutes) + 
+    (tempoDistance * trainingPaceMinutes) + 
     (coolDownDistance * easyPaceMinutes)
   );
   
-  // Format pace for display (using marathon pace)
-  const marathonPaceFormatted = formatPaceForUser(paces.marathonPace, preferences);
+  // Format training pace for display
+  const trainingPaceFormatted = formatPaceForUser(trainingPace, preferences);
   
   // Generate instructions
-  const instructions = getTempoRunInstructions(marathonPaceFormatted, tempoDistance, preferences);
+  const instructions = getTempoRunInstructions(
+    trainingPaceFormatted, 
+    formatPaceForUser(paces.marathonPace, preferences),
+    tempoDistance, 
+    preferences
+  );
   
   return {
     name: `Week ${week} Tempo Run`,
-    description: `${tempoDistance.toFixed(1)} ${preferences.distanceUnit.toLowerCase()} at marathon pace`,
+    description: `${tempoDistance.toFixed(1)} ${preferences.distanceUnit.toLowerCase()} at training pace (${trainingPaceFormatted})`,
     type: WorkoutType.TEMPO_RUN,
     week,
     warmUpDistance,
     tempoDistance,
     coolDownDistance,
     totalDistance,
-    targetPace: marathonPaceFormatted,
+    targetPace: trainingPaceFormatted,
     estimatedDuration,
     instructions
   };
@@ -126,7 +141,8 @@ export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
  * Generate instructions for tempo runs
  */
 function getTempoRunInstructions(
-  marathonPace: string, 
+  trainingPace: string, 
+  marathonPace: string,
   distance: number,
   preferences: TrainingPreferences
 ): string[] {
@@ -135,10 +151,11 @@ function getTempoRunInstructions(
   
   return [
     `Warm up with ${warmUpCoolDown} easy jog`,
-    `Run ${distance.toFixed(1)} ${unit} at marathon pace: ${marathonPace}`,
+    `Run ${distance.toFixed(1)} ${unit} at training pace: ${trainingPace}`,
     `Cool down with ${warmUpCoolDown} easy jog`,
-    'Marathon pace should feel "comfortably hard" - sustainable for the full marathon distance',
-    'This is your goal race pace - practice maintaining it consistently',
+    'Training pace should feel "comfortably hard" - sustainable for the full marathon distance',
+    `This pace is 10-12 seconds faster than your goal marathon pace (${marathonPace})`,
+    'Building in this cushion helps ensure you can maintain pace on race day',
     'Focus on smooth, efficient running form at this effort level',
     'If you feel you\'re pushing too hard, you may need to adjust your marathon goal time'
   ];
