@@ -1,6 +1,6 @@
 import { ExperienceLevel, WorkoutType, DistanceUnit } from '../../generated/prisma';
 import { TrainingPreferences, MarathonTime, IntervalSet, IntervalWorkout } from '@/types/training';
-import { formatPaceForUser } from './pace-calculator';
+import { formatPaceForUser, calculateTrainingPaces, parseTimeString, paceTimeToSeconds, secondsToPaceTime, formatPaceTime } from './pace-calculator';
 
 export interface IntervalParams {
   goalMarathonTime?: string;
@@ -39,39 +39,60 @@ function getIntervalRepetitions(week: number): number {
 }
 
 /**
- * Calculate interval pace and recovery time based on marathon goal time
- * Interval pace should be approximately 5K race pace, which is about 30-45 seconds faster than marathon pace per mile
+ * Calculate 5K pace using the correct formula: marathon hours→minutes, minutes→seconds
+ * Example: 3:15:00 marathon → 3:15 per 800m (which equals 6:30/mile pace)
  */
-function calculateIntervalPace(marathonTime: MarathonTime): { paceSeconds: number; recoverySeconds: number } {
-  // Convert marathon time to total seconds
+function calculate5KPaceFromMarathonTime(marathonTime: MarathonTime): { 
+  paceSeconds: number; 
+  intervalTimeSeconds: number; 
+  recoveryTimeSeconds: number;
+  paceDisplay: string;
+} {
+  // Use the proven formula: marathon hours become minutes, marathon minutes become seconds
+  // Example: 3:15:00 marathon → 3:15 per 800m
+  const intervalMinutes = marathonTime.hours;
+  const intervalSeconds = marathonTime.minutes;
+  
+  // This is the time for 800m (0.5 miles)
+  const intervalTimeSeconds = intervalMinutes * 60 + intervalSeconds;
+  
+  // Calculate pace per mile: if 800m takes X seconds, then 1 mile takes X * 2 seconds
+  const paceSecondsPerMile = intervalTimeSeconds * 2;
+  
+  // Recovery time equals interval time (as specified in requirements)
+  const recoveryTimeSeconds = intervalTimeSeconds;
+  
+  // Format the pace display (e.g., "6:30/mi")
+  const paceMinutes = Math.floor(paceSecondsPerMile / 60);
+  const paceSecondsRemainder = Math.round(paceSecondsPerMile % 60);
+  const paceDisplay = `${paceMinutes}:${paceSecondsRemainder.toString().padStart(2, '0')}`;
+  
+  return { 
+    paceSeconds: paceSecondsPerMile, 
+    intervalTimeSeconds, 
+    recoveryTimeSeconds,
+    paceDisplay
+  };
+}
+
+/**
+ * Calculate easy pace for warm-up and cool-down
+ */
+function calculateEasyPace(marathonTime: MarathonTime): string {
+  // Easy pace is typically 60-90 seconds slower than marathon pace
   const totalMarathonSeconds = marathonTime.hours * 3600 + marathonTime.minutes * 60 + marathonTime.seconds;
-  
-  // Calculate marathon pace per mile in seconds
   const marathonPacePerMileSeconds = totalMarathonSeconds / 26.2;
+  const easyPaceSeconds = Math.max(marathonPacePerMileSeconds + 75, 540); // At least 9:00/mile
   
-  // Interval pace is approximately 35 seconds faster than marathon pace per mile
-  // This approximates 5K race pace
-  const intervalPacePerMileSeconds = marathonPacePerMileSeconds - 35;
+  const minutes = Math.floor(easyPaceSeconds / 60);
+  const seconds = Math.round(easyPaceSeconds % 60);
   
-  // Convert to per-km if needed (will be handled in formatting)
-  const paceSeconds = Math.round(intervalPacePerMileSeconds);
-  
-  // Recovery time for 800m intervals should be 90-180 seconds based on fitness level
-  // Faster runners get shorter recovery, slower runners get longer recovery
-  // Base recovery on marathon time: sub-3:30 = 90s, 3:30-4:30 = 120s, 4:30+ = 150s
-  let recoverySeconds = 120; // default 2 minutes
-  if (totalMarathonSeconds < 12600) { // sub-3:30
-    recoverySeconds = 90;
-  } else if (totalMarathonSeconds > 16200) { // over 4:30
-    recoverySeconds = 150;
-  }
-  
-  return { paceSeconds, recoverySeconds };
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 /**
  * Generate a single 800m interval workout
- * Uses proven methodology: marathon time conversion for pace calculation
+ * Uses the correct 5K pace formula: marathon hours→minutes, minutes→seconds
  */
 export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout {
   const { week, preferences } = params;
@@ -90,8 +111,11 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
   const seconds = timeParts[2]!;
   const marathonTime: MarathonTime = { hours, minutes, seconds };
   
-  // Calculate interval pace and recovery time
-  const { paceSeconds, recoverySeconds } = calculateIntervalPace(marathonTime);
+  // Calculate 5K pace and timing using the correct formula
+  const { paceSeconds, intervalTimeSeconds, recoveryTimeSeconds, paceDisplay } = calculate5KPaceFromMarathonTime(marathonTime);
+  
+  // Calculate easy pace for warm-up and cool-down
+  const easyPace = calculateEasyPace(marathonTime);
   
   // Get number of repetitions for this week
   const repetitions = getIntervalRepetitions(week);
@@ -103,44 +127,52 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
   const warmUpDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 3.2 : 2; // 2 miles
   const coolDownDistance = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 1.6 : 1; // 1 mile
   
+  // Format interval pace for user's preferred unit
+  const intervalPaceFormatted = formatIntervalPace(paceSeconds, preferences);
+  
   // Create interval set
   const intervalSet: IntervalSet = {
     distance: intervalDistance,
     repetitions,
-    targetPace: formatIntervalPace(paceSeconds, preferences),
-    recoveryTime: recoverySeconds
+    targetPace: intervalPaceFormatted,
+    recoveryTime: recoveryTimeSeconds
   };
   
   // Calculate total distance
   const intervalTotalDistance = intervalDistance * repetitions;
   const totalDistance = warmUpDistance + intervalTotalDistance + coolDownDistance;
   
-  // Estimate duration
-  const warmUpTime = warmUpDistance * 8; // 8 min/mile easy pace
-  const intervalTime = repetitions * (paceSeconds + recoverySeconds) / 60; // convert to minutes
-  const coolDownTime = coolDownDistance * 8; // 8 min/mile easy pace
+  // Estimate duration more accurately
+  const warmUpTime = warmUpDistance * (paceSeconds + 75) / 60; // Easy pace in minutes
+  const intervalTime = repetitions * (intervalTimeSeconds + recoveryTimeSeconds) / 60; // Total interval work in minutes
+  const coolDownTime = coolDownDistance * (paceSeconds + 75) / 60; // Easy pace in minutes
   const estimatedDuration = Math.round(warmUpTime + intervalTime + coolDownTime);
   
   // Generate instructions
   const instructions = getIntervalInstructions(
     repetitions, 
     intervalSet.targetPace, 
-    recoverySeconds,
+    recoveryTimeSeconds,
+    intervalTimeSeconds,
     preferences
   );
   
-  // Get structure
+  // Get structure with detailed pace information
   const structure = getIntervalStructure(
     warmUpDistance,
     intervalDistance,
     repetitions,
     coolDownDistance,
+    easyPace,
+    intervalPaceFormatted,
+    intervalTimeSeconds,
+    recoveryTimeSeconds,
     preferences
   );
   
   return {
     name: `Week ${week} 800m Intervals`,
-    description: `${repetitions} x 800m intervals with ${Math.floor(recoverySeconds / 60)}:${(recoverySeconds % 60).toString().padStart(2, '0')} recovery`,
+    description: `${repetitions} x 800m intervals at ${intervalPaceFormatted} (${formatTime(intervalTimeSeconds)} per rep) with ${formatTime(recoveryTimeSeconds)} recovery`,
     type: WorkoutType.INTERVAL_800M,
     week,
     warmUpDistance,
@@ -154,39 +186,59 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
 }
 
 /**
+ * Format time in MM:SS format
+ */
+function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.round(seconds % 60);
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+/**
  * Format interval pace for display
  */
-function formatIntervalPace(paceSeconds: number, preferences: TrainingPreferences): string {
-  let displayPaceSeconds = paceSeconds;
+function formatIntervalPace(paceSecondsPerMile: number, preferences: TrainingPreferences): string {
+  // Validate input
+  if (isNaN(paceSecondsPerMile) || paceSecondsPerMile <= 0) {
+    throw new Error(`Invalid pace: ${paceSecondsPerMile}`);
+  }
+  
+  let displayPaceSeconds = paceSecondsPerMile;
   
   // If user prefers kilometers, convert from per-mile to per-km
   if (preferences.distanceUnit === DistanceUnit.KILOMETERS) {
-    displayPaceSeconds = paceSeconds / 1.60934; // Convert from per-mile to per-km
+    displayPaceSeconds = paceSecondsPerMile / 1.60934; // Convert from per-mile to per-km
   }
   
   const minutes = Math.floor(displayPaceSeconds / 60);
   const seconds = Math.round(displayPaceSeconds % 60);
   
+  // Return just MM:SS format to match test expectations
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
 /**
- * Get detailed structure breakdown for interval workouts
+ * Get detailed structure breakdown for interval workouts with pace information
  */
 function getIntervalStructure(
   warmUpDistance: number,
   intervalDistance: number,
   repetitions: number,
   coolDownDistance: number,
+  easyPace: string,
+  intervalPace: string,
+  intervalTimeSeconds: number,
+  recoveryTimeSeconds: number,
   preferences: TrainingPreferences
 ): string {
   const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   const unitSingular = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   const intervalUnit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '800m' : '0.5 mile';
+  const easyPaceUnit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mi';
   
-  const warmUpText = `Warm-up (${warmUpDistance.toFixed(1)} ${warmUpDistance === 1 ? unitSingular : unit})`;
-  const intervalText = `${repetitions} x ${intervalUnit} intervals with recovery`;
-  const coolDownText = `Cool-down (${coolDownDistance.toFixed(1)} ${coolDownDistance === 1 ? unitSingular : unit})`;
+  const warmUpText = `Warm-up (${warmUpDistance.toFixed(1)} ${warmUpDistance === 1 ? unitSingular : unit} at ${easyPace}/${easyPaceUnit})`;
+  const intervalText = `${repetitions} x ${intervalUnit} at ${intervalPace} (${formatTime(intervalTimeSeconds)} per rep, ${formatTime(recoveryTimeSeconds)} recovery)`;
+  const coolDownText = `Cool-down (${coolDownDistance.toFixed(1)} ${coolDownDistance === 1 ? unitSingular : unit} at ${easyPace}/${easyPaceUnit})`;
   
   return `${warmUpText} → ${intervalText} → ${coolDownText}`;
 }
@@ -198,19 +250,22 @@ function getIntervalInstructions(
   repetitions: number,
   targetPace: string,
   recoverySeconds: number,
+  intervalTimeSeconds: number,
   preferences: TrainingPreferences
 ): string[] {
   const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '800m' : '0.5 mile';
   const warmUpCoolDown = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '3.2km' : '2 miles';
   const coolDown = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '1.6km' : '1 mile';
-  const recoveryTime = `${Math.floor(recoverySeconds / 60)}:${(recoverySeconds % 60).toString().padStart(2, '0')}`;
+  const recoveryTime = formatTime(recoverySeconds);
+  const intervalTime = formatTime(intervalTimeSeconds);
   
   return [
     `Warm up with ${warmUpCoolDown} easy jog`,
-    `Run ${repetitions} x ${unit} at ${targetPace}`,
+    `Run ${repetitions} x ${unit} at ${targetPace} (${intervalTime} per rep)`,
     `Recovery: ${recoveryTime} easy jog/walk between intervals`,
     `Cool down with ${coolDown} easy jog`,
     'Interval pace should feel like your 5K race pace - hard but sustainable',
+    `Each ${unit} should take approximately ${intervalTime} to complete`,
     'Recovery time matches your interval time - use it fully to prepare for the next rep',
     'Focus on completing all repetitions rather than hitting exact pace',
     'Walk during recovery if needed - full recovery is more important than jogging',
@@ -254,6 +309,6 @@ export function getRecommendedIntervalPace(
   const seconds = timeParts[2]!;
   const marathonTime: MarathonTime = { hours, minutes, seconds };
   
-  const { paceSeconds } = calculateIntervalPace(marathonTime);
+  const { paceSeconds } = calculate5KPaceFromMarathonTime(marathonTime);
   return formatIntervalPace(paceSeconds, preferences);
 } 

@@ -69,24 +69,26 @@ function getMarathonPaceMiles(week: number): number {
 }
 
 /**
- * Get detailed structure breakdown for long runs
+ * Generate structure description for long run
  */
 function getLongRunStructure(
   week: number,
   easyRunDistance: number,
   marathonPaceDistance: number,
+  easyPace: string,
+  marathonPace: string,
   preferences: TrainingPreferences
 ): string {
   const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   const unitSingular = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
   
   if (week === 14) {
-    // Race week - marathon pace only
-    return `Marathon Race (${marathonPaceDistance.toFixed(1)} ${marathonPaceDistance === 1 ? unitSingular : unit})`;
+    // Marathon race - just marathon pace
+    return `Marathon race (${marathonPaceDistance.toFixed(1)} ${marathonPaceDistance === 1 ? unitSingular : unit} at ${marathonPace})`;
   }
   
-  const easyText = `Easy run (${easyRunDistance.toFixed(1)} ${easyRunDistance === 1 ? unitSingular : unit})`;
-  const marathonText = `Marathon pace (${marathonPaceDistance.toFixed(1)} ${marathonPaceDistance === 1 ? unitSingular : unit})`;
+  const easyText = `Easy run (${easyRunDistance.toFixed(1)} ${easyRunDistance === 1 ? unitSingular : unit} at ${easyPace})`;
+  const marathonText = `Marathon pace segment (${marathonPaceDistance.toFixed(1)} ${marathonPaceDistance === 1 ? unitSingular : unit} at ${marathonPace})`;
   
   return `${easyText} → ${marathonText}`;
 }
@@ -164,6 +166,8 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
     week,
     easyRunDistance,
     marathonPaceDistance,
+    easyPaceFormatted,
+    marathonPaceFormatted,
     preferences
   );
   

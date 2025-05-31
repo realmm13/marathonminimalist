@@ -124,15 +124,18 @@ function marathonTimeToMarathonPace(marathonTime: MarathonTime): PaceTime {
  * Example: 3 hours 15 minutes marathon → 3:15 per 800m/0.5 mile
  */
 function calculateIntervalPaceFromMarathonTime(marathonTime: MarathonTime): number {
-  // Convert marathon time to total minutes
-  const totalMinutes = marathonTime.hours * 60 + marathonTime.minutes;
+  // The method: take marathon hours and make them minutes, take marathon minutes and make them seconds
+  // Example: 3:15:00 marathon → 3:15 per 800m interval pace
+  const intervalMinutes = marathonTime.hours; // hours become minutes
+  const intervalSeconds = marathonTime.minutes; // minutes become seconds
   
-  // Convert to MM:SS format for intervals
-  const intervalMinutes = Math.floor(totalMinutes / 60); // hours become minutes
-  const intervalSeconds = totalMinutes % 60; // minutes become seconds
+  // Convert to total seconds per 800m (0.5 mile)
+  const totalSecondsFor800m = intervalMinutes * 60 + intervalSeconds;
   
-  // Convert to total seconds for consistency with other pace calculations
-  return intervalMinutes * 60 + intervalSeconds;
+  // Convert to pace per mile (since 800m = 0.5 mile, multiply by 2)
+  const paceSecondsPerMile = totalSecondsFor800m * 2;
+  
+  return paceSecondsPerMile;
 }
 
 /**
