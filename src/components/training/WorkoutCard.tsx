@@ -344,6 +344,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
   // Generate aria-describedby ID
   const ariaDescribedBy = id ? `workout-${id}-description` : undefined;
 
+  // Compact variant for smaller displays
   if (variant === 'compact') {
     return (
       <Card
@@ -368,7 +369,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
       >
         <div className="space-y-3">
           {/* Header row with status, icon, and completion button */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-[2.5rem]">
             <div className="flex items-center gap-2">
               {getStatusIndicator()}
               <div className={cn(
@@ -422,7 +423,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           </div>
           
           {/* Workout type badge and date */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between min-h-[1.5rem]">
             <div className="flex items-center gap-2">
               <Badge 
                 className={cn(
@@ -456,73 +457,81 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           </div>
           
           {/* Workout name */}
-          <div>
+          <div className="min-h-[1.25rem]">
             <p className="body-small font-medium truncate">{name}</p>
           </div>
 
           {/* Enhanced description */}
-          <p 
-            className={cn(
-              "body-small text-muted-foreground mb-4 line-clamp-2 transition-colors duration-200 text-pretty",
-              "group-hover:text-muted-foreground/80"
-            )}
-            id={ariaDescribedBy}
-          >
-            {description}
-          </p>
+          <div className="min-h-[2.5rem]">
+            <p 
+              className={cn(
+                "body-small text-muted-foreground line-clamp-2 transition-colors duration-200 text-pretty",
+                "group-hover:text-muted-foreground/80"
+              )}
+              id={ariaDescribedBy}
+            >
+              {description}
+            </p>
+          </div>
 
           {/* Workout Structure Section */}
-          {structure && (
-            <div className="mb-4">
-              <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Workout Structure
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                {structure}
-              </p>
-            </div>
-          )}
+          <div className="min-h-[4rem]">
+            {structure && (
+              <div>
+                <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                  <Activity className="h-4 w-4" />
+                  Workout Structure
+                </h4>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {structure}
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Race details for race day */}
-          {isActualRaceDay && raceDetails && (
-            <div className="text-xs text-muted-foreground space-y-1">
-              {raceDetails.startTime && (
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>Start: {raceDetails.startTime}</span>
-                </div>
-              )}
-              {raceDetails.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span className="truncate">{raceDetails.location}</span>
-                </div>
-              )}
-            </div>
-          )}
+          <div className="min-h-[3rem]">
+            {isActualRaceDay && raceDetails && (
+              <div className="text-xs text-muted-foreground space-y-1">
+                {raceDetails.startTime && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    <span>Start: {raceDetails.startTime}</span>
+                  </div>
+                )}
+                {raceDetails.location && (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{raceDetails.location}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Metrics row */}
-          {(distance || duration) && (
-            <div className="flex items-center justify-between text-sm" aria-label="Workout metrics">
-              {distance && (
-                <div 
-                  className="body-small font-medium text-muted-foreground"
-                  aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
-                >
-                  {convertedDistance} {unitLabel}
-                </div>
-              )}
-              {duration && (
-                <div 
-                  className="caption text-muted-foreground"
-                  aria-label={`Duration: ${formattedDuration}`}
-                >
-                  {formattedDuration}
-                </div>
-              )}
-            </div>
-          )}
+          <div className="min-h-[1.5rem]">
+            {(distance || duration) && (
+              <div className="flex items-center justify-between text-sm" aria-label="Workout metrics">
+                {distance && (
+                  <div 
+                    className="body-small font-medium text-muted-foreground"
+                    aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
+                  >
+                    {convertedDistance} {unitLabel}
+                  </div>
+                )}
+                {duration && (
+                  <div 
+                    className="caption text-muted-foreground"
+                    aria-label={`Duration: ${formattedDuration}`}
+                  >
+                    {formattedDuration}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </Card>
     );
@@ -549,281 +558,291 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
       aria-describedby={ariaDescribedBy}
       aria-pressed={onClick && isCompleted ? true : undefined}
     >
-      {/* Header with enhanced visual hierarchy */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-4 flex-1 min-w-0">
-          {/* Enhanced workout type icon */}
-          <div 
-            className={cn(
-              "flex-shrink-0 p-3 rounded-xl transition-all duration-300 group-hover:scale-110 hover-lift",
-              "shadow-soft group-hover:shadow-medium",
-              isToday && "animate-glow",
-              isCompleted && isActualRaceDay ? "bg-yellow-500/20 text-yellow-600" :
-              isCompleted ? "bg-success/20 text-success" : 
-              isActualRaceDay ? "bg-yellow-500/15 text-yellow-600" : "bg-primary/15 text-primary"
-            )}
-            aria-hidden="true"
-          >
-            <workoutConfig.icon className="h-6 w-6" />
+      <div className="space-y-4">
+        {/* Header with enhanced visual hierarchy */}
+        <div className="flex items-start justify-between min-h-[4rem]">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            {/* Enhanced workout type icon */}
+            <div 
+              className={cn(
+                "flex-shrink-0 p-3 rounded-xl transition-all duration-300 group-hover:scale-110 hover-lift",
+                "shadow-soft group-hover:shadow-medium",
+                isToday && "animate-glow",
+                isCompleted && isActualRaceDay ? "bg-yellow-500/20 text-yellow-600" :
+                isCompleted ? "bg-success/20 text-success" : 
+                isActualRaceDay ? "bg-yellow-500/15 text-yellow-600" : "bg-primary/15 text-primary"
+              )}
+              aria-hidden="true"
+            >
+              <workoutConfig.icon className="h-6 w-6" />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h3 
+                className={cn(
+                  "heading-5 mb-2 transition-colors duration-200 text-balance",
+                  "group-hover:text-foreground/90",
+                  isToday && isActualRaceDay && "text-yellow-600 font-semibold",
+                  isToday && !isActualRaceDay && "text-primary font-semibold"
+                )}
+              >
+                {name}
+              </h3>
+              
+              {scheduledDate && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" aria-hidden="true" />
+                  <time dateTime={scheduledDate.toISOString()}>
+                    {formattedDate}
+                  </time>
+                  {isToday && isActualRaceDay && (
+                    <Badge 
+                      className="badge-enhanced animate-bounce-gentle ml-2 bg-yellow-200 text-yellow-900"
+                      color="yellow"
+                    >
+                      🏁 Race Day!
+                    </Badge>
+                  )}
+                  {isToday && !isActualRaceDay && (
+                    <Badge 
+                      className="badge-warning animate-bounce-gentle ml-2"
+                      color="warning"
+                    >
+                      Today
+                    </Badge>
+                  )}
+                  {isActualRaceDay && !isToday && (
+                    <Badge 
+                      className="badge-enhanced ml-2 bg-yellow-100 text-yellow-800"
+                      color="yellow"
+                    >
+                      🏁 Race Day
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
           
-          <div className="flex-1 min-w-0">
-            <h3 
-              className={cn(
-                "heading-5 mb-2 transition-colors duration-200 text-balance",
-                "group-hover:text-foreground/90",
-                isToday && isActualRaceDay && "text-yellow-600 font-semibold",
-                isToday && !isActualRaceDay && "text-primary font-semibold"
-              )}
-            >
-              {name}
-            </h3>
-            
-            {scheduledDate && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" aria-hidden="true" />
-                <time dateTime={scheduledDate.toISOString()}>
-                  {formattedDate}
-                </time>
-                {isToday && isActualRaceDay && (
-                  <Badge 
-                    className="badge-enhanced animate-bounce-gentle ml-2 bg-yellow-200 text-yellow-900"
-                    color="yellow"
-                  >
-                    🏁 Race Day!
-                  </Badge>
+          {/* Enhanced completion status */}
+          <div className="flex-shrink-0">
+            {isCompleted ? (
+              <CheckCircle2 
+                className={cn(
+                  "h-6 w-6 animate-scale-in",
+                  isActualRaceDay ? "text-yellow-500" : "text-success"
+                )} 
+                aria-label="Completed"
+              />
+            ) : (
+              <Circle 
+                className={cn(
+                  "h-6 w-6 transition-colors duration-200",
+                  isToday && isActualRaceDay ? "text-yellow-500" :
+                  isToday ? "text-primary" : "text-muted-foreground group-hover:text-foreground/60"
                 )}
-                {isToday && !isActualRaceDay && (
-                  <Badge 
-                    className="badge-warning animate-bounce-gentle ml-2"
-                    color="warning"
-                  >
-                    Today
-                  </Badge>
-                )}
-                {isActualRaceDay && !isToday && (
-                  <Badge 
-                    className="badge-enhanced ml-2 bg-yellow-100 text-yellow-800"
-                    color="yellow"
-                  >
-                    🏁 Race Day
-                  </Badge>
-                )}
-              </div>
+                aria-label="Not completed"
+              />
             )}
           </div>
         </div>
-        
-        {/* Enhanced completion status */}
-        <div className="flex-shrink-0">
-          {isCompleted ? (
-            <CheckCircle2 
-              className={cn(
-                "h-6 w-6 animate-scale-in",
-                isActualRaceDay ? "text-yellow-500" : "text-success"
-              )} 
-              aria-label="Completed"
-            />
-          ) : (
-            <Circle 
-              className={cn(
-                "h-6 w-6 transition-colors duration-200",
-                isToday && isActualRaceDay ? "text-yellow-500" :
-                isToday ? "text-primary" : "text-muted-foreground group-hover:text-foreground/60"
-              )}
-              aria-label="Not completed"
-            />
-          )}
-        </div>
-      </div>
 
-      {/* Enhanced description */}
-      <p 
-        className={cn(
-          "body-small text-muted-foreground mb-4 line-clamp-2 transition-colors duration-200 text-pretty",
-          "group-hover:text-muted-foreground/80"
-        )}
-        id={ariaDescribedBy}
-      >
-        {description}
-      </p>
-
-      {/* Workout Structure Section */}
-      {structure && (
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-            <Activity className="h-4 w-4" />
-            Workout Structure
-          </h4>
-          <p className="text-sm text-muted-foreground">
-            {structure}
+        {/* Enhanced description */}
+        <div className="min-h-[3rem]">
+          <p 
+            className={cn(
+              "body-small text-muted-foreground line-clamp-2 transition-colors duration-200 text-pretty",
+              "group-hover:text-muted-foreground/80"
+            )}
+            id={ariaDescribedBy}
+          >
+            {description}
           </p>
         </div>
-      )}
 
-      {/* Race details section for race day */}
-      {isActualRaceDay && raceDetails && (
-        <div className="mb-4 p-3 rounded-lg bg-yellow-50/50 border border-yellow-200/50">
-          <h4 className="text-sm font-medium text-yellow-800 mb-2 flex items-center gap-2">
-            <Trophy className="h-4 w-4" />
-            Race Details
-          </h4>
-          <div className="space-y-1 text-sm text-yellow-700">
-            {raceDetails.startTime && (
-              <div className="flex items-center gap-2">
-                <Clock className="h-3 w-3" />
-                <span>Start Time: {raceDetails.startTime}</span>
+        {/* Workout Structure Section */}
+        <div className="min-h-[5rem]">
+          {structure && (
+            <div>
+              <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Workout Structure
+              </h4>
+              <p className="text-sm text-muted-foreground line-clamp-3">
+                {structure}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Race details section for race day */}
+        <div className="min-h-[4rem]">
+          {isActualRaceDay && raceDetails && (
+            <div className="p-3 rounded-lg bg-yellow-50/50 border border-yellow-200/50">
+              <h4 className="text-sm font-medium text-yellow-800 mb-2 flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                Race Details
+              </h4>
+              <div className="space-y-1 text-sm text-yellow-700">
+                {raceDetails.startTime && (
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3 w-3" />
+                    <span>Start Time: {raceDetails.startTime}</span>
+                  </div>
+                )}
+                {raceDetails.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-3 w-3" />
+                    <span>Location: {raceDetails.location}</span>
+                  </div>
+                )}
+                {raceDetails.instructions && (
+                  <div className="mt-2 text-xs text-yellow-600">
+                    {raceDetails.instructions}
+                  </div>
+                )}
               </div>
-            )}
-            {raceDetails.location && (
-              <div className="flex items-center gap-2">
-                <MapPin className="h-3 w-3" />
-                <span>Location: {raceDetails.location}</span>
-              </div>
-            )}
-            {raceDetails.instructions && (
-              <div className="mt-2 text-xs text-yellow-600">
-                {raceDetails.instructions}
-              </div>
-            )}
+            </div>
+          )}
+        </div>
+
+        {/* Enhanced metrics section */}
+        <div className="min-h-[3rem]">
+          {(distance || duration || pace) && (
+            <div 
+              className="flex items-center gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
+              role="group"
+              aria-label="Workout metrics"
+            >
+              {distance && (
+                <div className="flex items-center gap-2 group/metric hover-scale">
+                  <div className={cn(
+                    "p-1.5 rounded-lg transition-colors duration-200",
+                    isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
+                  )}>
+                    <MapPin 
+                      className={cn(
+                        "h-4 w-4 transition-colors duration-200",
+                        isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
+                      )} 
+                      aria-hidden="true" 
+                    />
+                  </div>
+                  <span 
+                    className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
+                    aria-label={`Distance: ${convertedDistance} ${unitLabel}`}
+                  >
+                    {convertedDistance} {unitLabel}
+                  </span>
+                </div>
+              )}
+              
+              {duration && (
+                <div className="flex items-center gap-2 group/metric hover-scale">
+                  <div className={cn(
+                    "p-1.5 rounded-lg transition-colors duration-200",
+                    isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
+                  )}>
+                    <Timer 
+                      className={cn(
+                        "h-4 w-4 transition-colors duration-200",
+                        isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
+                      )} 
+                      aria-hidden="true" 
+                    />
+                  </div>
+                  <span 
+                    className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
+                    aria-label={`Duration: ${formattedDuration}`}
+                  >
+                    {formattedDuration}
+                  </span>
+                </div>
+              )}
+              
+              {pace && (
+                <div className="flex items-center gap-2 group/metric hover-scale">
+                  <div className={cn(
+                    "p-1.5 rounded-lg transition-colors duration-200",
+                    isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
+                  )}>
+                    <Clock 
+                      className={cn(
+                        "h-4 w-4 transition-colors duration-200",
+                        isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
+                      )} 
+                      aria-hidden="true" 
+                    />
+                  </div>
+                  <span 
+                    className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
+                    aria-label={`Target pace: ${convertedPace}`}
+                  >
+                    {convertedPace}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Enhanced action button for incomplete workouts */}
+        {!isCompleted && onComplete && (
+          <div className="mt-6 pt-4 border-t border-border/30">
+            <button
+              onClick={handleComplete}
+              onKeyDown={handleCompleteKeyDown}
+              className={cn(
+                "w-full focus-ring active-press transition-all duration-200",
+                isToday && isActualRaceDay
+                  ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500 hover:border-yellow-600"
+                  : isToday 
+                  ? "btn-primary-enhanced" 
+                  : "btn-secondary hover:btn-primary-enhanced"
+              )}
+              aria-label={`Mark ${name} as complete`}
+            >
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              {isActualRaceDay ? 'Complete Race' : 'Mark Complete'}
+            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Enhanced metrics section */}
-      {(distance || duration || pace) && (
-        <div 
-          className="flex items-center gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
-          role="group"
-          aria-label="Workout metrics"
-        >
-          {distance && (
-            <div className="flex items-center gap-2 group/metric hover-scale">
-              <div className={cn(
-                "p-1.5 rounded-lg transition-colors duration-200",
-                isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
-              )}>
-                <MapPin 
-                  className={cn(
-                    "h-4 w-4 transition-colors duration-200",
-                    isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
-                  )} 
-                  aria-hidden="true" 
-                />
-              </div>
-              <span 
-                className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                aria-label={`Distance: ${convertedDistance} ${unitLabel}`}
-              >
-                {convertedDistance} {unitLabel}
-              </span>
-            </div>
-          )}
-          
-          {duration && (
-            <div className="flex items-center gap-2 group/metric hover-scale">
-              <div className={cn(
-                "p-1.5 rounded-lg transition-colors duration-200",
-                isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
-              )}>
-                <Timer 
-                  className={cn(
-                    "h-4 w-4 transition-colors duration-200",
-                    isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
-                  )} 
-                  aria-hidden="true" 
-                />
-              </div>
-              <span 
-                className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                aria-label={`Duration: ${formattedDuration}`}
-              >
-                {formattedDuration}
-              </span>
-            </div>
-          )}
-          
-          {pace && (
-            <div className="flex items-center gap-2 group/metric hover-scale">
-              <div className={cn(
-                "p-1.5 rounded-lg transition-colors duration-200",
-                isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
-              )}>
-                <Clock 
-                  className={cn(
-                    "h-4 w-4 transition-colors duration-200",
-                    isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
-                  )} 
-                  aria-hidden="true" 
-                />
-              </div>
-              <span 
-                className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                aria-label={`Target pace: ${convertedPace}`}
-              >
-                {convertedPace}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Enhanced action button for incomplete workouts */}
-      {!isCompleted && onComplete && (
-        <div className="mt-6 pt-4 border-t border-border/30">
-          <button
-            onClick={handleComplete}
-            onKeyDown={handleCompleteKeyDown}
-            className={cn(
-              "w-full focus-ring active-press transition-all duration-200",
-              isToday && isActualRaceDay
-                ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500 hover:border-yellow-600"
-                : isToday 
-                ? "btn-primary-enhanced" 
-                : "btn-secondary hover:btn-primary-enhanced"
-            )}
-            aria-label={`Mark ${name} as complete`}
-          >
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            {isActualRaceDay ? 'Complete Race' : 'Mark Complete'}
-          </button>
-        </div>
-      )}
-
-      {/* Action button for completed workouts */}
-      {isCompleted && onUncomplete && (
-        <div className="mt-6 pt-4 border-t border-border/30">
-          <button
-            onClick={handleComplete}
-            onKeyDown={handleCompleteKeyDown}
-            className={cn(
-              "w-full focus-ring active-press transition-all duration-200",
-              isActualRaceDay
-                ? "btn-secondary hover:bg-yellow-100/50 text-yellow-600 hover:text-yellow-700 border-yellow-300/50"
-                : "btn-secondary hover:bg-success/10 text-success hover:text-success border-success/30"
-            )}
-            aria-label={`Mark ${name} as incomplete`}
-          >
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            Mark as Incomplete
-          </button>
-        </div>
-      )}
-
-      {/* Static completion indicator when no uncomplete action available */}
-      {isCompleted && !onUncomplete && (
-        <div className="mt-6 pt-4 border-t border-border/30">
-          <div className={cn(
-            "flex items-center justify-center gap-2",
-            isActualRaceDay ? "text-yellow-600" : "text-success"
-          )}>
-            <CheckCircle2 className="h-5 w-5" />
-            <span className="font-medium">
-              {isActualRaceDay ? 'Race Completed!' : 'Completed'}
-            </span>
+        {/* Action button for completed workouts */}
+        {isCompleted && onUncomplete && (
+          <div className="mt-6 pt-4 border-t border-border/30">
+            <button
+              onClick={handleComplete}
+              onKeyDown={handleCompleteKeyDown}
+              className={cn(
+                "w-full focus-ring active-press transition-all duration-200",
+                isActualRaceDay
+                  ? "btn-secondary hover:bg-yellow-100/50 text-yellow-600 hover:text-yellow-700 border-yellow-300/50"
+                  : "btn-secondary hover:bg-success/10 text-success hover:text-success border-success/30"
+              )}
+              aria-label={`Mark ${name} as incomplete`}
+            >
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Mark as Incomplete
+            </button>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Static completion indicator when no uncomplete action available */}
+        {isCompleted && !onUncomplete && (
+          <div className="mt-6 pt-4 border-t border-border/30">
+            <div className={cn(
+              "flex items-center justify-center gap-2",
+              isActualRaceDay ? "text-yellow-600" : "text-success"
+            )}>
+              <CheckCircle2 className="h-5 w-5" />
+              <span className="font-medium">
+                {isActualRaceDay ? 'Race Completed!' : 'Completed'}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
     </Card>
   );
 }); 
