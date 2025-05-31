@@ -169,7 +169,7 @@ export class TrainingScheduler {
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
-      distance: tempoRun.totalDistance,
+      distance: tempoRun.tempoDistance,
       duration: tempoRun.estimatedDuration,
       pace: tempoRun.targetPace,
       instructions: tempoRun.instructions,
