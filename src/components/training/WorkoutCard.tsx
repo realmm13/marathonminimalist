@@ -473,7 +473,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
 
           {/* Workout Structure Section */}
           {structure && (
-            <div className="mb-4 p-3 rounded-lg bg-muted/30 border border-border/50">
+            <div className="mb-4">
               <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
                 <Activity className="h-4 w-4" />
                 Workout Structure
@@ -650,7 +650,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
 
       {/* Workout Structure Section */}
       {structure && (
-        <div className="mb-4 p-3 rounded-lg bg-muted/30 border border-border/50">
+        <div className="mb-4">
           <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
             <Activity className="h-4 w-4" />
             Workout Structure
