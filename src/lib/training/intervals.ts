@@ -3,7 +3,7 @@ import { TrainingPreferences, MarathonTime, IntervalSet, IntervalWorkout } from 
 import { formatPaceForUser } from './pace-calculator';
 
 export interface IntervalParams {
-  goalMarathonTime: string;
+  goalMarathonTime?: string;
   week: number;
   preferences: TrainingPreferences;
 }
@@ -39,22 +39,32 @@ function getIntervalRepetitions(week: number): number {
 }
 
 /**
- * Calculate interval pace using the hour→minute, minute→second conversion method
- * Example: 3 hours 15 minutes marathon → 3:15 per 800m/0.5 mile
+ * Calculate interval pace and recovery time based on marathon goal time
+ * Interval pace should be approximately 5K race pace, which is about 30-45 seconds faster than marathon pace per mile
  */
 function calculateIntervalPace(marathonTime: MarathonTime): { paceSeconds: number; recoverySeconds: number } {
-  // Convert marathon time to total minutes
-  const totalMinutes = marathonTime.hours * 60 + marathonTime.minutes;
+  // Convert marathon time to total seconds
+  const totalMarathonSeconds = marathonTime.hours * 3600 + marathonTime.minutes * 60 + marathonTime.seconds;
   
-  // Convert to MM:SS format for intervals
-  const intervalMinutes = Math.floor(totalMinutes / 60); // hours become minutes
-  const intervalSeconds = totalMinutes % 60; // minutes become seconds
+  // Calculate marathon pace per mile in seconds
+  const marathonPacePerMileSeconds = totalMarathonSeconds / 26.2;
   
-  // Convert to total seconds for consistency
-  const paceSeconds = intervalMinutes * 60 + intervalSeconds;
+  // Interval pace is approximately 35 seconds faster than marathon pace per mile
+  // This approximates 5K race pace
+  const intervalPacePerMileSeconds = marathonPacePerMileSeconds - 35;
   
-  // Recovery time matches interval pace time
-  const recoverySeconds = paceSeconds;
+  // Convert to per-km if needed (will be handled in formatting)
+  const paceSeconds = Math.round(intervalPacePerMileSeconds);
+  
+  // Recovery time for 800m intervals should be 90-180 seconds based on fitness level
+  // Faster runners get shorter recovery, slower runners get longer recovery
+  // Base recovery on marathon time: sub-3:30 = 90s, 3:30-4:30 = 120s, 4:30+ = 150s
+  let recoverySeconds = 120; // default 2 minutes
+  if (totalMarathonSeconds < 12600) { // sub-3:30
+    recoverySeconds = 90;
+  } else if (totalMarathonSeconds > 16200) { // over 4:30
+    recoverySeconds = 150;
+  }
   
   return { paceSeconds, recoverySeconds };
 }
@@ -64,11 +74,10 @@ function calculateIntervalPace(marathonTime: MarathonTime): { paceSeconds: numbe
  * Uses proven methodology: marathon time conversion for pace calculation
  */
 export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout {
-  const { goalMarathonTime, week, preferences } = params;
+  const { week, preferences } = params;
   
-  if (!goalMarathonTime) {
-    throw new Error('Goal marathon time is required for interval generation');
-  }
+  // Use default marathon time if none provided (4:00:00 is a common goal)
+  const goalMarathonTime = params.goalMarathonTime || '4:00:00';
   
   // Parse marathon time (format: "HH:MM:SS")
   const timeParts = goalMarathonTime.split(':').map(Number);
@@ -120,6 +129,15 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
     preferences
   );
   
+  // Get structure
+  const structure = getIntervalStructure(
+    warmUpDistance,
+    intervalDistance,
+    repetitions,
+    coolDownDistance,
+    preferences
+  );
+  
   return {
     name: `Week ${week} 800m Intervals`,
     description: `${repetitions} x 800m intervals with ${Math.floor(recoverySeconds / 60)}:${(recoverySeconds % 60).toString().padStart(2, '0')} recovery`,
@@ -130,7 +148,8 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
     intervals: [intervalSet],
     totalDistance,
     estimatedDuration,
-    instructions
+    instructions,
+    structure
   };
 }
 
@@ -138,10 +157,38 @@ export function generateIntervalWorkout(params: IntervalParams): IntervalWorkout
  * Format interval pace for display
  */
 function formatIntervalPace(paceSeconds: number, preferences: TrainingPreferences): string {
-  const minutes = Math.floor(paceSeconds / 60);
-  const seconds = paceSeconds % 60;
+  let displayPaceSeconds = paceSeconds;
+  
+  // If user prefers kilometers, convert from per-mile to per-km
+  if (preferences.distanceUnit === DistanceUnit.KILOMETERS) {
+    displayPaceSeconds = paceSeconds / 1.60934; // Convert from per-mile to per-km
+  }
+  
+  const minutes = Math.floor(displayPaceSeconds / 60);
+  const seconds = Math.round(displayPaceSeconds % 60);
+  
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+/**
+ * Get detailed structure breakdown for interval workouts
+ */
+function getIntervalStructure(
+  warmUpDistance: number,
+  intervalDistance: number,
+  repetitions: number,
+  coolDownDistance: number,
+  preferences: TrainingPreferences
+): string {
   const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
-  return `${minutes}:${seconds.toString().padStart(2, '0')} per ${unit}`;
+  const unitSingular = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  const intervalUnit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? '800m' : '0.5 mile';
+  
+  const warmUpText = `Warm-up (${warmUpDistance.toFixed(1)} ${warmUpDistance === 1 ? unitSingular : unit})`;
+  const intervalText = `${repetitions} x ${intervalUnit} intervals with recovery`;
+  const coolDownText = `Cool-down (${coolDownDistance.toFixed(1)} ${coolDownDistance === 1 ? unitSingular : unit})`;
+  
+  return `${warmUpText} → ${intervalText} → ${coolDownText}`;
 }
 
 /**

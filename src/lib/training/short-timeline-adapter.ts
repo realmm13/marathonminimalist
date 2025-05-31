@@ -112,24 +112,24 @@ function generatePrioritizedWorkouts(
 ): (TempoRunWorkout | IntervalWorkout | LongRunWorkout)[] {
   const workouts: (TempoRunWorkout | IntervalWorkout | LongRunWorkout)[] = [];
   const weekMapping = generateCompressedWeekMapping(availableWeeks);
-  const priority = getWorkoutPriority();
   
   // Calculate how many workouts we can fit per week
   const workoutsPerWeek = Math.min(3, Math.floor(availableWeeks * 3 / weekMapping.length));
   
-  for (let i = 0; i < weekMapping.length; i++) {
-    const originalWeek = weekMapping[i]!;
-    
-    // Always include long run (highest priority)
+  // For prioritized strategy, ensure long runs are truly prioritized
+  // Add long runs for all weeks first (highest priority)
+  for (const originalWeek of weekMapping) {
     const longRunParams = {
       goalMarathonTime,
       week: originalWeek,
       preferences
     };
     workouts.push(generateLongRun(longRunParams));
-    
-    // Add tempo run if we have space
-    if (workoutsPerWeek >= 2) {
+  }
+  
+  // Add tempo runs if we have space (second priority)
+  if (workoutsPerWeek >= 2) {
+    for (const originalWeek of weekMapping) {
       const tempoParams = {
         goalMarathonTime,
         week: originalWeek,
@@ -137,9 +137,13 @@ function generatePrioritizedWorkouts(
       };
       workouts.push(generateTempoRun(tempoParams));
     }
-    
-    // Add intervals if we have space
-    if (workoutsPerWeek >= 3) {
+  }
+  
+  // Add intervals only if we have space, but fewer than long runs to maintain prioritization
+  if (workoutsPerWeek >= 3) {
+    // Only add intervals for the first N-1 weeks to ensure long runs >= intervals
+    const intervalWeeks = weekMapping.slice(0, Math.max(1, weekMapping.length - 1));
+    for (const originalWeek of intervalWeeks) {
       const intervalParams = {
         goalMarathonTime,
         week: originalWeek,

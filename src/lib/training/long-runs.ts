@@ -69,6 +69,29 @@ function getMarathonPaceMiles(week: number): number {
 }
 
 /**
+ * Get detailed structure breakdown for long runs
+ */
+function getLongRunStructure(
+  week: number,
+  easyRunDistance: number,
+  marathonPaceDistance: number,
+  preferences: TrainingPreferences
+): string {
+  const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  const unitSingular = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  
+  if (week === 14) {
+    // Race week - marathon pace only
+    return `Marathon Race (${marathonPaceDistance.toFixed(1)} ${marathonPaceDistance === 1 ? unitSingular : unit})`;
+  }
+  
+  const easyText = `Easy run (${easyRunDistance.toFixed(1)} ${easyRunDistance === 1 ? unitSingular : unit})`;
+  const marathonText = `Marathon pace (${marathonPaceDistance.toFixed(1)} ${marathonPaceDistance === 1 ? unitSingular : unit})`;
+  
+  return `${easyText} → ${marathonText}`;
+}
+
+/**
  * Generate a single long run workout
  * Uses exact progression from the proven training plan
  */
@@ -136,6 +159,14 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
     preferences
   );
   
+  // Get structure
+  const structure = getLongRunStructure(
+    week,
+    easyRunDistance,
+    marathonPaceDistance,
+    preferences
+  );
+  
   return {
     name: week === 14 ? 'Marathon Race' : `Week ${week} Long Run`,
     description: week === 14 
@@ -144,12 +175,13 @@ export function generateLongRun(params: LongRunParams): LongRunWorkout {
     type: week === 14 ? WorkoutType.MARATHON_RACE : WorkoutType.LONG_RUN,
     week,
     easyRunDistance,
-    marathonPaceDistance: week === 14 ? totalDistance : marathonPaceDistance,
+    marathonPaceDistance,
     totalDistance,
     targetEasyPace: easyPaceFormatted,
     targetMarathonPace: marathonPaceFormatted,
     estimatedDuration,
     instructions,
+    structure,
     // Add race day specific properties for Week 14
     ...(week === 14 && {
       isRaceDay: true,

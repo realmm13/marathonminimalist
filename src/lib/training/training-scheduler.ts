@@ -33,6 +33,7 @@ export interface ScheduledWorkout {
     location: string;
     instructions: string;
   };
+  structure: string;
 }
 
 export interface TrainingSchedulerParams {
@@ -179,7 +180,8 @@ export class TrainingScheduler {
       duration: tempoRun.estimatedDuration,
       pace: tempoRun.targetPace,
       instructions: tempoRun.instructions,
-      workoutData: tempoRun
+      workoutData: tempoRun,
+      structure: tempoRun.structure
     };
   }
 
@@ -210,7 +212,8 @@ export class TrainingScheduler {
       pace: intervalWorkout.intervals[0]?.targetPace,
       intervals: intervalWorkout.intervals,
       instructions: intervalWorkout.instructions,
-      workoutData: intervalWorkout
+      workoutData: intervalWorkout,
+      structure: intervalWorkout.structure
     };
   }
 
@@ -241,6 +244,7 @@ export class TrainingScheduler {
       pace: longRun.targetMarathonPace, // Use marathon pace for race day
       instructions: longRun.instructions,
       workoutData: longRun,
+      structure: longRun.structure,
       // Add race day specific properties for Week 14
       ...(schedule.week === 14 && longRun.isRaceDay && {
         isRaceDay: true,
@@ -253,42 +257,39 @@ export class TrainingScheduler {
    * Create a scheduled easy run workout
    */
   private createEasyRunWorkout(schedule: WorkoutSchedule): ScheduledWorkout {
-    // For easy runs, we'll create a simple workout
-    // Distance varies by week but is generally shorter than long runs
-    const easyDistanceInUserUnit = this.calculateEasyRunDistance(schedule.week);
+    const easyRunDistance = this.calculateEasyRunDistance(schedule.week);
+    const easyPace = this.calculateEasyPace();
     
-    // Convert to kilometers for database storage
-    const easyDistanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
-      ? easyDistanceInUserUnit * 1.60934 // Convert miles to km
-      : easyDistanceInUserUnit; // Already in km
-    
-    const estimatedDuration = Math.round(easyDistanceInKm * 8); // Assume 8 min/km easy pace
+    // Convert distance to kilometers for database storage
+    const distanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
+      ? easyRunDistance * 1.60934 // Convert miles to km
+      : easyRunDistance; // Already in km
+
+    const unit = this.params.preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+    const unitSingular = this.params.preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+    const structure = `Easy run (${easyRunDistance.toFixed(1)} ${easyRunDistance === 1 ? unitSingular : unit})`;
 
     return {
       name: `Week ${schedule.week} Easy Run`,
-      description: `${easyDistanceInUserUnit.toFixed(1)} ${this.params.preferences.distanceUnit.toLowerCase()} easy pace`,
+      description: `${easyRunDistance.toFixed(1)} ${unit} easy run`,
       type: WorkoutType.EASY_RUN,
       week: schedule.week,
       day: schedule.dayOfWeek,
       scheduledDate: schedule.date,
-      distance: easyDistanceInKm, // Store in kilometers for database
-      duration: estimatedDuration,
-      pace: '8:00', // Default easy pace, should be calculated properly
+      distance: distanceInKm, // Store in kilometers for database
+      duration: Math.round(easyRunDistance * 10), // Rough estimate: 10 minutes per km/mile
+      pace: easyPace,
       instructions: [
-        'Run at a comfortable, conversational pace',
-        'Focus on maintaining good form',
-        'This should feel easy and relaxed',
-        'Use this run for recovery and base building'
+        `Run ${easyRunDistance.toFixed(1)} ${unit} at an easy, conversational pace`,
+        'You should be able to hold a conversation throughout the run',
+        'Focus on building aerobic base and recovery'
       ],
       workoutData: {
-        name: `Week ${schedule.week} Easy Run`,
-        description: `${easyDistanceInUserUnit.toFixed(1)} ${this.params.preferences.distanceUnit.toLowerCase()} easy pace`,
-        type: WorkoutType.EASY_RUN,
-        week: schedule.week,
-        totalDistance: easyDistanceInKm, // Store in km for consistency
-        estimatedDuration: estimatedDuration,
-        instructions: []
-      } as any // Simplified for easy runs
+        distance: easyRunDistance,
+        pace: easyPace,
+        type: WorkoutType.EASY_RUN
+      } as any,
+      structure
     };
   }
 
@@ -383,7 +384,40 @@ export class TrainingScheduler {
       isRaceDay: workout.isRaceDay || false,
       raceDetails: workout.raceDetails ? JSON.stringify(workout.raceDetails) : null,
       trainingPlanId,
-      scheduledDate: formatDateForDB(workout.scheduledDate)
+      scheduledDate: formatDateForDB(workout.scheduledDate),
+      structure: workout.structure
     }));
+  }
+
+  /**
+   * Calculate easy pace based on marathon goal time
+   */
+  private calculateEasyPace(): string {
+    // Easy pace is typically 1:30-2:00 slower than marathon pace
+    // For simplicity, we'll use 1:45 slower than marathon pace
+    const marathonTime = this.params.goalMarathonTime || '04:00:00';
+    const timeParts = marathonTime.split(':').map(Number);
+    const hours = timeParts[0] || 0;
+    const minutes = timeParts[1] || 0;
+    const seconds = timeParts[2] || 0;
+    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+    const marathonPacePerMile = totalSeconds / 26.2; // seconds per mile
+    
+    // Add 105 seconds (1:45) for easy pace
+    const easyPaceSeconds = marathonPacePerMile + 105;
+    
+    const easyMinutes = Math.floor(easyPaceSeconds / 60);
+    const easySecondsRemainder = Math.round(easyPaceSeconds % 60);
+    
+    // Convert to user's preferred unit if needed
+    if (this.params.preferences.distanceUnit === DistanceUnit.KILOMETERS) {
+      // Convert from per-mile to per-km (divide by 1.60934)
+      const easyPacePerKm = easyPaceSeconds / 1.60934;
+      const kmMinutes = Math.floor(easyPacePerKm / 60);
+      const kmSeconds = Math.round(easyPacePerKm % 60);
+      return `${kmMinutes}:${kmSeconds.toString().padStart(2, '0')}`;
+    }
+    
+    return `${easyMinutes}:${easySecondsRemainder.toString().padStart(2, '0')}`;
   }
 } 

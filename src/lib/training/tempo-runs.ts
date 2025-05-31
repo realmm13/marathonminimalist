@@ -20,6 +20,7 @@ export interface TempoRunWorkout {
   targetPace: string;
   estimatedDuration: number;
   instructions: string[];
+  structure: string;
 }
 
 /**
@@ -122,6 +123,14 @@ export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
     preferences
   );
   
+  // Get structure
+  const structure = getTempoRunStructure(
+    warmUpDistance,
+    tempoDistance,
+    coolDownDistance,
+    preferences
+  );
+  
   return {
     name: `Week ${week} Tempo Run`,
     description: `${tempoDistance.toFixed(1)} ${preferences.distanceUnit.toLowerCase()} at training pace (${trainingPaceFormatted})`,
@@ -133,7 +142,8 @@ export function generateTempoRun(params: TempoRunParams): TempoRunWorkout {
     totalDistance,
     targetPace: trainingPaceFormatted,
     estimatedDuration,
-    instructions
+    instructions,
+    structure
   };
 }
 
@@ -159,6 +169,21 @@ function getTempoRunInstructions(
     'Focus on smooth, efficient running form at this effort level',
     'If you feel you\'re pushing too hard, you may need to adjust your marathon goal time'
   ];
+}
+
+/**
+ * Get detailed structure breakdown for tempo runs
+ */
+function getTempoRunStructure(
+  warmUpDistance: number,
+  tempoDistance: number,
+  coolDownDistance: number,
+  preferences: TrainingPreferences
+): string {
+  const unit = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  const unitSingular = preferences.distanceUnit === DistanceUnit.KILOMETERS ? 'km' : 'mile';
+  
+  return `Warm-up (${warmUpDistance.toFixed(1)} ${warmUpDistance === 1 ? unitSingular : unit}) → Tempo segment (${tempoDistance.toFixed(1)} ${tempoDistance === 1 ? unitSingular : unit}) → Cool-down (${coolDownDistance.toFixed(1)} ${coolDownDistance === 1 ? unitSingular : unit})`;
 }
 
 /**
