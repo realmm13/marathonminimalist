@@ -484,6 +484,24 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
             </div>
           )}
 
+          {/* Workout Instructions Section */}
+          {instructions && instructions.length > 0 && (
+            <div className="mb-4">
+              <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Instructions
+              </h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                {instructions.map((instruction, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-primary mt-1">•</span>
+                    <span>{instruction}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Race details for race day */}
           {isActualRaceDay && raceDetails && (
             <div className="text-xs text-muted-foreground space-y-1">
@@ -658,6 +676,24 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           <p className="text-sm text-muted-foreground">
             {structure}
           </p>
+        </div>
+      )}
+
+      {/* Workout Instructions Section */}
+      {instructions && instructions.length > 0 && (
+        <div className="mb-4">
+          <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+            <Target className="h-4 w-4" />
+            Instructions
+          </h4>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            {instructions.map((instruction, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <span className="text-primary mt-1">•</span>
+                <span>{instruction}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

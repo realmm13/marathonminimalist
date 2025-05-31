@@ -119,6 +119,7 @@ export default function WorkoutsPage() {
       pace: workout.pace,
       intervals: workout.intervals,
       structure: workout.structure,
+      instructions: workout.instructions,
       isCompleted: workout.isCompleted || false,
       isToday: false, // Calculated in WorkoutGrid for performance
       isUpcoming: workout.week >= currentWeek,
