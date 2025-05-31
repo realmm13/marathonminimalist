@@ -16,6 +16,7 @@ export const clientSchema = z.object({
   NEXT_PUBLIC_ENABLE_ABOUT_PAGE: zStringToBool.default("true"),
   NEXT_PUBLIC_ENABLE_CHAT_PAGE: zStringToBool.default("true"),
   NEXT_PUBLIC_ENABLE_PRICING_PAGE: zStringToBool.default("true"),
+  NEXT_PUBLIC_ENABLE_ADVANCED_METRICS: zStringToBool.default("false"),
 });
 
 export const serverSchema = z.object({

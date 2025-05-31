@@ -172,9 +172,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Divider */}
-            <div className="border-t border-border/50 my-8"></div>
-
             {/* Marathon Training Settings Section */}
             <div>
               <div className="mb-6">

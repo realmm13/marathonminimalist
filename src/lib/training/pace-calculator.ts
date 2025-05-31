@@ -54,12 +54,18 @@ export function formatPaceTime(pace: PaceTime): string {
  */
 export function estimate5KToMarathonTime(fiveKTime: string): string {
   const fiveKPace = parseTimeString(fiveKTime);
-  const fiveKPaceSeconds = paceTimeToSeconds(fiveKPace);
+  const fiveKTotalSeconds = paceTimeToSeconds(fiveKPace);
   
-  // Jack Daniels formula: Marathon pace ≈ 5K pace + 75-90 seconds per km
-  // We'll use 80 seconds as a middle ground
-  const marathonPaceSeconds = fiveKPaceSeconds + 80;
-  const marathonTotalSeconds = marathonPaceSeconds * 42.195;
+  // Convert 5K time to pace per mile
+  // 5K = 3.10686 miles
+  const fiveKPacePerMile = fiveKTotalSeconds / 3.10686;
+  
+  // Jack Daniels formula: Marathon pace ≈ 5K pace + 75-90 seconds per mile
+  // Using 85 seconds per mile as a reasonable estimate
+  const marathonPaceSecondsPerMile = fiveKPacePerMile + 85;
+  
+  // Calculate total marathon time (26.2188 miles)
+  const marathonTotalSeconds = marathonPaceSecondsPerMile * 26.2188;
   
   const hours = Math.floor(marathonTotalSeconds / 3600);
   const minutes = Math.floor((marathonTotalSeconds % 3600) / 60);

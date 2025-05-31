@@ -209,19 +209,4 @@ export function getRecommendedIntervalPace(
   
   const { paceSeconds } = calculateIntervalPace(marathonTime);
   return formatIntervalPace(paceSeconds, preferences);
-}
-
-/**
- * Calculate training stress for interval workout
- */
-export function calculateIntervalTrainingStress(workout: IntervalWorkout): number {
-  // Simple stress calculation based on total interval distance and intensity
-  const totalIntervalDistance = workout.intervals.reduce((sum, set) => 
-    sum + (set.distance * set.repetitions), 0
-  );
-  
-  // High intensity multiplier for intervals
-  const intensityMultiplier = 2.5;
-  
-  return Math.round(totalIntervalDistance * intensityMultiplier);
 } 

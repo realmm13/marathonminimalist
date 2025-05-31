@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { WorkoutCard, WorkoutCardProps } from './WorkoutCard';
 import { Card } from '@/components/ui/card';
@@ -21,7 +21,7 @@ export interface WorkoutGridProps {
   onWorkoutUncomplete?: (workout: WorkoutCardProps) => void;
 }
 
-export function WorkoutGrid({
+export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
   workouts,
   startDate = new Date(),
   currentWeek = 1,
@@ -32,37 +32,54 @@ export function WorkoutGrid({
   onWorkoutClick,
   onWorkoutComplete,
   onWorkoutUncomplete,
-}: WorkoutGridProps) {
-  // Group workouts by week
-  const workoutsByWeek = workouts.reduce((acc, workout) => {
-    const week = workout.week;
-    if (!acc[week]) {
-      acc[week] = [];
-    }
-    acc[week].push(workout);
-    return acc;
-  }, {} as Record<number, WorkoutCardProps[]>);
+}) {
+  // Group workouts by week - memoized for performance
+  const workoutsByWeek = useMemo(() => {
+    return workouts.reduce((acc, workout) => {
+      const week = workout.week;
+      if (!acc[week]) {
+        acc[week] = [];
+      }
+      acc[week].push(workout);
+      return acc;
+    }, {} as Record<number, WorkoutCardProps[]>);
+  }, [workouts]);
 
-  // Generate week data
-  const weeks = Array.from({ length: totalWeeks }, (_, i) => {
-    const weekNumber = i + 1;
-    const weekStartDate = addDays(startDate, i * 7);
-    const weekWorkouts = workoutsByWeek[weekNumber] || [];
-    
-    return {
-      number: weekNumber,
-      startDate: weekStartDate,
-      workouts: weekWorkouts,
-      isCurrent: weekNumber === currentWeek,
-      isPast: weekNumber < currentWeek,
-    };
-  });
+  // Generate week data - memoized for performance
+  const weeks = useMemo(() => {
+    return Array.from({ length: totalWeeks }, (_, i) => {
+      const weekNumber = i + 1;
+      const weekStartDate = addDays(startDate, i * 7);
+      const weekWorkouts = workoutsByWeek[weekNumber] || [];
+      
+      return {
+        number: weekNumber,
+        startDate: weekStartDate,
+        workouts: weekWorkouts,
+        isCurrent: weekNumber === currentWeek,
+        isPast: weekNumber < currentWeek,
+      };
+    });
+  }, [totalWeeks, startDate, workoutsByWeek, currentWeek]);
 
-  const getWeekProgress = (weekWorkouts: WorkoutCardProps[]) => {
+  const getWeekProgress = useCallback((weekWorkouts: WorkoutCardProps[]) => {
     const completed = weekWorkouts.filter(w => w.isCompleted).length;
     const total = weekWorkouts.length;
     return { completed, total, percentage: total > 0 ? (completed / total) * 100 : 0 };
-  };
+  }, []);
+
+  // Memoized handlers to prevent unnecessary re-renders
+  const handleWorkoutClick = useCallback((workout: WorkoutCardProps) => {
+    onWorkoutClick?.(workout);
+  }, [onWorkoutClick]);
+
+  const handleWorkoutComplete = useCallback((workout: WorkoutCardProps) => {
+    onWorkoutComplete?.(workout);
+  }, [onWorkoutComplete]);
+
+  const handleWorkoutUncomplete = useCallback((workout: WorkoutCardProps) => {
+    onWorkoutUncomplete?.(workout);
+  }, [onWorkoutUncomplete]);
 
   if (variant === 'list') {
     return (
@@ -104,9 +121,9 @@ export function WorkoutGrid({
                     key={`${week.number}-${index}`}
                     {...workout}
                     variant="compact"
-                    onClick={() => onWorkoutClick?.(workout)}
-                    onComplete={() => onWorkoutComplete?.(workout)}
-                    onUncomplete={() => onWorkoutUncomplete?.(workout)}
+                    onClick={() => handleWorkoutClick(workout)}
+                    onComplete={() => handleWorkoutComplete(workout)}
+                    onUncomplete={() => handleWorkoutUncomplete(workout)}
                   />
                 ))}
               </div>
@@ -143,9 +160,9 @@ export function WorkoutGrid({
             <WorkoutCard
               {...workout}
               variant="compact"
-              onClick={() => onWorkoutClick?.(workout)}
-              onComplete={() => onWorkoutComplete?.(workout)}
-              onUncomplete={() => onWorkoutUncomplete?.(workout)}
+              onClick={() => handleWorkoutClick(workout)}
+              onComplete={() => handleWorkoutComplete(workout)}
+              onUncomplete={() => handleWorkoutUncomplete(workout)}
             />
           </div>
         ))}
@@ -235,9 +252,9 @@ export function WorkoutGrid({
                     <div key={`${week.number}-${index}`} className="animate-slide-down" style={{ animationDelay: `${(weekIndex * 7 + index) * 50}ms` }}>
                       <WorkoutCard
                         {...workoutProps}
-                        onClick={() => onWorkoutClick?.(workoutProps)}
-                        onComplete={() => onWorkoutComplete?.(workoutProps)}
-                        onUncomplete={() => onWorkoutUncomplete?.(workoutProps)}
+                        onClick={() => handleWorkoutClick(workoutProps)}
+                        onComplete={() => handleWorkoutComplete(workoutProps)}
+                        onUncomplete={() => handleWorkoutUncomplete(workoutProps)}
                       />
                     </div>
                   );
@@ -259,4 +276,4 @@ export function WorkoutGrid({
       })}
     </div>
   );
-} 
+}); 

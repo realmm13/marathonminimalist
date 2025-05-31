@@ -251,15 +251,4 @@ export function getRecommendedEasyPace(
   }
   
   return formatPaceForUser(paces.easyPace, preferences);
-}
-
-/**
- * Calculate training stress for long run workout
- */
-export function calculateLongRunTrainingStress(workout: LongRunWorkout): number {
-  // Training stress based on distance and intensity
-  const easyStress = workout.easyRunDistance * 1.0; // Easy pace multiplier
-  const marathonPaceStress = workout.marathonPaceDistance * 1.8; // Marathon pace multiplier
-  
-  return Math.round(easyStress + marathonPaceStress);
 } 

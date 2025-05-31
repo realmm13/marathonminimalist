@@ -11,3 +11,6 @@ export const hasGithubIntegration =
   clientEnv.NEXT_PUBLIC_ENABLE_GITHUB_INTEGRATION;
 
 export const showEmailPasswordFields = isEmailPasswordAuthEnabled;
+
+export const isAdvancedMetricsEnabled =
+  clientEnv.NEXT_PUBLIC_ENABLE_ADVANCED_METRICS;

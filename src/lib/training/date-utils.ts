@@ -20,8 +20,8 @@ export function calculatePlanEndDate(startDate: Date): Date {
 
 /**
  * Calculate the proper start date by working backward from race date
- * to ensure the final workout aligns with user's preferred workout days
- * @param raceDate - The target race date
+ * to ensure the Week 14 marathon race falls exactly on the user's selected race date
+ * @param raceDate - The target race date (this will be the exact date of the Week 14 marathon)
  * @param workoutDays - Array of preferred workout days (1=Monday, 7=Sunday)
  * @returns The calculated start date for the training plan
  */
@@ -29,42 +29,11 @@ export function calculateStartDateFromRaceDate(
   raceDate: Date,
   workoutDays: number[]
 ): Date {
-  // Sort workout days to find the last workout day of the week
-  const sortedWorkoutDays = [...workoutDays].sort();
-  const finalWorkoutDay = sortedWorkoutDays[sortedWorkoutDays.length - 1]!;
+  // For marathon training, the race date is sacred - Week 14 marathon must fall on this exact date
+  // We'll work backward from this date to calculate the start date
   
-  // Get the day of week for the race date (0=Sunday, 1=Monday, etc.)
-  const raceDayOfWeek = raceDate.getDay();
-  const adjustedRaceDayOfWeek = raceDayOfWeek === 0 ? 7 : raceDayOfWeek; // Convert Sunday from 0 to 7
-  
-  // Find the final workout date - either the race date itself (if it's a workout day)
-  // or the most recent workout day before the race
-  let finalWorkoutDate: Date;
-  
-  if (workoutDays.includes(adjustedRaceDayOfWeek)) {
-    // Race is on a workout day - use the race date
-    finalWorkoutDate = raceDate;
-  } else {
-    // Race is not on a workout day - find the most recent workout day before the race
-    let daysBack = 1;
-    while (daysBack <= 7) {
-      const candidateDay = adjustedRaceDayOfWeek - daysBack;
-      const normalizedDay = candidateDay <= 0 ? candidateDay + 7 : candidateDay;
-      
-      if (workoutDays.includes(normalizedDay)) {
-        finalWorkoutDate = subDays(raceDate, daysBack);
-        break;
-      }
-      daysBack++;
-    }
-    
-    if (daysBack > 7) {
-      throw new Error('Unable to find a suitable workout day before the race date');
-    }
-  }
-  
-  // Get the start of the week containing the final workout (this will be week 14)
-  const week14Start = getTrainingWeekStart(finalWorkoutDate!);
+  // Get the start of the week containing the race date (this will be week 14)
+  const week14Start = getTrainingWeekStart(raceDate);
   
   // Go back 13 weeks to get the start of week 1
   const planStartDate = subWeeks(week14Start, 13);
@@ -144,11 +113,13 @@ export function generateWeeklyWorkoutDates(
  * Generate all workout dates for the entire 14-week training plan
  * @param startDate - Plan start date
  * @param workoutDays - Array of preferred workout days
+ * @param raceDate - Optional race date for Week 14 marathon (overrides workout day preference)
  * @returns Array of all workout schedules for the plan
  */
 export function generateFullPlanSchedule(
   startDate: Date,
-  workoutDays: number[]
+  workoutDays: number[],
+  raceDate?: Date
 ): WorkoutSchedule[] {
   const allWorkouts: WorkoutSchedule[] = [];
   
@@ -156,14 +127,74 @@ export function generateFullPlanSchedule(
   let currentWeekStart = getTrainingWeekStart(startDate);
   
   for (let week = 1; week <= 14; week++) {
-    const weeklyWorkouts = generateWeeklyWorkoutDates(currentWeekStart, workoutDays, week);
-    allWorkouts.push(...weeklyWorkouts);
+    if (week === 14 && raceDate) {
+      // Special handling for Week 14 - marathon race must be on the exact race date
+      const weeklyWorkouts = generateWeek14WorkoutDates(currentWeekStart, workoutDays, raceDate);
+      allWorkouts.push(...weeklyWorkouts);
+    } else {
+      // Normal week - use user's preferred workout days
+      const weeklyWorkouts = generateWeeklyWorkoutDates(currentWeekStart, workoutDays, week);
+      allWorkouts.push(...weeklyWorkouts);
+    }
     
     // Move to next week
     currentWeekStart = addWeeks(currentWeekStart, 1);
   }
   
   return allWorkouts;
+}
+
+/**
+ * Generate workout dates for Week 14 with special handling for race date
+ * @param weekStartDate - Monday of Week 14
+ * @param workoutDays - Array of preferred workout days
+ * @param raceDate - The exact date of the marathon race
+ * @returns Array of workout schedules for Week 14
+ */
+export function generateWeek14WorkoutDates(
+  weekStartDate: Date,
+  workoutDays: number[],
+  raceDate: Date
+): WorkoutSchedule[] {
+  const workoutSchedules: WorkoutSchedule[] = [];
+  
+  // Get the day of week for the race date
+  const raceDayOfWeek = raceDate.getDay();
+  const adjustedRaceDayOfWeek = raceDayOfWeek === 0 ? 7 : raceDayOfWeek; // Convert Sunday from 0 to 7
+  
+  // Sort workout days to ensure consistent ordering
+  const sortedWorkoutDays = [...workoutDays].sort();
+  
+  // Add workouts for the user's preferred days, but replace the last one with the race date
+  for (let i = 0; i < sortedWorkoutDays.length; i++) {
+    const dayOfWeek = sortedWorkoutDays[i]!;
+    
+    if (i === sortedWorkoutDays.length - 1) {
+      // This is the last workout of the week - use the race date instead
+      workoutSchedules.push({
+        date: raceDate,
+        week: 14,
+        dayOfWeek: adjustedRaceDayOfWeek,
+        workoutType: 'long' // This will be the marathon race
+      });
+    } else {
+      // Regular workout day
+      const daysFromMonday = dayOfWeek === 7 ? 6 : dayOfWeek - 1; // Convert to 0-6 (Mon-Sun)
+      const workoutDate = addDays(weekStartDate, daysFromMonday);
+      
+      // Only add this workout if it's before the race date
+      if (workoutDate < raceDate) {
+        workoutSchedules.push({
+          date: workoutDate,
+          week: 14,
+          dayOfWeek,
+          workoutType: 'easy' // Default, will be assigned specific types later
+        });
+      }
+    }
+  }
+  
+  return workoutSchedules;
 }
 
 /**

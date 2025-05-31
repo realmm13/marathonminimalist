@@ -109,7 +109,7 @@ const workoutTypeConfig = {
   },
 };
 
-export function WorkoutDetailModal({ 
+export const WorkoutDetailModal = React.memo<WorkoutDetailModalProps>(function WorkoutDetailModal({ 
   workout, 
   onComplete, 
   onUncomplete, 
@@ -328,4 +328,4 @@ export function WorkoutDetailModal({
       </div>
     </div>
   );
-} 
+}); 

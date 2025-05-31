@@ -166,4 +166,13 @@ export function logEnvConfigStatus() {
     "Pricing Page",
     pageIndent,
   );
+
+  // --- Features ---
+  console.log("\n🏃‍♂️ Training Features");
+  const featureIndent = "  ";
+  logVariable(
+    serverEnv.NEXT_PUBLIC_ENABLE_ADVANCED_METRICS,
+    "Advanced Metrics",
+    featureIndent,
+  );
 }

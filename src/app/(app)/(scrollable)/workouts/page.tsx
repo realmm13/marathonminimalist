@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { api } from '@/trpc/react';
 import { WorkoutGrid } from '@/components/training/WorkoutGrid';
 import { WorkoutCardProps } from '@/components/training/WorkoutCard';
@@ -68,7 +68,7 @@ export default function WorkoutsPage() {
     ? "Please complete your profile setup by setting your goal marathon time in the Profile page."
     : "Training Plan Not Available";
 
-  // Calculate completion statistics
+  // Calculate completion statistics - memoized for performance
   const completionStats = useMemo(() => {
     if (!trainingPlanData?.plan?.workouts) {
       return {
@@ -102,11 +102,11 @@ export default function WorkoutsPage() {
   const isLoading = isLoadingPlan || weekLoading;
   const currentWeek = currentWeekData?.currentWeek || 1;
 
-  // Convert training plan workouts to WorkoutCardProps format
-  const convertToWorkoutCards = (plan: any): WorkoutCardProps[] => {
+  // Convert training plan workouts to WorkoutCardProps format - optimized
+  const convertToWorkoutCards = useCallback((plan: any): WorkoutCardProps[] => {
     if (!plan?.plan?.workouts) return [];
     
-    const workoutCards = plan.plan.workouts.map((workout: any, index: number) => ({
+    return plan.plan.workouts.map((workout: any, index: number) => ({
       id: workout.id || `${workout.week}-${workout.day || (index % 7) + 1}`,
       name: workout.name,
       description: workout.description,
@@ -119,22 +119,16 @@ export default function WorkoutsPage() {
       pace: workout.pace,
       intervals: workout.intervals,
       isCompleted: workout.isCompleted || false,
-      isToday: false, // Will be calculated in WorkoutGrid
+      isToday: false, // Calculated in WorkoutGrid for performance
       isUpcoming: workout.week >= currentWeek,
       isPast: workout.week < currentWeek,
     }));
+  }, [currentWeek]);
 
-    // Debug logging
-    console.log('Converted workout cards:', workoutCards);
-    console.log('First workout card:', workoutCards[0]);
-    
-    return workoutCards;
-  };
+  const workouts = useMemo(() => convertToWorkoutCards(trainingPlanData), [convertToWorkoutCards, trainingPlanData]);
 
-  const workouts = convertToWorkoutCards(trainingPlanData);
-
-  // Calculate plan statistics using completion data from API
-  const planStats = React.useMemo(() => {
+  // Calculate plan statistics using completion data from API - memoized
+  const planStats = useMemo(() => {
     if (!completionStats) return null;
     
     const goalTime = trainingPlanData?.userSettings?.goalMarathonTime || '4:00:00';
@@ -159,7 +153,7 @@ export default function WorkoutsPage() {
     };
   }, [completionStats, distanceUnit, trainingPlanData]);
 
-  const handleWorkoutClick = (workout: WorkoutCardProps) => {
+  const handleWorkoutClick = useCallback((workout: WorkoutCardProps) => {
     console.log('Workout clicked:', workout);
     
     // Open workout detail modal
@@ -174,13 +168,15 @@ export default function WorkoutsPage() {
       size: 'lg',
       showCloseButton: true,
     });
-  };
+  }, [openDialog]);
 
-  // Mutation for marking workouts as complete
+  // Mutation for marking workouts as complete - optimized cache invalidation
   const utils = api.useUtils();
   const markWorkoutCompleteMutation = api.training.markWorkoutComplete.useMutation({
     onSuccess: () => {
-      // Refetch the training plan to update completion status
+      // More granular cache invalidation - only invalidate completion-related data
+      void utils.training.getWorkoutCompletions.invalidate();
+      // Only invalidate the training plan if we need to update completion status
       void utils.training.generatePlan.invalidate();
     },
     onError: (error) => {
@@ -189,10 +185,12 @@ export default function WorkoutsPage() {
     },
   });
 
-  // Mutation for marking workouts as incomplete
+  // Mutation for marking workouts as incomplete - optimized cache invalidation
   const markWorkoutIncompleteMutation = api.training.markWorkoutIncomplete.useMutation({
     onSuccess: () => {
-      // Refetch the training plan to update completion status
+      // More granular cache invalidation - only invalidate completion-related data
+      void utils.training.getWorkoutCompletions.invalidate();
+      // Only invalidate the training plan if we need to update completion status
       void utils.training.generatePlan.invalidate();
     },
     onError: (error) => {
@@ -201,7 +199,7 @@ export default function WorkoutsPage() {
     },
   });
 
-  const handleWorkoutComplete = (workout: WorkoutCardProps) => {
+  const handleWorkoutComplete = useCallback((workout: WorkoutCardProps) => {
     console.log('handleWorkoutComplete called with:', workout);
     console.log('Workout ID:', workout.id);
     console.log('Workout week:', workout.week);
@@ -227,9 +225,9 @@ export default function WorkoutsPage() {
       completedAt: new Date().toISOString(),
       notes: `Completed ${workout.name}`,
     });
-  };
+  }, [markWorkoutCompleteMutation]);
 
-  const handleWorkoutUncomplete = (workout: WorkoutCardProps) => {
+  const handleWorkoutUncomplete = useCallback((workout: WorkoutCardProps) => {
     console.log('handleWorkoutUncomplete called with:', workout);
     console.log('Workout ID:', workout.id);
     
@@ -250,13 +248,13 @@ export default function WorkoutsPage() {
     markWorkoutIncompleteMutation.mutate({
       workoutId: workout.id,
     });
-  };
+  }, [markWorkoutIncompleteMutation]);
 
-  // View options for segmented control
-  const viewOptions = [
+  // View options for segmented control - memoized
+  const viewOptions = useMemo(() => [
     { value: 'list', label: 'List' },
     { value: 'compact', label: 'Compact' }
-  ];
+  ], []);
 
   const router = useRouter();
 

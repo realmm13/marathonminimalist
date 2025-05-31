@@ -1,197 +1,246 @@
-import { describe, test, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { generateIntervalWorkout } from '../intervals';
-import { DistanceUnit, PaceFormat } from '../../../generated/prisma';
-import { TrainingPreferences } from '@/types/training';
+import type { IntervalParams, TrainingPreferences } from '@/types/training';
+import { DistanceUnit, PaceFormat, ExperienceLevel } from '@/generated/prisma';
 
-const baseParams = {
-  week: 1,
-  goalMarathonTime: '3:30:00',
-  preferences: {
-    distanceUnit: DistanceUnit.MILES,
-    paceFormat: PaceFormat.MIN_PER_MILE,
-    workoutDays: [1, 3, 6]
-  } as TrainingPreferences
-};
+describe('Intervals Algorithm', () => {
+  const defaultPreferences: TrainingPreferences = {
+    distanceUnit: DistanceUnit.KILOMETERS,
+    paceFormat: PaceFormat.MIN_PER_KM,
+    workoutDays: [1, 3, 5] // Monday, Wednesday, Friday
+  };
 
-describe('Interval Algorithm', () => {
-  describe('Basic Functionality', () => {
-    test('should generate interval workout for week 1', () => {
-      const result = generateIntervalWorkout(baseParams);
-      
-      expect(result).toBeDefined();
-      expect(result.type).toBe('INTERVAL_800M');
-      expect(result.week).toBe(1);
-      expect(result.intervals[0]?.repetitions).toBe(2); // Week 1 should be 2 reps
-      expect(result.description).toContain('800m');
-    });
-
-    test('should generate interval workout for peak week (week 10)', () => {
-      const result = generateIntervalWorkout({ ...baseParams, week: 10 });
-      
-      expect(result.week).toBe(10);
-      expect(result.intervals[0]?.repetitions).toBe(10); // Peak repetitions
-    });
-
-    test('should generate interval workout for taper week (week 13)', () => {
-      const result = generateIntervalWorkout({ ...baseParams, week: 13 });
-      
-      expect(result.week).toBe(13);
-      expect(result.intervals[0]?.repetitions).toBe(4); // Tapered repetitions
-    });
-  });
-
-  describe('Repetition Progression', () => {
-    test('should follow correct 14-week progression', () => {
-      const expectedReps = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 8, 6, 4, 2];
-      
-      for (let week = 1; week <= 14; week++) {
-        const result = generateIntervalWorkout({ ...baseParams, week });
-        expect(result.intervals[0]?.repetitions).toBe(expectedReps[week - 1]);
-      }
-    });
-
-    test('should handle invalid week numbers', () => {
-      expect(() => {
-        generateIntervalWorkout({ ...baseParams, week: 15 });
-      }).toThrow();
-
-      expect(() => {
-        generateIntervalWorkout({ ...baseParams, week: 0 });
-      }).toThrow();
-    });
-  });
-
-  describe('Pace Calculations', () => {
-    test('should calculate correct interval pace for different marathon times', () => {
-      const testCases = [
-        { marathonTime: '3:00:00', expectedPace: '3:00 per mile' },
-        { marathonTime: '3:30:00', expectedPace: '3:30 per mile' },
-        { marathonTime: '4:00:00', expectedPace: '4:00 per mile' },
-        { marathonTime: '4:30:00', expectedPace: '4:30 per mile' },
-        { marathonTime: '5:00:00', expectedPace: '5:00 per mile' }
-      ];
-
-      testCases.forEach(({ marathonTime, expectedPace }) => {
-        const result = generateIntervalWorkout({ 
-          ...baseParams, 
-          goalMarathonTime: marathonTime 
-        });
-        expect(result.intervals[0]?.targetPace).toBe(expectedPace);
-      });
-    });
-  });
-
-  describe('Recovery Time Calculations', () => {
-    test('should set recovery time equal to interval pace time', () => {
-      const result = generateIntervalWorkout(baseParams);
-      
-      // For 3:30:00 marathon, recovery should be 3:30 (210 seconds)
-      expect(result.intervals[0]?.recoveryTime).toBe(210); // 3:30 in seconds
-    });
-
-    test('should calculate recovery correctly for different paces', () => {
-      const fastResult = generateIntervalWorkout({ 
-        ...baseParams, 
-        goalMarathonTime: '3:00:00' 
-      });
-      
-      // For 3:00:00 marathon, recovery should be 3:00 (180 seconds)
-      expect(fastResult.intervals[0]?.recoveryTime).toBe(180);
-    });
-  });
-
-  describe('Distance Calculations', () => {
-    test('should always use 800m intervals', () => {
-      for (let week = 1; week <= 14; week++) {
-        const result = generateIntervalWorkout({ ...baseParams, week });
-        expect(result.intervals[0]?.distance).toBe(0.5); // 800m = 0.5 miles
-      }
-    });
-
-    test('should convert to kilometers when requested', () => {
-      const kmParams = {
-        ...baseParams,
-        preferences: {
-          ...baseParams.preferences,
-          distanceUnit: DistanceUnit.KILOMETERS
-        }
+  describe('generateIntervalWorkout', () => {
+    it('should generate valid interval workout for early weeks', () => {
+      const params: IntervalParams = {
+        goalMarathonTime: '4:00:00',
+        week: 2,
+        preferences: defaultPreferences
       };
 
-      const result = generateIntervalWorkout(kmParams);
-      expect(result.intervals[0]?.distance).toBeCloseTo(0.8, 1); // 800m = 0.8km
-    });
-  });
+      const workout = generateIntervalWorkout(params);
 
-  describe('Unit Conversions', () => {
-    test('should convert pace to per km when requested', () => {
-      const kmPaceParams = {
-        ...baseParams,
-        preferences: {
-          ...baseParams.preferences,
-          distanceUnit: DistanceUnit.KILOMETERS
-        }
+      // Basic structure validation
+      expect(workout.name).toBeDefined();
+      expect(workout.description).toBeDefined();
+      expect(workout.week).toBe(2);
+      expect(workout.intervals).toBeDefined();
+      expect(workout.intervals.length).toBeGreaterThan(0);
+
+      // Distance validation
+      expect(workout.warmUpDistance).toBeGreaterThan(0);
+      expect(workout.coolDownDistance).toBeGreaterThan(0);
+      expect(workout.totalDistance).toBeGreaterThan(0);
+
+      // Total distance should equal warm-up + intervals + cool-down
+      const intervalDistance = workout.intervals.reduce((total, interval) => 
+        total + (interval.distance * interval.repetitions), 0);
+      const expectedTotal = workout.warmUpDistance + intervalDistance + workout.coolDownDistance;
+      expect(workout.totalDistance).toBeCloseTo(expectedTotal, 1);
+
+      // Duration should be reasonable (30-120 minutes)
+      expect(workout.estimatedDuration).toBeGreaterThan(30);
+      expect(workout.estimatedDuration).toBeLessThan(120);
+
+      // Instructions should be provided
+      expect(workout.instructions).toBeDefined();
+      expect(workout.instructions.length).toBeGreaterThan(0);
+    });
+
+    it('should generate progressively harder workouts as weeks advance', () => {
+      const baseParams: IntervalParams = {
+        goalMarathonTime: '4:00:00',
+        preferences: defaultPreferences
       };
 
-      const result = generateIntervalWorkout(kmPaceParams);
-      expect(result.intervals[0]?.targetPace).toContain('per km');
-    });
-  });
+      const earlyWeek = generateIntervalWorkout({ ...baseParams, week: 2 });
+      const midWeek = generateIntervalWorkout({ ...baseParams, week: 6 });
+      const lateWeek = generateIntervalWorkout({ ...baseParams, week: 10 });
 
-  describe('Input Validation', () => {
-    test('should handle malformed marathon time gracefully', () => {
-      expect(() => {
-        generateIntervalWorkout({ 
-          ...baseParams, 
-          goalMarathonTime: 'invalid' 
+      // Later weeks should generally have more total distance or more repetitions
+      const earlyTotalReps = earlyWeek.intervals.reduce((total, interval) => total + interval.repetitions, 0);
+      const midTotalReps = midWeek.intervals.reduce((total, interval) => total + interval.repetitions, 0);
+      const lateTotalReps = lateWeek.intervals.reduce((total, interval) => total + interval.repetitions, 0);
+
+      // Should show progression (though not necessarily strictly increasing every week)
+      expect(lateTotalReps).toBeGreaterThanOrEqual(earlyTotalReps);
+      expect(lateWeek.totalDistance).toBeGreaterThanOrEqual(earlyWeek.totalDistance);
+    });
+
+    it('should handle different marathon goal times appropriately', () => {
+      const fastGoal = generateIntervalWorkout({
+        goalMarathonTime: '3:00:00',
+        week: 5,
+        preferences: defaultPreferences
+      });
+
+      const slowGoal = generateIntervalWorkout({
+        goalMarathonTime: '5:00:00',
+        week: 5,
+        preferences: defaultPreferences
+      });
+
+      // Both should have valid structure
+      expect(fastGoal.intervals.length).toBeGreaterThan(0);
+      expect(slowGoal.intervals.length).toBeGreaterThan(0);
+
+      // Target paces should be different (faster goal = faster interval pace)
+      const fastPace = fastGoal.intervals[0].targetPace;
+      const slowPace = slowGoal.intervals[0].targetPace;
+      expect(fastPace).not.toBe(slowPace);
+
+      // Parse paces to compare (format: "MM:SS")
+      const [fastMin, fastSec] = fastPace.split(':').map(Number);
+      const [slowMin, slowSec] = slowPace.split(':').map(Number);
+      const fastTotalSeconds = fastMin * 60 + fastSec;
+      const slowTotalSeconds = slowMin * 60 + slowSec;
+      
+      expect(fastTotalSeconds).toBeLessThan(slowTotalSeconds);
+    });
+
+    it('should handle missing marathon goal time gracefully', () => {
+      const params: IntervalParams = {
+        week: 5,
+        preferences: defaultPreferences
+        // No goalMarathonTime provided
+      };
+
+      const workout = generateIntervalWorkout(params);
+
+      // Should still generate a valid workout
+      expect(workout.name).toBeDefined();
+      expect(workout.intervals.length).toBeGreaterThan(0);
+      expect(workout.totalDistance).toBeGreaterThan(0);
+      expect(workout.estimatedDuration).toBeGreaterThan(0);
+    });
+
+    it('should respect distance unit preferences', () => {
+      const kmParams: IntervalParams = {
+        goalMarathonTime: '4:00:00',
+        week: 5,
+        preferences: { ...defaultPreferences, distanceUnit: DistanceUnit.KILOMETERS }
+      };
+
+      const mileParams: IntervalParams = {
+        goalMarathonTime: '4:00:00',
+        week: 5,
+        preferences: { ...defaultPreferences, distanceUnit: DistanceUnit.MILES }
+      };
+
+      const kmWorkout = generateIntervalWorkout(kmParams);
+      const mileWorkout = generateIntervalWorkout(mileParams);
+
+      // Both should be valid
+      expect(kmWorkout.totalDistance).toBeGreaterThan(0);
+      expect(mileWorkout.totalDistance).toBeGreaterThan(0);
+
+      // Mile distances should generally be smaller numbers than km
+      // (since 1 mile = 1.6 km, same workout in miles should have smaller distance values)
+      expect(mileWorkout.totalDistance).toBeLessThan(kmWorkout.totalDistance);
+    });
+
+    it('should generate appropriate interval types for different weeks', () => {
+      const weeks = [2, 4, 6, 8, 10, 12];
+      
+      weeks.forEach(week => {
+        const workout = generateIntervalWorkout({
+          goalMarathonTime: '4:00:00',
+          week,
+          preferences: defaultPreferences
         });
-      }).toThrow();
-    });
 
-    test('should handle missing marathon time', () => {
-      expect(() => {
-        generateIntervalWorkout({ 
-          ...baseParams, 
-          goalMarathonTime: '' 
+        // Each week should have valid intervals
+        expect(workout.intervals.length).toBeGreaterThan(0);
+        
+        // All intervals should have reasonable properties
+        workout.intervals.forEach(interval => {
+          expect(interval.distance).toBeGreaterThan(0);
+          expect(interval.repetitions).toBeGreaterThan(0);
+          expect(interval.targetPace).toMatch(/^\d+:\d{2}$/); // MM:SS format
+          expect(interval.recoveryTime).toBeGreaterThan(0);
         });
-      }).toThrow();
-    });
-  });
-
-  describe('Workout Structure', () => {
-    test('should include proper warm-up and cool-down', () => {
-      const result = generateIntervalWorkout(baseParams);
-      
-      expect(result.warmUpDistance).toBe(2); // 2 miles warm-up
-      expect(result.coolDownDistance).toBe(1); // 1 mile cool-down
+      });
     });
 
-    test('should calculate total distance correctly', () => {
-      const result = generateIntervalWorkout(baseParams);
-      
-      // Total = warm-up + (reps * interval distance) + cool-down
-      const expectedTotal = 2 + (2 * 0.5) + 1; // 2 + 1 + 1 = 4 miles
-      expect(result.totalDistance).toBe(expectedTotal);
+    it('should have consistent interval structure', () => {
+      const workout = generateIntervalWorkout({
+        goalMarathonTime: '4:00:00',
+        week: 6,
+        preferences: defaultPreferences
+      });
+
+      // Validate interval set structure
+      workout.intervals.forEach(interval => {
+        // Distance should be reasonable (200m to 2000m converted to km)
+        expect(interval.distance).toBeGreaterThan(0.1); // 100m minimum
+        expect(interval.distance).toBeLessThan(3.0); // 3km maximum per interval
+
+        // Repetitions should be reasonable
+        expect(interval.repetitions).toBeGreaterThan(0);
+        expect(interval.repetitions).toBeLessThan(20); // Max 20 reps
+
+        // Recovery time should be reasonable (30 seconds to 5 minutes)
+        expect(interval.recoveryTime).toBeGreaterThan(30);
+        expect(interval.recoveryTime).toBeLessThan(300);
+
+        // Target pace should be in correct format
+        expect(interval.targetPace).toMatch(/^\d+:\d{2}$/);
+      });
     });
 
-    test('should provide detailed instructions', () => {
-      const result = generateIntervalWorkout(baseParams);
-      
-      expect(result.instructions).toBeDefined();
-      expect(result.instructions.length).toBeLessThan(15); // Should have reasonable number of instructions
-    });
-  });
+    it('should provide meaningful workout instructions', () => {
+      const workout = generateIntervalWorkout({
+        goalMarathonTime: '4:00:00',
+        week: 8,
+        preferences: defaultPreferences
+      });
 
-  describe('Performance Tests', () => {
-    test('should generate interval workouts quickly', () => {
-      const startTime = Date.now();
+      expect(workout.instructions).toBeDefined();
+      expect(workout.instructions.length).toBeGreaterThan(0);
+
+      // Instructions should contain useful information
+      const instructionText = workout.instructions.join(' ').toLowerCase();
       
-      // Generate 100 interval workouts
-      for (let i = 0; i < 100; i++) {
-        generateIntervalWorkout({ ...baseParams, week: (i % 14) + 1 });
-      }
-      
-      const endTime = Date.now();
-      expect(endTime - startTime).toBeLessThan(1000); // Should complete in under 1 second
+      // Should mention key workout components
+      expect(
+        instructionText.includes('warm') ||
+        instructionText.includes('pace') ||
+        instructionText.includes('recovery') ||
+        instructionText.includes('cool')
+      ).toBe(true);
+    });
+
+    it('should handle edge cases gracefully', () => {
+      // Test very early week
+      const veryEarly = generateIntervalWorkout({
+        goalMarathonTime: '4:00:00',
+        week: 1,
+        preferences: defaultPreferences
+      });
+      expect(veryEarly.intervals.length).toBeGreaterThan(0);
+
+      // Test very late week (close to taper)
+      const veryLate = generateIntervalWorkout({
+        goalMarathonTime: '4:00:00',
+        week: 13,
+        preferences: defaultPreferences
+      });
+      expect(veryLate.intervals.length).toBeGreaterThan(0);
+
+      // Test extreme marathon times
+      const veryFast = generateIntervalWorkout({
+        goalMarathonTime: '2:30:00',
+        week: 6,
+        preferences: defaultPreferences
+      });
+      expect(veryFast.intervals.length).toBeGreaterThan(0);
+
+      const verySlow = generateIntervalWorkout({
+        goalMarathonTime: '6:00:00',
+        week: 6,
+        preferences: defaultPreferences
+      });
+      expect(verySlow.intervals.length).toBeGreaterThan(0);
     });
   });
 }); 

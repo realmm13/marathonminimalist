@@ -37,6 +37,7 @@ export interface ScheduledWorkout {
 
 export interface TrainingSchedulerParams {
   startDate: Date;
+  raceDate?: Date; // Optional race date - if provided, will be used as the actual end date
   goalMarathonTime?: string;
   workoutDays: number[]; // Array of preferred workout days (1=Monday, 7=Sunday)
   preferences: TrainingPreferences;
@@ -96,7 +97,8 @@ export class TrainingScheduler {
     // Generate the base schedule with dates and workout types
     const baseSchedule = generateFullPlanSchedule(
       this.params.startDate,
-      this.params.workoutDays
+      this.params.workoutDays,
+      this.params.raceDate // Pass race date for Week 14 special handling
     );
 
     // Assign workout types based on the schedule pattern
@@ -110,7 +112,7 @@ export class TrainingScheduler {
 
     return {
       startDate: this.params.startDate,
-      endDate: calculatePlanEndDate(this.params.startDate),
+      endDate: this.params.raceDate || calculatePlanEndDate(this.params.startDate),
       totalWeeks: 14,
       workouts: scheduledWorkouts,
       summary

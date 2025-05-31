@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -51,84 +51,61 @@ export interface WorkoutCardProps {
     instructions?: string;
   };
   
+  // Workout structure
+  intervals?: any;
+  instructions?: string[];
+  
   // Status and interaction
   isCompleted?: boolean;
   isToday?: boolean;
   isUpcoming?: boolean;
   isPast?: boolean;
   
-  // Styling
+  // UI variants
   variant?: 'default' | 'compact' | 'detailed';
   className?: string;
   
-  // Interaction
+  // Event handlers
   onClick?: () => void;
   onComplete?: () => void;
   onUncomplete?: () => void;
-  
-  // Accessibility
-  'aria-label'?: string;
-  'aria-describedby'?: string;
 }
 
-const workoutTypeConfig = {
+// Memoized workout type configuration
+const WORKOUT_TYPE_CONFIG = {
+  [WorkoutType.EASY_RUN]: {
+    icon: Activity,
+    color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    label: 'Easy Run'
+  },
   [WorkoutType.TEMPO_RUN]: {
-    label: 'Tempo',
-    icon: Target,
-    color: 'bg-orange-500',
-    badgeColor: 'orange-500',
-    lightColor: 'bg-orange-100 text-orange-800',
-    darkColor: 'bg-orange-900/30 text-orange-300',
-    description: 'Tempo run workout for building lactate threshold'
+    icon: Zap,
+    color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
+    label: 'Tempo Run'
   },
   [WorkoutType.INTERVAL_800M]: {
-    label: 'Intervals',
-    icon: Zap,
-    color: 'bg-red-500',
-    badgeColor: 'red-500',
-    lightColor: 'bg-red-100 text-red-800',
-    darkColor: 'bg-red-900/30 text-red-300',
-    description: '800 meter interval training for speed development'
+    icon: Timer,
+    color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    label: '800m Intervals'
   },
   [WorkoutType.LONG_RUN]: {
-    label: 'Long Run',
-    icon: Activity,
-    color: 'bg-blue-500',
-    badgeColor: 'blue-500',
-    lightColor: 'bg-blue-100 text-blue-800',
-    darkColor: 'bg-blue-900/30 text-blue-300',
-    description: 'Long distance run for endurance building'
-  },
-  [WorkoutType.MARATHON_RACE]: {
-    label: 'Marathon Race',
-    icon: Trophy,
-    color: 'bg-yellow-500',
-    badgeColor: 'yellow-500',
-    lightColor: 'bg-yellow-100 text-yellow-800',
-    darkColor: 'bg-yellow-900/30 text-yellow-300',
-    description: 'Marathon race day - the culmination of your training'
-  },
-  [WorkoutType.EASY_RUN]: {
-    label: 'Easy',
-    icon: Circle,
-    color: 'bg-green-500',
-    badgeColor: 'green-500',
-    lightColor: 'bg-green-100 text-green-800',
-    darkColor: 'bg-green-900/30 text-green-300',
-    description: 'Easy pace run for recovery and base building'
+    icon: Target,
+    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    label: 'Long Run'
   },
   [WorkoutType.RECOVERY_RUN]: {
-    label: 'Recovery',
     icon: Circle,
-    color: 'bg-gray-500',
-    badgeColor: 'gray-500',
-    lightColor: 'bg-gray-100 text-gray-800',
-    darkColor: 'bg-gray-900/30 text-gray-300',
-    description: 'Recovery run for active rest and muscle recovery'
+    color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+    label: 'Recovery Run'
   },
-};
+  [WorkoutType.MARATHON_RACE]: {
+    icon: Trophy,
+    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+    label: 'Marathon Race'
+  },
+} as const;
 
-export function WorkoutCard({
+export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
   id,
   name,
   description,
@@ -141,6 +118,8 @@ export function WorkoutCard({
   pace,
   isRaceDay = false,
   raceDetails,
+  intervals,
+  instructions,
   isCompleted = false,
   isToday = false,
   isUpcoming = false,
@@ -150,21 +129,115 @@ export function WorkoutCard({
   onClick,
   onComplete,
   onUncomplete,
-  'aria-label': ariaLabel,
-  'aria-describedby': ariaDescribedBy,
-}: WorkoutCardProps) {
-  const config = workoutTypeConfig[type];
-  const Icon = config.icon;
+}) {
+  // Get user's distance unit preference
+  const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
+  const distanceUnit = (distanceUnitValue as DistanceUnitType) || DISTANCE_UNITS.MILES;
+
+  // Memoized workout type configuration
+  const workoutConfig = useMemo(() => {
+    return WORKOUT_TYPE_CONFIG[type] || WORKOUT_TYPE_CONFIG[WorkoutType.EASY_RUN];
+  }, [type]);
+
+  // Memoized distance conversion
+  const convertedDistance = useMemo(() => {
+    if (!distance) return null;
+    
+    if (distanceUnit === DISTANCE_UNITS.MILES) {
+      return (distance * 0.621371).toFixed(1);
+    }
+    return distance.toFixed(1);
+  }, [distance, distanceUnit]);
+
+  // Memoized unit label
+  const unitLabel = useMemo(() => {
+    return distanceUnit === DISTANCE_UNITS.MILES ? 'mi' : 'km';
+  }, [distanceUnit]);
+
+  // Memoized pace conversion
+  const convertedPace = useMemo(() => {
+    if (!pace) return null;
+    
+    // If pace is already in the correct unit, return as is
+    if (distanceUnit === DISTANCE_UNITS.MILES && pace.includes('/mi')) {
+      return pace;
+    }
+    if (distanceUnit === DISTANCE_UNITS.KILOMETERS && pace.includes('/km')) {
+      return pace;
+    }
+    
+    // Convert pace if needed
+    const paceMatch = pace.match(/(\d+):(\d+)/);
+    if (!paceMatch) return pace;
+    
+    const [, minutes = '0', seconds = '0'] = paceMatch;
+    const totalSeconds = parseInt(minutes, 10) * 60 + parseInt(seconds, 10);
+    
+    if (distanceUnit === DISTANCE_UNITS.MILES) {
+      // Convert from km pace to mile pace
+      const milePaceSeconds = totalSeconds * 1.609344;
+      const milePaceMinutes = Math.floor(milePaceSeconds / 60);
+      const remainingSeconds = Math.round(milePaceSeconds % 60);
+      return `${milePaceMinutes}:${remainingSeconds.toString().padStart(2, '0')}/mi`;
+    } else {
+      // Convert from mile pace to km pace
+      const kmPaceSeconds = totalSeconds / 1.609344;
+      const kmPaceMinutes = Math.floor(kmPaceSeconds / 60);
+      const remainingSeconds = Math.round(kmPaceSeconds % 60);
+      return `${kmPaceMinutes}:${remainingSeconds.toString().padStart(2, '0')}/km`;
+    }
+  }, [pace, distanceUnit]);
+
+  // Memoized duration formatting
+  const formattedDuration = useMemo(() => {
+    if (!duration) return null;
+    
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+  }, [duration]);
+
+  // Memoized date formatting
+  const formattedDate = useMemo(() => {
+    if (!scheduledDate) return null;
+    return format(scheduledDate, 'MMM d');
+  }, [scheduledDate]);
+
+  // Memoized click handlers
+  const handleClick = useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
+  const handleComplete = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isCompleted) {
+      onUncomplete?.();
+    } else {
+      onComplete?.();
+    }
+  }, [isCompleted, onComplete, onUncomplete]);
+
+  const handleCompleteKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      e.stopPropagation();
+      // Create a synthetic mouse event
+      const syntheticEvent = {
+        stopPropagation: () => e.stopPropagation(),
+        preventDefault: () => e.preventDefault(),
+      } as React.MouseEvent;
+      handleComplete(syntheticEvent);
+    }
+  }, [handleComplete]);
 
   // Determine if this is a marathon race
   const isMarathonRace = type === WorkoutType.MARATHON_RACE;
-  // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
   const isActualRaceDay = isRaceDay || isMarathonRace;
 
-  // Get user's distance unit preference
-  const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
-  const distanceUnit = (distanceUnitValue as DistanceUnitType) ?? DISTANCE_UNITS.MILES;
-  
   // Helper functions
   const convertDistance = (kmValue: number): number => {
     return distanceUnit === DISTANCE_UNITS.MILES ? kmValue * 0.621371 : kmValue;
@@ -199,11 +272,9 @@ export function WorkoutCard({
 
   // Generate comprehensive aria-label
   const getAriaLabel = () => {
-    if (ariaLabel) return ariaLabel;
-    
     const parts = [
       name,
-      config.description,
+      description,
       `Week ${week}`,
       scheduledDate ? format(scheduledDate, 'EEEE, MMMM do') : '',
       distance ? `${formatDistance(distance)} ${getDistanceUnit()}` : '',
@@ -235,7 +306,7 @@ export function WorkoutCard({
         <div 
           className={cn(
             "h-3 w-3 rounded-full", 
-            isActualRaceDay ? "bg-yellow-500 animate-pulse" : config.color
+            isActualRaceDay ? "bg-yellow-500 animate-pulse" : workoutConfig.color
           )} 
           aria-label={statusText}
           role="img"
@@ -264,17 +335,12 @@ export function WorkoutCard({
   const handleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      onClick?.();
+      handleClick();
     }
   };
 
-  const handleCompleteKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      event.stopPropagation();
-      onComplete?.();
-    }
-  };
+  // Generate aria-describedby ID
+  const ariaDescribedBy = id ? `workout-${id}-description` : undefined;
 
   if (variant === 'compact') {
     return (
@@ -290,7 +356,7 @@ export function WorkoutCard({
           isPast && !isCompleted && "opacity-60",
           className
         )}
-        onClick={onClick}
+        onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={onClick ? 0 : -1}
         role={onClick ? "button" : "article"}
@@ -309,7 +375,7 @@ export function WorkoutCard({
                 isCompleted ? "bg-success/20 text-success" : 
                 isActualRaceDay ? "bg-yellow-500/10 text-yellow-600" : "bg-primary/10 text-primary"
               )}>
-                <Icon 
+                <workoutConfig.icon 
                   className="h-4 w-4" 
                   aria-hidden="true"
                 />
@@ -319,11 +385,7 @@ export function WorkoutCard({
             {/* Completion buttons */}
             {!isCompleted && onComplete && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('WorkoutCard (compact): Complete button clicked for workout:', { id, name, week, day });
-                  onComplete();
-                }}
+                onClick={handleComplete}
                 onKeyDown={handleCompleteKeyDown}
                 className={cn(
                   "p-2 rounded-lg focus-ring active-press transition-all duration-200",
@@ -341,11 +403,7 @@ export function WorkoutCard({
 
             {isCompleted && onUncomplete && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log('WorkoutCard (compact): Uncomplete button clicked for workout:', { id, name, week, day });
-                  onUncomplete();
-                }}
+                onClick={handleComplete}
                 onKeyDown={handleCompleteKeyDown}
                 className={cn(
                   "p-2 rounded-lg focus-ring active-press transition-all duration-200",
@@ -367,13 +425,13 @@ export function WorkoutCard({
               <Badge 
                 className={cn(
                   "badge-enhanced text-xs px-2 py-0.5",
-                  isActualRaceDay ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" : config.lightColor,
-                  !isActualRaceDay && "dark:" + config.darkColor
+                  isActualRaceDay ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" : workoutConfig.color,
+                  !isActualRaceDay && "dark:" + workoutConfig.color
                 )}
                 color={isActualRaceDay ? "yellow" : "primary"}
-                aria-label={`Workout type: ${config.label}`}
+                aria-label={`Workout type: ${workoutConfig.label}`}
               >
-                {config.label}
+                {workoutConfig.label}
               </Badge>
               {isActualRaceDay && (
                 <Badge 
@@ -390,7 +448,7 @@ export function WorkoutCard({
                 className="caption text-muted-foreground"
                 aria-label={`Scheduled for ${format(scheduledDate, 'MMMM do')}`}
               >
-                {format(scheduledDate, 'MMM d')}
+                {formattedDate}
               </span>
             )}
           </div>
@@ -419,7 +477,6 @@ export function WorkoutCard({
           )}
 
           {/* Metrics row */}
-          {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
           {(distance || duration) && (
             <div className="flex items-center justify-between text-sm" aria-label="Workout metrics">
               {distance && (
@@ -427,15 +484,15 @@ export function WorkoutCard({
                   className="body-small font-medium text-muted-foreground"
                   aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
                 >
-                  {formatDistance(distance)} {getDistanceUnit()}
+                  {convertedDistance} {unitLabel}
                 </div>
               )}
               {duration && (
                 <div 
                   className="caption text-muted-foreground"
-                  aria-label={`Duration: ${formatDuration(duration)}`}
+                  aria-label={`Duration: ${formattedDuration}`}
                 >
-                  {formatDuration(duration)}
+                  {formattedDuration}
                 </div>
               )}
             </div>
@@ -458,7 +515,7 @@ export function WorkoutCard({
         isPast && !isCompleted && "opacity-70 hover:opacity-85",
         className
       )}
-      onClick={onClick}
+      onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={onClick ? 0 : -1}
       role={onClick ? "button" : "article"}
@@ -481,7 +538,7 @@ export function WorkoutCard({
             )}
             aria-hidden="true"
           >
-            <config.icon className="h-6 w-6" />
+            <workoutConfig.icon className="h-6 w-6" />
           </div>
           
           <div className="flex-1 min-w-0">
@@ -500,7 +557,7 @@ export function WorkoutCard({
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" aria-hidden="true" />
                 <time dateTime={scheduledDate.toISOString()}>
-                  {format(scheduledDate, 'EEE, MMM d')}
+                  {formattedDate}
                 </time>
                 {isToday && isActualRaceDay && (
                   <Badge 
@@ -560,7 +617,7 @@ export function WorkoutCard({
           "body-small text-muted-foreground mb-4 line-clamp-2 transition-colors duration-200 text-pretty",
           "group-hover:text-muted-foreground/80"
         )}
-        aria-describedby={ariaDescribedBy}
+        id={ariaDescribedBy}
       >
         {description}
       </p>
@@ -595,7 +652,6 @@ export function WorkoutCard({
       )}
 
       {/* Enhanced metrics section */}
-      {/* eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing */}
       {(distance || duration || pace) && (
         <div 
           className="flex items-center gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
@@ -618,9 +674,9 @@ export function WorkoutCard({
               </div>
               <span 
                 className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
+                aria-label={`Distance: ${convertedDistance} ${unitLabel}`}
               >
-                {formatDistance(distance)} {getDistanceUnit()}
+                {convertedDistance} {unitLabel}
               </span>
             </div>
           )}
@@ -641,9 +697,9 @@ export function WorkoutCard({
               </div>
               <span 
                 className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                aria-label={`Duration: ${formatDuration(duration)}`}
+                aria-label={`Duration: ${formattedDuration}`}
               >
-                {formatDuration(duration)}
+                {formattedDuration}
               </span>
             </div>
           )}
@@ -664,9 +720,9 @@ export function WorkoutCard({
               </div>
               <span 
                 className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                aria-label={`Target pace: ${pace}`}
+                aria-label={`Target pace: ${convertedPace}`}
               >
-                {pace}
+                {convertedPace}
               </span>
             </div>
           )}
@@ -677,17 +733,12 @@ export function WorkoutCard({
       {!isCompleted && onComplete && (
         <div className="mt-6 pt-4 border-t border-border/30">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('WorkoutCard: Complete button clicked for workout:', { id, name, week, day });
-              onComplete();
-            }}
+            onClick={handleComplete}
             onKeyDown={handleCompleteKeyDown}
             className={cn(
               "w-full focus-ring active-press transition-all duration-200",
               isToday && isActualRaceDay
                 ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500 hover:border-yellow-600"
-                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
                 : isToday 
                 ? "btn-primary-enhanced" 
                 : "btn-secondary hover:btn-primary-enhanced"
@@ -704,11 +755,7 @@ export function WorkoutCard({
       {isCompleted && onUncomplete && (
         <div className="mt-6 pt-4 border-t border-border/30">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              console.log('WorkoutCard: Uncomplete button clicked for workout:', { id, name, week, day });
-              onUncomplete();
-            }}
+            onClick={handleComplete}
             onKeyDown={handleCompleteKeyDown}
             className={cn(
               "w-full focus-ring active-press transition-all duration-200",
@@ -740,4 +787,4 @@ export function WorkoutCard({
       )}
     </Card>
   );
-} 
+}); 

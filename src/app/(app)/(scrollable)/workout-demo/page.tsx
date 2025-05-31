@@ -1,3 +1,5 @@
+'use client';
+
 import { WorkoutGrid } from '@/components/training/WorkoutGrid';
 
 export default function WorkoutDemoPage() {

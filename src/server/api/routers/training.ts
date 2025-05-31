@@ -24,11 +24,25 @@ const markWorkoutIncompleteSchema = z.object({
   workoutId: z.string(), // Unique identifier for the workout (week-day combination)
 });
 
+// Cache for training plans to avoid regeneration
+const trainingPlanCache = new Map<string, { plan: ScheduledTrainingPlan; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Helper function to generate cache key
+function generateCacheKey(userId: string, preferences: any, marathonDate?: Date | null, goalTime?: string | null): string {
+  return `${userId}-${JSON.stringify(preferences)}-${marathonDate?.toISOString() || 'no-date'}-${goalTime || 'no-goal'}`;
+}
+
+// Helper function to check cache validity
+function isCacheValid(timestamp: number): boolean {
+  return Date.now() - timestamp < CACHE_TTL;
+}
+
 export const trainingRouter = createTRPCRouter({
   generatePlan: protectedProcedure
     .input(generatePlanSchema)
     .query(async ({ ctx, input }) => {
-      // Get user's marathon settings and preferences
+      // Optimized user query - only select needed fields
       const user = await ctx.db.user.findUnique({
         where: { id: ctx.session.user.id },
         select: {
@@ -44,8 +58,92 @@ export const trainingRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
 
-      // Parse user preferences
-      const preferences = userPreferencesSchema.parse(user.preferences || {});
+      // Parse user preferences with error handling and map to TrainingPreferences
+      let preferences: TrainingPreferences;
+      try {
+        const userPrefs = userPreferencesSchema.parse(user.preferences || {});
+        // Map user preferences to TrainingPreferences format
+        preferences = {
+          distanceUnit: userPrefs.marathonDistanceUnit,
+          paceFormat: userPrefs.marathonPaceFormat,
+          workoutDays: userPrefs.marathonWorkoutDays,
+        };
+      } catch (error) {
+        console.warn("Failed to parse user preferences, using defaults:", error);
+        // Use default TrainingPreferences
+        preferences = {
+          distanceUnit: "MILES" as const,
+          paceFormat: "MIN_PER_MILE" as const,
+          workoutDays: [1, 3, 6], // Monday, Wednesday, Saturday
+        };
+      }
+
+      // Generate cache key
+      const cacheKey = generateCacheKey(
+        ctx.session.user.id,
+        preferences,
+        user.marathonDate,
+        user.goalMarathonTime
+      );
+
+      // Check cache first
+      const cached = trainingPlanCache.get(cacheKey);
+      if (cached && isCacheValid(cached.timestamp)) {
+        console.log("Returning cached training plan for user:", ctx.session.user.id);
+        
+        // Get workout completions for cached plan
+        const completions = await ctx.db.workoutLog.findMany({
+          where: { 
+            userId: ctx.session.user.id,
+            workoutIdentifier: {
+              not: null,
+            }
+          },
+          select: {
+            id: true,
+            workoutIdentifier: true,
+            completedAt: true,
+            notes: true,
+            actualDistance: true,
+            actualDuration: true,
+            actualPace: true,
+          }
+        });
+
+        // Create completion map
+        const completionMap = new Map<string, typeof completions[0]>();
+        completions.forEach(completion => {
+          if (completion.workoutIdentifier) {
+            completionMap.set(completion.workoutIdentifier, completion);
+          }
+        });
+
+        // Add completion status to cached workouts
+        const workoutsWithCompletion = cached.plan.workouts.map(workout => {
+          const workoutId = `${workout.week}-${workout.day}`;
+          const completion = completionMap.get(workoutId);
+          return {
+            ...workout,
+            id: workoutId,
+            isCompleted: !!completion,
+            completionData: completion || null,
+          };
+        });
+
+        return {
+          success: true,
+          plan: {
+            ...cached.plan,
+            workouts: workoutsWithCompletion,
+          },
+          userSettings: {
+            goalMarathonTime: user.goalMarathonTime,
+            current5KTime: user.current5KTime,
+            marathonDate: user.marathonDate,
+            distanceUnit: preferences.distanceUnit,
+          },
+        };
+      }
       
       console.log("User marathon settings:", {
         goalMarathonTime: user.goalMarathonTime,
@@ -62,16 +160,9 @@ export const trainingRouter = createTRPCRouter({
         });
       }
       
-      // Create training preferences object
-      const trainingPreferences: TrainingPreferences = {
-        distanceUnit: preferences.marathonDistanceUnit || "MILES",
-        paceFormat: preferences.marathonPaceFormat || "MIN_PER_MILE",
-        workoutDays: input.workoutDays || preferences.marathonWorkoutDays || [2, 4, 6], // Default: Tue, Thu, Sat
-      };
-
       // Determine start date - prioritize race date alignment over manual start date
       let startDate: Date;
-      const workoutDays = input.workoutDays || preferences.marathonWorkoutDays || [2, 4, 6];
+      const workoutDays = input.workoutDays || preferences.workoutDays;
       
       if (user.marathonDate) {
         // Calculate start date from race date to ensure proper alignment
@@ -92,9 +183,10 @@ export const trainingRouter = createTRPCRouter({
       // Create training scheduler
       const scheduler = new TrainingScheduler({
         startDate,
+        raceDate: user.marathonDate || undefined,
         goalMarathonTime: user.goalMarathonTime || "04:00:00",
         workoutDays: workoutDays,
-        preferences: trainingPreferences,
+        preferences: preferences,
       });
 
       try {
@@ -102,36 +194,37 @@ export const trainingRouter = createTRPCRouter({
         console.log("User data:", { 
           goalMarathonTime: user.goalMarathonTime, 
           preferences: preferences,
-          trainingPreferences 
         });
         
         // Generate the training plan
         console.log("Creating TrainingScheduler with params:", {
           startDate,
+          raceDate: user.marathonDate || undefined,
           goalMarathonTime: user.goalMarathonTime || "04:00:00",
           workoutDays: workoutDays,
-          preferences: trainingPreferences,
+          preferences: preferences,
         });
         
         const plan = scheduler.generateScheduledPlan();
         console.log("Training plan generated successfully, workouts count:", plan.workouts.length);
         
-        // Get workout completions for this user
+        // Get workout completions for this user - optimized field selection
         const completions = await ctx.db.workoutLog.findMany({
           where: { 
             userId: ctx.session.user.id,
             workoutIdentifier: {
-              not: null, // Only get logs that have a workoutIdentifier (our custom format)
+              not: null,
             }
           },
           select: {
             id: true,
-            workoutIdentifier: true, // This contains our "week-day" format
+            workoutIdentifier: true,
             completedAt: true,
             notes: true,
             actualDistance: true,
             actualDuration: true,
             actualPace: true,
+            // Removed: effortLevel, weather, temperature (advanced metrics)
           }
         });
 
@@ -159,6 +252,9 @@ export const trainingRouter = createTRPCRouter({
         
         console.log("Successfully processed workouts with completion status");
         
+        // Cache the result
+        trainingPlanCache.set(cacheKey, { plan, timestamp: Date.now() });
+        
         return {
           success: true,
           plan: {
@@ -169,7 +265,7 @@ export const trainingRouter = createTRPCRouter({
             goalMarathonTime: user.goalMarathonTime,
             current5KTime: user.current5KTime,
             marathonDate: user.marathonDate,
-            distanceUnit: preferences.marathonDistanceUnit,
+            distanceUnit: preferences.distanceUnit,
           },
         };
       } catch (error) {
@@ -305,6 +401,7 @@ export const trainingRouter = createTRPCRouter({
       const startDate = input.startDate ? new Date(input.startDate) : new Date();
       const endDate = input.endDate ? new Date(input.endDate) : new Date(startDate.getTime() + (14 * 7 * 24 * 60 * 60 * 1000));
 
+      // Get workout completions with optimized field selection
       const completions = await ctx.db.workoutLog.findMany({
         where: {
           userId: ctx.session.user.id,
@@ -312,6 +409,16 @@ export const trainingRouter = createTRPCRouter({
             gte: startDate,
             lte: endDate,
           }
+        },
+        select: {
+          id: true,
+          workoutIdentifier: true,
+          completedAt: true,
+          notes: true,
+          actualDistance: true,
+          actualDuration: true,
+          actualPace: true,
+          // Removed: effortLevel, weather, temperature (advanced metrics)
         },
         orderBy: {
           completedAt: 'desc'
@@ -347,9 +454,9 @@ export const trainingRouter = createTRPCRouter({
       const preferences = userPreferencesSchema.parse(user.preferences || {});
       
       const trainingPreferences: TrainingPreferences = {
-        distanceUnit: preferences.marathonDistanceUnit || "MILES",
-        paceFormat: preferences.marathonPaceFormat || "MIN_PER_MILE",
-        workoutDays: preferences.marathonWorkoutDays || [2, 4, 6],
+        distanceUnit: preferences.marathonDistanceUnit,
+        paceFormat: preferences.marathonPaceFormat,
+        workoutDays: preferences.marathonWorkoutDays,
       };
 
       const startDate = new Date();
