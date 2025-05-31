@@ -164,10 +164,10 @@ export class TrainingScheduler {
     });
 
     // Convert distance to kilometers for database storage
-    // The tempo run returns distance in user's preferred unit, but we need to store in km
+    // Use totalDistance to include warm-up and cool-down in the workout card display
     const distanceInKm = this.params.preferences.distanceUnit === DistanceUnit.MILES 
-      ? tempoRun.tempoDistance * 1.60934 // Convert miles to km
-      : tempoRun.tempoDistance; // Already in km
+      ? tempoRun.totalDistance * 1.60934 // Convert miles to km
+      : tempoRun.totalDistance; // Already in km
 
     return {
       name: tempoRun.name,
