@@ -54,6 +54,7 @@ export interface WorkoutCardProps {
   // Workout structure
   intervals?: any;
   instructions?: string[];
+  structure?: string; // Added structure field for mileage breakdown
   
   // Status and interaction
   isCompleted?: boolean;
@@ -120,6 +121,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
   raceDetails,
   intervals,
   instructions,
+  structure,
   isCompleted = false,
   isToday = false,
   isUpcoming = false,
@@ -458,6 +460,30 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
             <p className="body-small font-medium truncate">{name}</p>
           </div>
 
+          {/* Enhanced description */}
+          <p 
+            className={cn(
+              "body-small text-muted-foreground mb-4 line-clamp-2 transition-colors duration-200 text-pretty",
+              "group-hover:text-muted-foreground/80"
+            )}
+            id={ariaDescribedBy}
+          >
+            {description}
+          </p>
+
+          {/* Workout Structure Section */}
+          {structure && (
+            <div className="mb-4 p-3 rounded-lg bg-muted/30 border border-border/50">
+              <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Workout Structure
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                {structure}
+              </p>
+            </div>
+          )}
+
           {/* Race details for race day */}
           {isActualRaceDay && raceDetails && (
             <div className="text-xs text-muted-foreground space-y-1">
@@ -621,6 +647,19 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
       >
         {description}
       </p>
+
+      {/* Workout Structure Section */}
+      {structure && (
+        <div className="mb-4 p-3 rounded-lg bg-muted/30 border border-border/50">
+          <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Workout Structure
+          </h4>
+          <p className="text-sm text-muted-foreground">
+            {structure}
+          </p>
+        </div>
+      )}
 
       {/* Race details section for race day */}
       {isActualRaceDay && raceDetails && (
