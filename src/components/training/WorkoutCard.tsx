@@ -478,7 +478,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
 
             {/* Workout Structure Section - flexible content */}
             {structure && (
-              <div className="space-y-2 mb-3">
+              <div className="space-y-2 mb-3 pt-4">
                 <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Activity className="h-4 w-4" />
                   Workout Structure
@@ -681,7 +681,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
 
           {/* Workout Structure Section */}
           {structure && (
-            <div className="space-y-2 pt-3">
+            <div className="space-y-2 pt-6">
               <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Activity className="h-4 w-4" />
                 Workout Structure
