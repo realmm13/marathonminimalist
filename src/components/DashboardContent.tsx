@@ -170,27 +170,29 @@ export function DashboardContent() {
           </h3>
           
           {currentWeekWorkouts.length > 0 ? (
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-              {currentWeekWorkouts.map((workout) => (
-                <div key={workout.id} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px]">
-                  <WorkoutCard
-                    {...workout}
-                    variant="compact"
-                    onClick={() => {
-                      // Handle workout click - could navigate to workout details
-                      console.log('Workout clicked:', workout);
-                    }}
-                    onComplete={() => {
-                      // Handle workout completion
-                      console.log('Workout completed:', workout);
-                    }}
-                    onUncomplete={() => {
-                      // Handle workout uncompletion
-                      console.log('Workout uncompleted:', workout);
-                    }}
-                  />
-                </div>
-              ))}
+            <div className="w-full">
+              <div className="flex flex-wrap justify-center items-start gap-4 md:gap-6 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+                {currentWeekWorkouts.map((workout) => (
+                  <div key={workout.id} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0">
+                    <WorkoutCard
+                      {...workout}
+                      variant="compact"
+                      onClick={() => {
+                        // Handle workout click - could navigate to workout details
+                        console.log('Workout clicked:', workout);
+                      }}
+                      onComplete={() => {
+                        // Handle workout completion
+                        console.log('Workout completed:', workout);
+                      }}
+                      onUncomplete={() => {
+                        // Handle workout uncompletion
+                        console.log('Workout uncompleted:', workout);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
