@@ -412,4 +412,58 @@ Progressive Disclosure: Advanced features accessible but not overwhelming for be
 
 Error Prevention: Clear validation messages and confirmation dialogs for critical actions
 
-Onboarding Flow: Guided setup process for new users with educational tooltips 
+Onboarding Flow: Guided setup process for new users with educational tooltips
+
+# Marathon Training App - Workout Card UI Optimization
+
+## Project Overview
+Optimize the workout card display system in the marathon training app to achieve best-in-class UX with consistent horizontal alignment, optimal space utilization, and professional visual hierarchy.
+
+## Current Issues
+1. **Horizontal Alignment Problems**: Workout cards (Tempo Run, Intervals, Long Run) have inconsistent metric alignment
+2. **Space Utilization**: Suboptimal use of available screen real estate
+3. **Visual Hierarchy**: Week progress information poorly positioned
+4. **Inconsistent Formatting**: Different workout types may use different layout patterns
+
+## Requirements
+
+### Core Functionality
+- **Consistent Horizontal Alignment**: All workout cards must have identical metric positioning (distance left, duration right)
+- **Optimal Space Utilization**: Eliminate excessive white space while maintaining readability
+- **Unified Layout System**: All workout types use the same card variant and formatting
+- **Professional Visual Hierarchy**: Clear information architecture following modern fitness app standards
+
+### Specific UI Improvements
+1. **Week Header Optimization**: Move "3 of 3 workouts completed (100%)" to the right of "Week 1" for better visibility and spacing
+2. **Grid Layout Enhancement**: Optimize responsive grid breakpoints for actual content (3-4 workouts/week)
+3. **Metric Alignment**: Ensure distance and duration align consistently across all card types
+4. **Structure Display**: Maintain proper line breaks for workout structure (after → arrows)
+
+### Technical Requirements
+- React/TypeScript components
+- Tailwind CSS for styling
+- Responsive design (mobile-first)
+- Accessibility compliance
+- Performance optimization with memoization
+
+### Design Standards
+- Follow modern fitness app UI patterns
+- Consistent spacing and typography
+- Professional color scheme
+- Clear visual feedback for interactions
+- Optimal information density
+
+## Success Criteria
+1. All workout cards have identical horizontal alignment
+2. No excessive white space in grid layouts
+3. Week progress information positioned optimally
+4. Consistent formatting across all workout types
+5. Professional appearance matching industry standards
+6. Improved space utilization without compromising readability
+
+## Technical Context
+- Next.js 15.3.1 with Turbopack
+- Components: WorkoutCard.tsx, WorkoutGrid.tsx
+- Styling: Tailwind CSS utility classes
+- State: React hooks and memoization
+- Data: Prisma-generated types 

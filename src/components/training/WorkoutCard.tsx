@@ -367,9 +367,10 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         aria-describedby={ariaDescribedBy}
         aria-pressed={onClick && isCompleted ? true : undefined}
       >
-        <div className="space-y-3">
+        {/* Use flexbox layout to ensure consistent positioning */}
+        <div className="flex flex-col h-full min-h-[280px]">
           {/* Header row with status, icon, and completion button */}
-          <div className="flex items-center justify-between min-h-[2.5rem]">
+          <div className="flex items-center justify-between min-h-[2.5rem] mb-3">
             <div className="flex items-center gap-2">
               {getStatusIndicator()}
               <div className={cn(
@@ -423,7 +424,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           </div>
           
           {/* Workout type badge and date */}
-          <div className="flex items-center justify-between min-h-[1.5rem]">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Badge 
                 className={cn(
@@ -457,81 +458,97 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           </div>
           
           {/* Workout name */}
-          <div className="min-h-[1.25rem]">
+          <div className="mb-3">
             <p className="body-small font-medium truncate">{name}</p>
           </div>
 
-          {/* Enhanced description */}
-          <div className="min-h-[2.5rem]">
-            <p 
-              className={cn(
-                "body-small text-muted-foreground line-clamp-2 transition-colors duration-200 text-pretty",
-                "group-hover:text-muted-foreground/80"
-              )}
-              id={ariaDescribedBy}
-            >
-              {description}
-            </p>
-          </div>
+          {/* Enhanced description - flexible content area */}
+          <div className="flex-grow flex flex-col">
+            <div className="min-h-[2.5rem] mb-3">
+              <p 
+                className={cn(
+                  "body-small text-muted-foreground line-clamp-2 transition-colors duration-200 text-pretty leading-relaxed",
+                  "group-hover:text-muted-foreground/80"
+                )}
+                id={ariaDescribedBy}
+              >
+                {description}
+              </p>
+            </div>
 
-          {/* Workout Structure Section */}
-          <div className="min-h-[4rem]">
+            {/* Workout Structure Section - flexible content */}
             {structure && (
-              <div>
-                <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+              <div className="space-y-2 mb-3">
+                <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
                   <Activity className="h-4 w-4" />
                   Workout Structure
                 </h4>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                  {structure}
-                </p>
+                <div className="text-sm text-muted-foreground leading-relaxed">
+                  {structure.split(' → ').map((segment, index, array) => (
+                    <span key={index} className="inline-block">
+                      {segment.trim()}
+                      {index < array.length - 1 && (
+                        <span className="mx-2 text-primary/60 font-medium">→</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
-          </div>
 
-          {/* Race details for race day */}
-          <div className="min-h-[3rem]">
+            {/* Race details for race day - flexible content */}
             {isActualRaceDay && raceDetails && (
-              <div className="text-xs text-muted-foreground space-y-1">
-                {raceDetails.startTime && (
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>Start: {raceDetails.startTime}</span>
-                  </div>
-                )}
-                {raceDetails.location && (
-                  <div className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    <span className="truncate">{raceDetails.location}</span>
-                  </div>
-                )}
+              <div className="mb-3">
+                <div className="text-xs text-muted-foreground space-y-1 w-full">
+                  {raceDetails.startTime && (
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>Start: {raceDetails.startTime}</span>
+                    </div>
+                  )}
+                  {raceDetails.location && (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      <span className="truncate">{raceDetails.location}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
+
+            {/* Spacer to push metrics to bottom */}
+            <div className="flex-grow"></div>
           </div>
 
-          {/* Metrics row */}
-          <div className="min-h-[1.5rem]">
-            {(distance || duration) && (
-              <div className="flex items-center justify-between text-sm" aria-label="Workout metrics">
-                {distance && (
-                  <div 
-                    className="body-small font-medium text-muted-foreground"
-                    aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
-                  >
-                    {convertedDistance} {unitLabel}
-                  </div>
-                )}
-                {duration && (
-                  <div 
-                    className="caption text-muted-foreground"
-                    aria-label={`Duration: ${formattedDuration}`}
-                  >
-                    {formattedDuration}
-                  </div>
-                )}
+          {/* Metrics row - Fixed at bottom with consistent positioning */}
+          {(distance || duration) && (
+            <div className="mt-auto pt-3">
+              <div className="grid grid-cols-2 gap-4 items-center min-h-[1.5rem]" aria-label="Workout metrics">
+                {/* Left column - Distance (always positioned consistently) */}
+                <div className="flex items-center justify-start">
+                  {distance && (
+                    <span 
+                      className="body-small font-medium text-muted-foreground"
+                      aria-label={`Distance: ${formatDistance(distance)} ${getDistanceUnit()}`}
+                    >
+                      {convertedDistance} {unitLabel}
+                    </span>
+                  )}
+                </div>
+                {/* Right column - Duration (always positioned consistently) */}
+                <div className="flex items-center justify-end">
+                  {duration && (
+                    <span 
+                      className="body-small font-medium text-muted-foreground"
+                      aria-label={`Duration: ${formattedDuration}`}
+                    >
+                      {formattedDuration}
+                    </span>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </Card>
     );
@@ -651,7 +668,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         <div className="min-h-[3rem]">
           <p 
             className={cn(
-              "body-small text-muted-foreground line-clamp-2 transition-colors duration-200 text-pretty",
+              "body-small text-muted-foreground line-clamp-3 transition-colors duration-200 text-pretty leading-relaxed",
               "group-hover:text-muted-foreground/80"
             )}
             id={ariaDescribedBy}
@@ -661,75 +678,69 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         </div>
 
         {/* Workout Structure Section */}
-        <div className="min-h-[5rem]">
-          {structure && (
-            <div>
-              <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Workout Structure
-              </h4>
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {structure}
-              </p>
+        {structure && (
+          <div className="min-h-[4rem] space-y-2 pt-3">
+            <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Workout Structure
+            </h4>
+            <div className="text-sm text-muted-foreground leading-relaxed">
+              {structure.split(' → ').map((segment, index, array) => (
+                <span key={index} className="inline-block">
+                  {segment.trim()}
+                  {index < array.length - 1 && (
+                    <span className="mx-2 text-primary/60 font-medium">→</span>
+                  )}
+                </span>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Race details section for race day */}
-        <div className="min-h-[4rem]">
-          {isActualRaceDay && raceDetails && (
-            <div className="p-3 rounded-lg bg-yellow-50/50 border border-yellow-200/50">
-              <h4 className="text-sm font-medium text-yellow-800 mb-2 flex items-center gap-2">
-                <Trophy className="h-4 w-4" />
-                Race Details
-              </h4>
-              <div className="space-y-1 text-sm text-yellow-700">
-                {raceDetails.startTime && (
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3" />
-                    <span>Start Time: {raceDetails.startTime}</span>
-                  </div>
-                )}
-                {raceDetails.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-3 w-3" />
-                    <span>Location: {raceDetails.location}</span>
-                  </div>
-                )}
-                {raceDetails.instructions && (
-                  <div className="mt-2 text-xs text-yellow-600">
-                    {raceDetails.instructions}
-                  </div>
-                )}
-              </div>
+        {isActualRaceDay && raceDetails && (
+          <div className="min-h-[3rem] pt-2">
+            <div className="text-xs text-muted-foreground space-y-1 w-full">
+              {raceDetails.startTime && (
+                <div className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span>Start: {raceDetails.startTime}</span>
+                </div>
+              )}
+              {raceDetails.location && (
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  <span className="truncate">{raceDetails.location}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Enhanced metrics section */}
-        <div className="min-h-[3rem]">
-          {(distance || duration || pace) && (
+        {(distance || duration || pace) && (
+          <div className="min-h-[3rem]">
             <div 
-              className="flex items-center gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
+              className="grid grid-cols-2 gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
               role="group"
               aria-label="Workout metrics"
             >
               {distance && (
-                <div className="flex items-center gap-2 group/metric hover-scale">
+                <div className="flex items-center gap-2">
                   <div className={cn(
                     "p-1.5 rounded-lg transition-colors duration-200",
-                    isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
+                    isActualRaceDay ? "bg-yellow-100/50 group-hover:bg-yellow-200/50" : "bg-muted/50 group-hover:bg-primary/10"
                   )}>
                     <MapPin 
                       className={cn(
                         "h-4 w-4 transition-colors duration-200",
-                        isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
+                        isActualRaceDay ? "text-yellow-600 group-hover:text-yellow-700" : "text-muted-foreground group-hover:text-primary"
                       )} 
                       aria-hidden="true" 
                     />
                   </div>
                   <span 
-                    className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
+                    className="body-small font-medium transition-colors duration-200 group-hover:text-foreground"
                     aria-label={`Distance: ${convertedDistance} ${unitLabel}`}
                   >
                     {convertedDistance} {unitLabel}
@@ -737,54 +748,41 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 </div>
               )}
               
-              {duration && (
-                <div className="flex items-center gap-2 group/metric hover-scale">
+              {(duration || pace) && (
+                <div className="flex items-center gap-2 justify-end">
                   <div className={cn(
                     "p-1.5 rounded-lg transition-colors duration-200",
-                    isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
+                    isActualRaceDay ? "bg-yellow-100/50 group-hover:bg-yellow-200/50" : "bg-muted/50 group-hover:bg-primary/10"
                   )}>
-                    <Timer 
-                      className={cn(
-                        "h-4 w-4 transition-colors duration-200",
-                        isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
-                      )} 
-                      aria-hidden="true" 
-                    />
+                    {duration ? (
+                      <Timer 
+                        className={cn(
+                          "h-4 w-4 transition-colors duration-200",
+                          isActualRaceDay ? "text-yellow-600 group-hover:text-yellow-700" : "text-muted-foreground group-hover:text-primary"
+                        )} 
+                        aria-hidden="true" 
+                      />
+                    ) : (
+                      <Clock 
+                        className={cn(
+                          "h-4 w-4 transition-colors duration-200",
+                          isActualRaceDay ? "text-yellow-600 group-hover:text-yellow-700" : "text-muted-foreground group-hover:text-primary"
+                        )} 
+                        aria-hidden="true" 
+                      />
+                    )}
                   </div>
                   <span 
-                    className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                    aria-label={`Duration: ${formattedDuration}`}
+                    className="body-small font-medium transition-colors duration-200 group-hover:text-foreground"
+                    aria-label={duration ? `Duration: ${formattedDuration}` : `Target pace: ${convertedPace}`}
                   >
-                    {formattedDuration}
-                  </span>
-                </div>
-              )}
-              
-              {pace && (
-                <div className="flex items-center gap-2 group/metric hover-scale">
-                  <div className={cn(
-                    "p-1.5 rounded-lg transition-colors duration-200",
-                    isActualRaceDay ? "bg-yellow-100/50 group-hover/metric:bg-yellow-200/50" : "bg-muted/50 group-hover/metric:bg-primary/10"
-                  )}>
-                    <Clock 
-                      className={cn(
-                        "h-4 w-4 transition-colors duration-200",
-                        isActualRaceDay ? "text-yellow-600 group-hover/metric:text-yellow-700" : "text-muted-foreground group-hover/metric:text-primary"
-                      )} 
-                      aria-hidden="true" 
-                    />
-                  </div>
-                  <span 
-                    className="body-small font-medium transition-colors duration-200 group-hover/metric:text-foreground"
-                    aria-label={`Target pace: ${convertedPace}`}
-                  >
-                    {convertedPace}
+                    {duration ? formattedDuration : convertedPace}
                   </span>
                 </div>
               )}
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Enhanced action button for incomplete workouts */}
         {!isCompleted && onComplete && (
