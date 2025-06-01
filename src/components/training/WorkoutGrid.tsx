@@ -144,7 +144,7 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
               
               <div className="flex flex-wrap justify-center gap-4">
                 {week.workouts.map((workout, index) => (
-                  <div key={`${week.number}-${index}`} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0">
+                  <div key={`${week.number}-${index}`} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 h-[400px]">
                     <WorkoutCard
                       {...workout}
                       variant="compact"
@@ -166,7 +166,7 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
     return (
       <div className={cn("flex flex-wrap justify-center gap-4 animate-fade-in-up", className)}>
         {workouts.map((workout, index) => (
-          <div key={index} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 animate-slide-down" style={{ animationDelay: `${index * 50}ms` }}>
+          <div key={index} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 h-[400px] animate-slide-down" style={{ animationDelay: `${index * 50}ms` }}>
             <WorkoutCard
               {...workout}
               variant="compact"
@@ -263,7 +263,7 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
                   };
                   
                   return (
-                    <div key={`${week.number}-${index}`} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 animate-slide-down" style={{ animationDelay: `${(weekIndex * 7 + index) * 50}ms` }}>
+                    <div key={`${week.number}-${index}`} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 h-[400px] animate-slide-down" style={{ animationDelay: `${(weekIndex * 7 + index) * 50}ms` }}>
                       <WorkoutCard
                         {...workoutProps}
                         variant="compact"

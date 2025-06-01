@@ -349,7 +349,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
     return (
       <Card
         className={cn(
-          "card-enhanced p-4 cursor-pointer group hover-lift",
+          "card-enhanced p-4 cursor-pointer group hover-lift h-full",
           "focus-ring active-press",
           isToday && "ring-2 ring-primary/20 border-primary/30 animate-pulse-subtle",
           isActualRaceDay && isToday && "ring-2 ring-yellow-500/30 border-yellow-500/40 bg-yellow-50/50 animate-pulse-subtle",
@@ -368,7 +368,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         aria-pressed={onClick && isCompleted ? true : undefined}
       >
         {/* Use flexbox layout to ensure consistent positioning */}
-        <div className="flex flex-col h-full min-h-[280px]">
+        <div className="flex flex-col h-full">
           {/* Header row with status, icon, and completion button */}
           <div className="flex items-center justify-between min-h-[2.5rem] mb-3">
             <div className="flex items-center gap-2">
@@ -557,7 +557,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
   return (
     <Card
       className={cn(
-        "card-interactive p-6 group hover-lift",
+        "card-interactive p-6 group hover-lift h-full",
         "glass-effect focus-ring active-press",
         isToday && "ring-2 ring-primary/30 border-primary/40 bg-primary/5 animate-pulse-subtle",
         isActualRaceDay && isToday && "ring-2 ring-yellow-500/40 border-yellow-500/50 bg-yellow-50/50 animate-pulse-subtle",
@@ -575,7 +575,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
       aria-describedby={ariaDescribedBy}
       aria-pressed={onClick && isCompleted ? true : undefined}
     >
-      <div className="space-y-4">
+      <div className="flex flex-col h-full">
         {/* Header with enhanced visual hierarchy */}
         <div className="flex items-start justify-between min-h-[4rem]">
           <div className="flex items-center gap-4 flex-1 min-w-0">
@@ -664,64 +664,70 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           </div>
         </div>
 
-        {/* Enhanced description */}
-        <div className="min-h-[3rem]">
-          <p 
-            className={cn(
-              "body-small text-muted-foreground line-clamp-3 transition-colors duration-200 text-pretty leading-relaxed",
-              "group-hover:text-muted-foreground/80"
-            )}
-            id={ariaDescribedBy}
-          >
-            {description}
-          </p>
+        {/* Content area that grows to fill available space */}
+        <div className="flex-grow flex flex-col">
+          {/* Enhanced description */}
+          <div className="min-h-[3rem]">
+            <p 
+              className={cn(
+                "body-small text-muted-foreground line-clamp-3 transition-colors duration-200 text-pretty leading-relaxed",
+                "group-hover:text-muted-foreground/80"
+              )}
+              id={ariaDescribedBy}
+            >
+              {description}
+            </p>
+          </div>
+
+          {/* Workout Structure Section */}
+          {structure && (
+            <div className="space-y-2 pt-3">
+              <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Workout Structure
+              </h4>
+              <div className="text-sm text-muted-foreground leading-relaxed">
+                {structure.split(' → ').map((segment, index, array) => (
+                  <span key={index} className="inline-block">
+                    {segment.trim()}
+                    {index < array.length - 1 && (
+                      <span className="mx-2 text-primary/60 font-medium">→</span>
+                    )}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Race details section for race day */}
+          {isActualRaceDay && raceDetails && (
+            <div className="pt-2">
+              <div className="text-xs text-muted-foreground space-y-1 w-full">
+                {raceDetails.startTime && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    <span>Start: {raceDetails.startTime}</span>
+                  </div>
+                )}
+                {raceDetails.location && (
+                  <div className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    <span className="truncate">{raceDetails.location}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Spacer to push metrics to bottom */}
+          <div className="flex-grow"></div>
         </div>
 
-        {/* Workout Structure Section */}
-        {structure && (
-          <div className="min-h-[4rem] space-y-2 pt-3">
-            <h4 className="text-sm font-medium text-foreground flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Workout Structure
-            </h4>
-            <div className="text-sm text-muted-foreground leading-relaxed">
-              {structure.split(' → ').map((segment, index, array) => (
-                <span key={index} className="inline-block">
-                  {segment.trim()}
-                  {index < array.length - 1 && (
-                    <span className="mx-2 text-primary/60 font-medium">→</span>
-                  )}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Race details section for race day */}
-        {isActualRaceDay && raceDetails && (
-          <div className="min-h-[3rem] pt-2">
-            <div className="text-xs text-muted-foreground space-y-1 w-full">
-              {raceDetails.startTime && (
-                <div className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  <span>Start: {raceDetails.startTime}</span>
-                </div>
-              )}
-              {raceDetails.location && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span className="truncate">{raceDetails.location}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Enhanced metrics section */}
+        {/* Enhanced metrics section - Fixed at bottom */}
         {(distance || duration || pace) && (
-          <div className="min-h-[3rem]">
+          <div className="mt-auto pt-3">
             <div 
-              className="grid grid-cols-2 gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200"
+              className="grid grid-cols-2 gap-4 pt-4 border-t border-border/30 group-hover:border-border/50 transition-colors duration-200 min-h-[3rem] items-center"
               role="group"
               aria-label="Workout metrics"
             >
