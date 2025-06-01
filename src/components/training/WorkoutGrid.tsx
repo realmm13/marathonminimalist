@@ -142,16 +142,17 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
                 </div>
               )}
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="flex flex-wrap justify-center gap-4">
                 {week.workouts.map((workout, index) => (
-                  <WorkoutCard
-                    key={`${week.number}-${index}`}
-                    {...workout}
-                    variant="compact"
-                    onClick={() => handleWorkoutClick(workout)}
-                    onComplete={() => handleWorkoutComplete(workout)}
-                    onUncomplete={() => handleWorkoutUncomplete(workout)}
-                  />
+                  <div key={`${week.number}-${index}`} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0">
+                    <WorkoutCard
+                      {...workout}
+                      variant="compact"
+                      onClick={() => handleWorkoutClick(workout)}
+                      onComplete={() => handleWorkoutComplete(workout)}
+                      onUncomplete={() => handleWorkoutUncomplete(workout)}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
@@ -163,9 +164,9 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
 
   if (variant === 'compact') {
     return (
-      <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-fade-in-up", className)}>
+      <div className={cn("flex flex-wrap justify-center gap-4 animate-fade-in-up", className)}>
         {workouts.map((workout, index) => (
-          <div key={index} className="animate-slide-down" style={{ animationDelay: `${index * 50}ms` }}>
+          <div key={index} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 animate-slide-down" style={{ animationDelay: `${index * 50}ms` }}>
             <WorkoutCard
               {...workout}
               variant="compact"
@@ -249,7 +250,7 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
             )}
             
             {/* Workout Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="flex flex-wrap justify-center gap-4">
               {week.workouts.length > 0 ? (
                 week.workouts.map((workout, index) => {
                   // Determine if this workout is today, past, etc.
@@ -262,7 +263,7 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
                   };
                   
                   return (
-                    <div key={`${week.number}-${index}`} className="animate-slide-down" style={{ animationDelay: `${(weekIndex * 7 + index) * 50}ms` }}>
+                    <div key={`${week.number}-${index}`} className="w-full sm:w-auto sm:min-w-[280px] sm:max-w-[320px] flex-shrink-0 animate-slide-down" style={{ animationDelay: `${(weekIndex * 7 + index) * 50}ms` }}>
                       <WorkoutCard
                         {...workoutProps}
                         variant="compact"
