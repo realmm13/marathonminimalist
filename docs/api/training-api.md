@@ -90,7 +90,6 @@ All training endpoints require user authentication. Unauthenticated requests wil
   };
   userSettings: {
     goalMarathonTime: string | null;
-    current5KTime: string | null;
     marathonDate: Date | null;
     distanceUnit: "MILES" | "KILOMETERS";
   };

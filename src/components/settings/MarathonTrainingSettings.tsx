@@ -16,7 +16,6 @@ import { toast } from "sonner";
 const marathonSettingsSchema = z.object({
   distanceUnit: z.enum(["MILES", "KILOMETERS"]),
   goalMarathonTime: z.string().optional(),
-  current5KTime: z.string().optional(),
   marathonDate: z.string().optional(),
   workoutDays: z.object({
     monday: z.boolean(),
@@ -43,7 +42,6 @@ export function MarathonTrainingSettings() {
     defaultValues: {
       distanceUnit: "MILES",
       goalMarathonTime: "",
-      current5KTime: "",
       marathonDate: "",
       workoutDays: {
         monday: true,   // Default: Monday, Wednesday, Saturday
@@ -121,14 +119,6 @@ export function MarathonTrainingSettings() {
                 label="Goal Marathon Time"
                 description="Your target marathon finish time (e.g., 4:30:00)"
                 placeholder="4:30:00"
-                control={form.control}
-              />
-
-              <FormFieldInput
-                name="current5KTime"
-                label="Current 5K Time"
-                description="Your recent 5K time to help estimate training paces"
-                placeholder="25:00"
                 control={form.control}
               />
 

@@ -48,7 +48,7 @@ export function Calendar({
   if (state.error) {
     return (
       <div className={cn("p-6 text-center", className)}>
-        <p className="text-red-500">Error loading calendar: {state.error}</p>
+        <p className="text-destructive">Error loading calendar: {state.error}</p>
       </div>
     );
   }
@@ -57,32 +57,32 @@ export function Calendar({
 
   return (
     <div className={cn(
-      "bg-gray-900 rounded-2xl p-6 text-white max-w-md mx-auto",
-      "border border-gray-800 shadow-2xl",
+      "bg-background rounded-2xl p-6 max-w-md mx-auto",
+      "border border-border shadow-lg",
       className
     )}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={goToPrevious}
-          className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Previous month"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-4 w-4 text-foreground" />
         </button>
         
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-foreground">
             {monthYearDisplay}
           </h2>
         </div>
         
         <button
           onClick={goToNext}
-          className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
           aria-label="Next month"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-4 w-4 text-foreground" />
         </button>
       </div>
 
@@ -91,7 +91,7 @@ export function Calendar({
         {dayNames.map((day) => (
           <div
             key={day}
-            className="text-xs font-medium text-gray-400 text-center py-2"
+            className="text-xs font-medium text-muted-foreground text-center py-2"
           >
             {day}
           </div>
@@ -113,9 +113,9 @@ export function Calendar({
                 onClick={() => handleDateClick(day.date)}
                 className={cn(
                   "relative h-12 w-full rounded-lg text-sm font-medium transition-all duration-200",
-                  "hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500",
-                  isCurrentMonth ? "text-white" : "text-gray-600",
-                  isToday && "ring-2 ring-blue-500"
+                  "hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary",
+                  isCurrentMonth ? "text-foreground" : "text-muted-foreground",
+                  isToday && "ring-2 ring-primary"
                 )}
               >
                 {/* Date number */}
@@ -149,23 +149,23 @@ export function Calendar({
       </div>
 
       {/* Legend */}
-      <div className="mt-6 pt-4 border-t border-gray-800">
+      <div className="mt-6 pt-4 border-t border-border">
         <div className="flex flex-wrap gap-3 text-xs">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-green-500 rounded-full" />
-            <span className="text-gray-400">Long Run</span>
+            <span className="text-muted-foreground">Long Run</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-amber-500 rounded-full" />
-            <span className="text-gray-400">Tempo</span>
+            <span className="text-muted-foreground">Tempo</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-red-500 rounded-full" />
-            <span className="text-gray-400">Intervals</span>
+            <span className="text-muted-foreground">Intervals</span>
           </div>
           <div className="flex items-center gap-1">
             <Target className="w-3 h-3 text-purple-500" />
-            <span className="text-gray-400">Race Day</span>
+            <span className="text-muted-foreground">Race Day</span>
           </div>
         </div>
       </div>
@@ -174,7 +174,7 @@ export function Calendar({
       <div className="mt-4 text-center">
         <button
           onClick={goToToday}
-          className="px-4 py-2 text-xs font-medium text-gray-400 hover:text-white transition-colors"
+          className="px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
           Today
         </button>

@@ -19,7 +19,6 @@ const combinedSettingsSchema = z.object({
   // Marathon settings fields
   distanceUnit: z.enum(["MILES", "KILOMETERS"]),
   goalMarathonTime: z.string().optional(),
-  current5KTime: z.string().optional(),
   marathonDate: z.string().optional(),
 });
 
@@ -66,7 +65,6 @@ export default function ProfilePage() {
       name: "",
       distanceUnit: "MILES",
       goalMarathonTime: "",
-      current5KTime: "",
       marathonDate: "",
     },
   });
@@ -87,7 +85,6 @@ export default function ProfilePage() {
         name: user.name || "",
         distanceUnit: marathonSettings.distanceUnit as "MILES" | "KILOMETERS",
         goalMarathonTime: marathonSettings.goalMarathonTime,
-        current5KTime: marathonSettings.current5KTime,
         marathonDate: marathonSettings.marathonDate,
       });
     }
@@ -104,7 +101,6 @@ export default function ProfilePage() {
       await updateMarathonSettings.mutateAsync({
         distanceUnit: data.distanceUnit,
         goalMarathonTime: data.goalMarathonTime,
-        current5KTime: data.current5KTime,
         marathonDate: data.marathonDate,
       });
 
@@ -215,18 +211,18 @@ export default function ProfilePage() {
                     Set your marathon goals and current fitness level
                   </p>
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium">Goal Marathon Time</label>
-                      <Controller
-                        name="goalMarathonTime"
-                        control={form.control}
-                        render={({ field, fieldState }) => (
+                    <Controller
+                      name="goalMarathonTime"
+                      control={form.control}
+                      render={({ field, fieldState }) => (
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Goal Marathon Time</label>
                           <div className="space-y-1">
                             <input
                               {...field}
                               type="text"
                               placeholder="3:00:00"
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                              className="input-enhanced flex h-10 w-full rounded-lg px-4 py-2 text-sm transition-all duration-200"
                               onChange={(e) => {
                                 const formatted = formatMarathonTime(e.target.value);
                                 field.onChange(formatted);
@@ -244,16 +240,8 @@ export default function ProfilePage() {
                               <p className="text-xs text-destructive">{fieldState.error.message}</p>
                             )}
                           </div>
-                        )}
-                      />
-                    </div>
-
-                    <FormFieldInput
-                      name="current5KTime"
-                      label="Current 5K Time"
-                      description="Your recent 5K time to help estimate training paces"
-                      placeholder="25:00"
-                      control={form.control}
+                        </div>
+                      )}
                     />
 
                     <FormFieldInput

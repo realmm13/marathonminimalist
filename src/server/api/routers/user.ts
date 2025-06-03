@@ -17,7 +17,6 @@ import { z } from "zod";
 const marathonSettingsSchema = z.object({
   distanceUnit: z.enum(["MILES", "KILOMETERS"]),
   goalMarathonTime: z.string().optional(),
-  current5KTime: z.string().optional(),
   marathonDate: z.string().optional(),
   paceFormat: z.enum(["MIN_PER_MILE", "MIN_PER_KM"]).optional(),
   workoutDays: z.array(z.number().min(1).max(7)).optional(),
@@ -258,7 +257,6 @@ export const userRouter = createTRPCRouter({
       where: { id: ctx.session.user.id },
       select: {
         goalMarathonTime: true,
-        current5KTime: true,
         marathonDate: true,
         preferences: true,
       },
@@ -273,7 +271,6 @@ export const userRouter = createTRPCRouter({
     return {
       distanceUnit: preferences.marathonDistanceUnit || "MILES",
       goalMarathonTime: user.goalMarathonTime || "",
-      current5KTime: user.current5KTime || "",
       marathonDate: user.marathonDate ? user.marathonDate.toISOString().split('T')[0] : "",
     };
   }),
@@ -309,14 +306,12 @@ export const userRouter = createTRPCRouter({
           where: { id: ctx.session.user.id },
           data: {
             goalMarathonTime: input.goalMarathonTime,
-            current5KTime: input.current5KTime,
             marathonDate: input.marathonDate ? new Date(input.marathonDate) : null,
             preferences: updatedPreferences,
           },
           select: {
             id: true,
             goalMarathonTime: true,
-            current5KTime: true,
             marathonDate: true,
             preferences: true,
           },

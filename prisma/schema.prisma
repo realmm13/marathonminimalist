@@ -32,7 +32,6 @@ model User {
   username                String?                 @unique
   displayUsername         String?
   onboarded               Boolean                 @default(false)
-  current5KTime           String?
   experienceLevel         ExperienceLevel         @default(BEGINNER)
   goalMarathonTime        String?
   marathonDate            DateTime?

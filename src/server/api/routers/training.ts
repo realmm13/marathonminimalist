@@ -47,7 +47,6 @@ export const trainingRouter = createTRPCRouter({
         where: { id: ctx.session.user.id },
         select: {
           goalMarathonTime: true,
-          current5KTime: true,
           marathonDate: true,
           preferences: true,
           experienceLevel: true,
@@ -138,7 +137,6 @@ export const trainingRouter = createTRPCRouter({
           },
           userSettings: {
             goalMarathonTime: user.goalMarathonTime,
-            current5KTime: user.current5KTime,
             marathonDate: user.marathonDate,
             distanceUnit: preferences.distanceUnit,
           },
@@ -147,7 +145,6 @@ export const trainingRouter = createTRPCRouter({
       
       console.log("User marathon settings:", {
         goalMarathonTime: user.goalMarathonTime,
-        current5KTime: user.current5KTime,
         marathonDate: user.marathonDate,
         preferences: preferences
       });
@@ -263,7 +260,6 @@ export const trainingRouter = createTRPCRouter({
           },
           userSettings: {
             goalMarathonTime: user.goalMarathonTime,
-            current5KTime: user.current5KTime,
             marathonDate: user.marathonDate,
             distanceUnit: preferences.distanceUnit,
           },
@@ -441,7 +437,6 @@ export const trainingRouter = createTRPCRouter({
         where: { id: ctx.session.user.id },
         select: {
           goalMarathonTime: true,
-          current5KTime: true,
           marathonDate: true,
           preferences: true,
         },

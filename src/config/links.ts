@@ -16,6 +16,7 @@ import {
   Settings,
   LucideCalendar,
   LucideSettings,
+  LucideHelpCircle,
 } from "lucide-react";
 import { clientEnv } from "@/env/client";
 
@@ -81,6 +82,11 @@ export const trainingLinks: Link[] = [
     label: "Profile",
     href: "/profile",
     icon: LucideUser,
+  },
+  {
+    label: "FAQ",
+    href: "/faq",
+    icon: LucideHelpCircle,
   },
 ];
 
