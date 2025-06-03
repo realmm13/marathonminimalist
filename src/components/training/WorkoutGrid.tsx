@@ -108,36 +108,34 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center gap-4">
-                    {/* Enhanced Week Progress - cleaner styling */}
-                    {progress.total > 0 && (
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-foreground">
-                            {progress.completed} of {progress.total} completed
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {Math.round(progress.percentage)}% complete
-                          </div>
+                  {/* Centered Progress Status */}
+                  {progress.total > 0 && (
+                    <div className="flex items-center gap-3">
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-foreground">
+                          {progress.completed} of {progress.total} completed
                         </div>
-                        
-                        {/* Elegant progress bar */}
-                        <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className={cn(
-                              "h-full rounded-full transition-all duration-500 ease-out",
-                              progress.percentage === 100 ? "bg-success" : "bg-primary"
-                            )}
-                            style={{ width: `${progress.percentage}%` }}
-                          />
+                        <div className="text-xs text-muted-foreground">
+                          {Math.round(progress.percentage)}% complete
                         </div>
                       </div>
-                    )}
-                    
-                    <div className="flex items-center gap-2 body-small text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      {format(week.startDate, 'MMM d')} - {format(addDays(week.startDate, 6), 'MMM d, yyyy')}
+                      
+                      {/* Elegant progress bar */}
+                      <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500 ease-out",
+                            progress.percentage === 100 ? "bg-success" : "bg-primary"
+                          )}
+                          style={{ width: `${progress.percentage}%` }}
+                        />
+                      </div>
                     </div>
+                  )}
+                  
+                  <div className="flex items-center gap-2 body-small text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    {format(week.startDate, 'MMM d')} - {format(addDays(week.startDate, 6), 'MMM d, yyyy')}
                   </div>
                 </div>
               )}
@@ -222,10 +220,10 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
                   </Badge>
                 </div>
                 
-                {/* Enhanced Week Progress - cleaner styling */}
+                {/* Centered Progress Status */}
                 {progress.total > 0 && (
                   <div className="flex items-center gap-3">
-                    <div className="text-right">
+                    <div className="text-center">
                       <div className="text-sm font-medium text-foreground">
                         {progress.completed} of {progress.total} completed
                       </div>
@@ -246,6 +244,9 @@ export const WorkoutGrid = React.memo<WorkoutGridProps>(function WorkoutGrid({
                     </div>
                   </div>
                 )}
+                
+                {/* Right side - empty for balance */}
+                <div></div>
               </div>
             )}
             

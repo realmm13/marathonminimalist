@@ -72,37 +72,37 @@ export interface WorkoutCardProps {
   onUncomplete?: () => void;
 }
 
-// Memoized workout type configuration
+// Memoized workout type configuration - simplified to 3 types
 const WORKOUT_TYPE_CONFIG = {
   [WorkoutType.EASY_RUN]: {
     icon: Activity,
     color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    label: 'Easy Run'
+    label: 'Long Run'
   },
   [WorkoutType.TEMPO_RUN]: {
     icon: Zap,
     color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400',
-    label: 'Tempo Run'
+    label: 'Tempo'
   },
   [WorkoutType.INTERVAL_800M]: {
     icon: Timer,
     color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    label: '800m Intervals'
+    label: 'Intervals'
   },
   [WorkoutType.LONG_RUN]: {
-    icon: Target,
-    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+    icon: Activity,
+    color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     label: 'Long Run'
   },
   [WorkoutType.RECOVERY_RUN]: {
-    icon: Circle,
-    color: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
-    label: 'Recovery Run'
+    icon: Activity,
+    color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    label: 'Long Run'
   },
   [WorkoutType.MARATHON_RACE]: {
     icon: Trophy,
-    color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    label: 'Marathon Race'
+    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+    label: 'Race Day'
   },
 } as const;
 
@@ -296,7 +296,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         <CheckCircle2 
           className={cn(
             "h-4 w-4",
-            isActualRaceDay ? "text-yellow-500" : "text-green-500"
+            isActualRaceDay ? "text-purple-500" : "text-green-500"
           )} 
           aria-label={statusText}
           role="img"
@@ -308,7 +308,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         <div 
           className={cn(
             "h-3 w-3 rounded-full", 
-            isActualRaceDay ? "bg-yellow-500 animate-pulse" : workoutConfig.color
+            isActualRaceDay ? "bg-purple-500 animate-pulse" : workoutConfig.color
           )} 
           aria-label={statusText}
           role="img"
@@ -352,10 +352,10 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           "card-enhanced p-4 cursor-pointer group hover-lift h-full",
           "focus-ring active-press",
           isToday && "ring-2 ring-primary/20 border-primary/30 animate-pulse-subtle",
-          isActualRaceDay && isToday && "ring-2 ring-yellow-500/30 border-yellow-500/40 bg-yellow-50/50 animate-pulse-subtle",
-          isActualRaceDay && !isToday && "border-yellow-500/20 bg-yellow-50/20",
+          isActualRaceDay && isToday && "ring-2 ring-purple-500/30 border-purple-500/40 bg-purple-50/50 animate-pulse-subtle",
+          isActualRaceDay && !isToday && "border-purple-500/20 bg-purple-50/20",
           isCompleted && "bg-success/10 border-success/30",
-          isCompleted && isActualRaceDay && "bg-yellow-100/50 border-yellow-500/30",
+          isCompleted && isActualRaceDay && "bg-purple-100/50 border-purple-500/30",
           isPast && !isCompleted && "opacity-60",
           className
         )}
@@ -375,9 +375,9 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
               {getStatusIndicator()}
               <div className={cn(
                 "p-2 rounded-lg transition-all duration-200 group-hover:scale-105",
-                isCompleted && isActualRaceDay ? "bg-yellow-500/20 text-yellow-600" : 
+                isCompleted && isActualRaceDay ? "bg-purple-500/20 text-purple-600" : 
                 isCompleted ? "bg-success/20 text-success" : 
-                isActualRaceDay ? "bg-yellow-500/10 text-yellow-600" : "bg-primary/10 text-primary"
+                isActualRaceDay ? "bg-purple-500/10 text-purple-600" : "bg-primary/10 text-primary"
               )}>
                 <workoutConfig.icon 
                   className="h-4 w-4" 
@@ -394,7 +394,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 className={cn(
                   "p-2 rounded-lg focus-ring active-press transition-all duration-200",
                   isToday && isActualRaceDay
-                    ? "bg-yellow-500 text-white hover:bg-yellow-600" 
+                    ? "bg-purple-500 text-white hover:bg-purple-600" 
                     : isToday 
                     ? "bg-primary text-primary-foreground hover:bg-primary/90" 
                     : "bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary"
@@ -412,7 +412,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 className={cn(
                   "p-2 rounded-lg focus-ring active-press transition-all duration-200",
                   isActualRaceDay 
-                    ? "bg-yellow-500/20 text-yellow-600 hover:bg-yellow-500/30"
+                    ? "bg-purple-500/20 text-purple-600 hover:bg-purple-500/30"
                     : "bg-success/20 text-success hover:bg-success/30"
                 )}
                 aria-label={`Mark ${name} as incomplete`}
@@ -429,18 +429,18 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
               <Badge 
                 className={cn(
                   "badge-enhanced text-xs px-2 py-0.5",
-                  isActualRaceDay ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" : workoutConfig.color,
+                  isActualRaceDay ? "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" : workoutConfig.color,
                   !isActualRaceDay && "dark:" + workoutConfig.color
                 )}
-                color={isActualRaceDay ? "yellow" : "primary"}
+                color={isActualRaceDay ? "purple" : "primary"}
                 aria-label={`Workout type: ${workoutConfig.label}`}
               >
                 {workoutConfig.label}
               </Badge>
               {isActualRaceDay && (
                 <Badge 
-                  className="badge-enhanced text-xs px-2 py-0.5 bg-yellow-200 text-yellow-900 dark:bg-yellow-800/30 dark:text-yellow-200 animate-pulse"
-                  color="yellow"
+                  className="badge-enhanced text-xs px-2 py-0.5 bg-purple-200 text-purple-900 dark:bg-purple-800/30 dark:text-purple-200 animate-pulse"
+                  color="purple"
                   aria-label="Race day"
                 >
                   🏁 Race Day
@@ -560,10 +560,10 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
         "card-interactive p-6 group hover-lift h-full",
         "glass-effect focus-ring active-press",
         isToday && "ring-2 ring-primary/30 border-primary/40 bg-primary/5 animate-pulse-subtle",
-        isActualRaceDay && isToday && "ring-2 ring-yellow-500/40 border-yellow-500/50 bg-yellow-50/50 animate-pulse-subtle",
-        isActualRaceDay && !isToday && "border-yellow-500/30 bg-yellow-50/20",
+        isActualRaceDay && isToday && "ring-2 ring-purple-500/40 border-purple-500/50 bg-purple-50/50 animate-pulse-subtle",
+        isActualRaceDay && !isToday && "border-purple-500/30 bg-purple-50/20",
         isCompleted && "bg-success/10 border-success/30 hover:bg-success/15",
-        isCompleted && isActualRaceDay && "bg-yellow-100/50 border-yellow-500/30 hover:bg-yellow-100/70",
+        isCompleted && isActualRaceDay && "bg-purple-100/50 border-purple-500/30 hover:bg-purple-100/70",
         isPast && !isCompleted && "opacity-70 hover:opacity-85",
         className
       )}
@@ -585,9 +585,9 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 "flex-shrink-0 p-3 rounded-xl transition-all duration-300 group-hover:scale-110 hover-lift",
                 "shadow-soft group-hover:shadow-medium",
                 isToday && "animate-glow",
-                isCompleted && isActualRaceDay ? "bg-yellow-500/20 text-yellow-600" :
+                isCompleted && isActualRaceDay ? "bg-purple-500/20 text-purple-600" :
                 isCompleted ? "bg-success/20 text-success" : 
-                isActualRaceDay ? "bg-yellow-500/15 text-yellow-600" : "bg-primary/15 text-primary"
+                isActualRaceDay ? "bg-purple-500/15 text-purple-600" : "bg-primary/15 text-primary"
               )}
               aria-hidden="true"
             >
@@ -599,7 +599,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 className={cn(
                   "heading-5 mb-2 transition-colors duration-200 text-balance",
                   "group-hover:text-foreground/90",
-                  isToday && isActualRaceDay && "text-yellow-600 font-semibold",
+                  isToday && isActualRaceDay && "text-purple-600 font-semibold",
                   isToday && !isActualRaceDay && "text-primary font-semibold"
                 )}
               >
@@ -614,8 +614,8 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                   </time>
                   {isToday && isActualRaceDay && (
                     <Badge 
-                      className="badge-enhanced animate-bounce-gentle ml-2 bg-yellow-200 text-yellow-900"
-                      color="yellow"
+                      className="badge-enhanced animate-bounce-gentle ml-2 bg-purple-200 text-purple-900"
+                      color="purple"
                     >
                       🏁 Race Day!
                     </Badge>
@@ -630,8 +630,8 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                   )}
                   {isActualRaceDay && !isToday && (
                     <Badge 
-                      className="badge-enhanced ml-2 bg-yellow-100 text-yellow-800"
-                      color="yellow"
+                      className="badge-enhanced ml-2 bg-purple-100 text-purple-800"
+                      color="purple"
                     >
                       🏁 Race Day
                     </Badge>
@@ -647,7 +647,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
               <CheckCircle2 
                 className={cn(
                   "h-6 w-6 animate-scale-in",
-                  isActualRaceDay ? "text-yellow-500" : "text-success"
+                  isActualRaceDay ? "text-purple-500" : "text-success"
                 )} 
                 aria-label="Completed"
               />
@@ -655,7 +655,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
               <Circle 
                 className={cn(
                   "h-6 w-6 transition-colors duration-200",
-                  isToday && isActualRaceDay ? "text-yellow-500" :
+                  isToday && isActualRaceDay ? "text-purple-500" :
                   isToday ? "text-primary" : "text-muted-foreground group-hover:text-foreground/60"
                 )}
                 aria-label="Not completed"
@@ -735,12 +735,12 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 <div className="flex items-center gap-2">
                   <div className={cn(
                     "p-1.5 rounded-lg transition-colors duration-200",
-                    isActualRaceDay ? "bg-yellow-100/50 group-hover:bg-yellow-200/50" : "bg-muted/50 group-hover:bg-primary/10"
+                    isActualRaceDay ? "bg-purple-100/50 group-hover:bg-purple-200/50" : "bg-muted/50 group-hover:bg-primary/10"
                   )}>
                     <MapPin 
                       className={cn(
                         "h-4 w-4 transition-colors duration-200",
-                        isActualRaceDay ? "text-yellow-600 group-hover:text-yellow-700" : "text-muted-foreground group-hover:text-primary"
+                        isActualRaceDay ? "text-purple-600 group-hover:text-purple-700" : "text-muted-foreground group-hover:text-primary"
                       )} 
                       aria-hidden="true" 
                     />
@@ -758,13 +758,13 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                 <div className="flex items-center gap-2 justify-end">
                   <div className={cn(
                     "p-1.5 rounded-lg transition-colors duration-200",
-                    isActualRaceDay ? "bg-yellow-100/50 group-hover:bg-yellow-200/50" : "bg-muted/50 group-hover:bg-primary/10"
+                    isActualRaceDay ? "bg-purple-100/50 group-hover:bg-purple-200/50" : "bg-muted/50 group-hover:bg-primary/10"
                   )}>
                     {duration ? (
                       <Timer 
                         className={cn(
                           "h-4 w-4 transition-colors duration-200",
-                          isActualRaceDay ? "text-yellow-600 group-hover:text-yellow-700" : "text-muted-foreground group-hover:text-primary"
+                          isActualRaceDay ? "text-purple-600 group-hover:text-purple-700" : "text-muted-foreground group-hover:text-primary"
                         )} 
                         aria-hidden="true" 
                       />
@@ -772,7 +772,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
                       <Clock 
                         className={cn(
                           "h-4 w-4 transition-colors duration-200",
-                          isActualRaceDay ? "text-yellow-600 group-hover:text-yellow-700" : "text-muted-foreground group-hover:text-primary"
+                          isActualRaceDay ? "text-purple-600 group-hover:text-purple-700" : "text-muted-foreground group-hover:text-primary"
                         )} 
                         aria-hidden="true" 
                       />
@@ -799,7 +799,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
               className={cn(
                 "w-full focus-ring active-press transition-all duration-200",
                 isToday && isActualRaceDay
-                  ? "bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-500 hover:border-yellow-600"
+                  ? "bg-purple-500 hover:bg-purple-600 text-white border-purple-500 hover:border-purple-600"
                   : isToday 
                   ? "btn-primary-enhanced" 
                   : "btn-secondary hover:btn-primary-enhanced"
@@ -821,7 +821,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
               className={cn(
                 "w-full focus-ring active-press transition-all duration-200",
                 isActualRaceDay
-                  ? "btn-secondary hover:bg-yellow-100/50 text-yellow-600 hover:text-yellow-700 border-yellow-300/50"
+                  ? "btn-secondary hover:bg-purple-100/50 text-purple-600 hover:text-purple-700 border-purple-300/50"
                   : "btn-secondary hover:bg-success/10 text-success hover:text-success border-success/30"
               )}
               aria-label={`Mark ${name} as incomplete`}
@@ -837,7 +837,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
           <div className="mt-6 pt-4 border-t border-border/30">
             <div className={cn(
               "flex items-center justify-center gap-2",
-              isActualRaceDay ? "text-yellow-600" : "text-success"
+              isActualRaceDay ? "text-purple-600" : "text-success"
             )}>
               <CheckCircle2 className="h-5 w-5" />
               <span className="font-medium">

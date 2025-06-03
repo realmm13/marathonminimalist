@@ -21,12 +21,14 @@ export interface WeekCustomization {
 
 export interface WeekComparison {
   weekNumber: number;
+  defaultDays: number[];
+  overrideDays: number[];
   differences: {
-    workoutDays: { added: number[]; removed: number[] };
-    workoutTypes: { changed: { day: number; from: WorkoutType; to: WorkoutType }[] };
-    intensity: { from: string; to: string } | null;
+    added: number[];
+    removed: number[];
+    unchanged: number[];
   };
-  conflictLevel: 'none' | 'minor' | 'major';
+  impactScore: number;
 }
 
 export interface BulkOperation {
@@ -257,8 +259,10 @@ export class WeekTemplateManager {
 
     return {
       weekNumber: week2,
+      defaultDays: workoutDays1,
+      overrideDays: workoutDays2,
       differences,
-      conflictLevel
+      impactScore: 0
     };
   }
 
@@ -473,16 +477,14 @@ export class WeekTemplateManager {
    */
   public static getTemplates(includeCustom: boolean = true): WeekTemplate[] {
     // In a real app, custom templates would be loaded from user preferences
-    return this.DEFAULT_TEMPLATES.filter(template => 
-      includeCustom || template.category !== 'custom'
-    );
+    return this.DEFAULT_TEMPLATES;
   }
 
   /**
-   * Get templates by category
+   * Get templates by intensity level
    */
-  public static getTemplatesByCategory(category: WeekTemplate['category']): WeekTemplate[] {
-    return this.DEFAULT_TEMPLATES.filter(template => template.category === category);
+  public static getTemplatesByIntensity(intensity: WeekTemplate['intensity']): WeekTemplate[] {
+    return this.DEFAULT_TEMPLATES.filter(template => template.intensity === intensity);
   }
 
   /**

@@ -8,5 +8,10 @@ import { Leva } from "leva";
  * This needs to be a client component because Leva uses React hooks/context.
  */
 export function LevaPanel() {
-  return IS_DEV ? <Leva oneLineLabels hidden={!IS_DEV} /> : null;
+  // Don't render anything in production to prevent any visual artifacts
+  if (!IS_DEV) {
+    return null;
+  }
+  
+  return <Leva oneLineLabels />;
 }

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Activity, 
   TrendingUp, 
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   MapPin,
   Zap,
@@ -20,6 +20,7 @@ import { api } from '@/trpc/react';
 import { WorkoutCard } from '@/components/training/WorkoutCard';
 import { WorkoutType } from '@/generated/prisma';
 import { useMemo } from 'react';
+import { Calendar } from '@/components/calendar/Calendar';
 
 export function DashboardContent() {
   const dashboardData = useDashboardData();
@@ -162,7 +163,7 @@ export function DashboardContent() {
       <div className="animate-fade-in-up mb-8" style={{ animationDelay: '0.25s' }}>
         <Card className="card-enhanced p-6">
           <h3 className="heading-5 mb-4 flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-primary" />
+            <CalendarIcon className="h-5 w-5 text-primary" />
             This Week's Workouts
             <Badge variant="outline" color="gray" className="ml-2">
               Week {currentWeek}
@@ -196,7 +197,7 @@ export function DashboardContent() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-12 text-center">
-              <Calendar className="h-12 w-12 text-muted-foreground/50 mb-4" />
+              <CalendarIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />
               <h4 className="heading-6 mb-2">No workouts this week</h4>
               <p className="body-small text-muted-foreground">
                 This week is scheduled for rest or you haven't set up your training plan yet.
@@ -206,8 +207,23 @@ export function DashboardContent() {
         </Card>
       </div>
 
+      {/* Training Calendar */}
+      <div className="animate-fade-in-up mb-8" style={{ animationDelay: '0.3s' }}>
+        <Calendar
+          workouts={trainingPlanData?.plan?.workouts || []}
+          marathonDate={dashboardData.marathonDate ? new Date(dashboardData.marathonDate) : undefined}
+          className="card-enhanced"
+          onEventClick={(event) => {
+            console.log('Calendar event clicked:', event);
+          }}
+          onDateSelect={(date) => {
+            console.log('Calendar date selected:', date);
+          }}
+        />
+      </div>
+
       {/* Enhanced Quick Stats Card - moved to bottom */}
-      <div className="mt-8 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+      <div className="mt-8 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
         <Card className="card-enhanced p-6">
           <h3 className="heading-5 mb-4 flex items-center gap-2">
             <Target className="h-5 w-5 text-primary" />
