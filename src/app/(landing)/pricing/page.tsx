@@ -142,7 +142,6 @@ export default function PricingPage() {
           <CustomButton color="violet-600" size="lg">
             Choose a plan
           </CustomButton>
-          <CustomButton size="lg">Contact sales</CustomButton>
         </div>
       </div>
     </div>

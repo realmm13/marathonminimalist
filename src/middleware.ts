@@ -12,7 +12,6 @@ const alwaysAllowedRoutes = [
   "/blog",
   "/email-verified",
   "/about",
-  "/contact",
   "/pricing",
   "/env-client",
 ];

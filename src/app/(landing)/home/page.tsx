@@ -9,7 +9,6 @@ import ScrollProgressIndicator from "./_components/ScrollProgressIndicator";
 import InteractiveFeatureDemo from "./_components/InteractiveFeatureDemo";
 import PerformanceMonitor from "./_components/PerformanceMonitor";
 import LandingNewsletter from "./_components/LandingNewsletter";
-import ContactForm from "./_components/ContactForm";
 
 export default function HomePage() {
   return (
@@ -34,15 +33,6 @@ export default function HomePage() {
       <LandingTestimonials />
       <LandingNewsletter />
       <LandingFAQ />
-      
-      {/* Contact section */}
-      <section className="py-24 bg-gray-50 dark:bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            <ContactForm />
-          </div>
-        </div>
-      </section>
     </main>
   );
 }

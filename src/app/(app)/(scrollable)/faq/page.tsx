@@ -38,6 +38,11 @@ interface FeatureGuide {
   path: string;
 }
 
+interface TrainingTip {
+  title: string;
+  content: string;
+}
+
 const featureGuides: FeatureGuide[] = [
   {
     icon: Target,
@@ -56,6 +61,25 @@ const featureGuides: FeatureGuide[] = [
     title: "Profile Settings",
     description: "Set your marathon goal time, race date, and preferences. Your 5K pace for intervals is automatically calculated from your marathon goal.",
     path: "/profile"
+  }
+];
+
+const trainingTips: TrainingTip[] = [
+  {
+    title: "Listen to Your Body",
+    content: "If you feel overly fatigued or notice pain, don't hesitate to take an extra rest day. It's better to miss one workout than to be sidelined for weeks with an injury."
+  },
+  {
+    title: "Fuel Your Long Runs",
+    content: "Practice your race-day nutrition during long runs. Start fueling after 60-90 minutes and aim for 30-60g of carbs per hour to maintain energy levels."
+  },
+  {
+    title: "Recovery is Training Too",
+    content: "Use your rest days for light activities like walking, gentle yoga, or foam rolling. Active recovery helps your body adapt and prevents stiffness."
+  },
+  {
+    title: "Pace Yourself",
+    content: "Your easy runs should feel conversational. If you can't speak in full sentences, you're going too fast. Save the intensity for your scheduled workout days."
   }
 ];
 
@@ -758,27 +782,27 @@ export default function FAQPage() {
         )}
       </motion.section>
 
-      {/* Contact & Support */}
+      {/* Training Tips */}
       <motion.section
         className="space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.8 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
       >
-        <h2 className="text-2xl font-bold text-foreground">Still Need Help?</h2>
-        <div className="flex justify-center">
-          <div className="p-6 border border-border rounded-lg bg-background max-w-md w-full">
-            <h3 className="font-semibold text-foreground mb-3">Need Support?</h3>
-            <p className="text-muted-foreground text-sm mb-4">
-              Have questions about your training plan, technical issues, or need general assistance?
-            </p>
-            <a 
-              href="mailto:support@prepmyrun.com"
-              className="text-primary hover:text-primary/80 font-medium text-sm"
+        <h2 className="text-2xl font-bold text-foreground">Training Tips</h2>
+        <div className="grid gap-4">
+          {trainingTips.map((tip, index) => (
+            <motion.div
+              key={index}
+              className="p-4 border border-border rounded-lg bg-background"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.7 + index * 0.1 }}
             >
-              support@prepmyrun.com
-            </a>
-          </div>
+              <h3 className="font-semibold text-foreground mb-2">{tip.title}</h3>
+              <p className="text-muted-foreground text-sm">{tip.content}</p>
+            </motion.div>
+          ))}
         </div>
       </motion.section>
     </div>

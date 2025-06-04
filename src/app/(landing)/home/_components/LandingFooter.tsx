@@ -28,7 +28,6 @@ export default function LandingFooter() {
       title: "Support",
       links: [
         { label: "Help Center", href: "#" },
-        { label: "Contact Coach", href: "#" },
       ],
     },
   ];
