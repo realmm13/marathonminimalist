@@ -1,6 +1,10 @@
-# Marathon Minimalist Training App
+# Prep My Run Training App
 
-A comprehensive marathon training application built with Next.js, providing personalized 16-week training plans and workout tracking.
+A comprehensive running training application built with Next.js, designed to help runners of all levels prepare for their races with personalized training plans and progress tracking.
+
+## 🏃‍♂️ About Prep My Run
+
+Prep My Run is a modern, minimalist training application that provides:
 
 ## Quick Start
 

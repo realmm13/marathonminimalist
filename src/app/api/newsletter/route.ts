@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       // Send welcome email to subscriber
       await sendEmail({
         to: email,
-        subject: "Welcome to Marathon Minimalist Newsletter!",
+        subject: "Welcome to Prep My Run Newsletter!",
         react: undefined, // We'll use text for now
         text: `Hi ${name || "there"},
 
@@ -29,7 +29,7 @@ Thank you for subscribing to our newsletter! You'll receive updates about:
 • Success stories from our community
 
 Happy running!
-The Marathon Minimalist Team`,
+The Prep My Run Team`,
       });
 
       // Send notification to admin (optional)

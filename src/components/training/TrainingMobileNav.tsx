@@ -107,7 +107,7 @@ export function TrainingMobileNav({ className }: TrainingMobileNavProps) {
             {/* Footer */}
             <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
               <p className="text-xs text-muted-foreground text-center">
-                Marathon Minimalist
+                Prep My Run
               </p>
             </div>
           </motion.div>

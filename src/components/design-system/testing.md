@@ -1,6 +1,6 @@
 # Design System Testing Guide
 
-This guide provides comprehensive testing strategies and examples for the Marathon Minimalist design system components.
+This guide provides comprehensive testing strategies and examples for the Prep My Run design system components.
 
 ## Table of Contents
 
@@ -719,4 +719,4 @@ expect(component.state.isLoading).toBe(true);
 screen.getByClassName('button-primary');
 ```
 
-This testing guide ensures that the Marathon Minimalist design system components are reliable, accessible, and performant across all use cases. 
+This testing guide ensures that the Prep My Run design system components are reliable, accessible, and performant across all use cases. 

@@ -1,6 +1,6 @@
-# Marathon Minimalist Documentation
+# Prep My Run Documentation
 
-Welcome to the Marathon Minimalist Training App documentation.
+Welcome to the Prep My Run Training App documentation.
 
 ## API Documentation
 

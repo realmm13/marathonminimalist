@@ -1,6 +1,6 @@
-# Marathon Minimalist Design System
+# Prep My Run Design System
 
-A comprehensive design system for the Marathon Minimalist training application, built with Tailwind CSS v4, React, and TypeScript.
+A comprehensive design system for the Prep My Run training application, built with Tailwind CSS v4, React, and TypeScript.
 
 ## Table of Contents
 

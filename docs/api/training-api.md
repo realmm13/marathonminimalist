@@ -1,6 +1,6 @@
-# Training API Documentation
+# Prep My Run Training API
 
-This document provides comprehensive documentation for the Marathon Minimalist Training API.
+This document provides comprehensive documentation for the Prep My Run Training API.
 
 ## Overview
 

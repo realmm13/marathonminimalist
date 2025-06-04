@@ -180,7 +180,7 @@ export default function ContactForm({
           Contact Us
         </h3>
         <p className="text-gray-600">
-          Have questions about Marathon Minimalist? We'd love to hear from you!
+          Have questions about Prep My Run? We'd love to hear from you!
         </p>
       </div>
 

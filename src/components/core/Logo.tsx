@@ -15,7 +15,7 @@ export function Logo() {
       >
         <Image
           src="/favicon-design.svg"
-          alt="Marathon Minimalist Logo"
+          alt="Prep My Run Logo"
           width={28}
           height={28}
           className="w-7 h-7"

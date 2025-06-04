@@ -2,11 +2,11 @@ import { z } from "zod";
 import { zStringToBool } from "./utils";
 
 export const clientSchema = z.object({
-  NEXT_PUBLIC_APP_NAME: z.string().default("Money Printer"),
+  NEXT_PUBLIC_APP_NAME: z.string().default("Prep My Run"),
   NEXT_PUBLIC_APP_DESCRIPTION: z
     .string()
     .optional()
-    .default("Your default app description"),
+    .default("Your personalized running training companion"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   NODE_ENV: z
     .enum(["development", "test", "production"])

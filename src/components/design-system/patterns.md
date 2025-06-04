@@ -1,6 +1,6 @@
 # Component Patterns & Usage Guide
 
-This document provides practical examples and patterns for using the Marathon Minimalist design system components effectively.
+This document provides practical examples and patterns for using the Prep My Run design system components effectively.
 
 ## Table of Contents
 
@@ -657,4 +657,4 @@ import { Badge, CustomBadge } from '@/components/design-system';
 </Dialog>
 ```
 
-This pattern guide provides practical examples for building consistent, accessible, and performant UI components using the Marathon Minimalist design system. 
+This pattern guide provides practical examples for building consistent, accessible, and performant UI components using the Prep My Run design system. 

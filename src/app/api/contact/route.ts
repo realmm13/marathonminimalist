@@ -31,7 +31,7 @@ Message:
 ${message}
 
 ---
-Sent from Marathon Minimalist Contact Form
+Sent from Prep My Run Contact Form
 Date: ${new Date().toISOString()}`,
         });
       }
@@ -39,7 +39,7 @@ Date: ${new Date().toISOString()}`,
       // Send confirmation email to user
       await sendEmail({
         to: email,
-        subject: "Thank you for contacting Marathon Minimalist",
+        subject: "Thank you for contacting Prep My Run",
         text: `Hi ${name},
 
 Thank you for reaching out to us! We've received your message about "${subject}" and will get back to you as soon as possible.
@@ -48,7 +48,7 @@ Your message:
 ${message}
 
 Best regards,
-The Marathon Minimalist Team`,
+The Prep My Run Team`,
       });
     } catch (emailError) {
       console.error("Failed to send contact form emails:", emailError);
