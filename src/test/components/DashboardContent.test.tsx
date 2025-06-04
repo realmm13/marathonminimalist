@@ -128,8 +128,9 @@ describe('DashboardContent', () => {
         thisWeekDistance: 25,
         thisWeekWorkoutsCompleted: 3,
         thisWeekTotalWorkouts: 4,
-        thisWeekAveragePace: '8:30',
+        thisWeekPlannedMileage: 30,
         thisWeekGoalProgress: 75,
+        daysToMarathon: 56,
         currentWeek: 6,
         marathonDate: new Date('2024-06-15'),
       });
@@ -140,7 +141,7 @@ describe('DashboardContent', () => {
       
       // Training overview metrics
       expect(screen.getByText('8')).toBeInTheDocument();
-      expect(screen.getByText('Weeks to Marathon')).toBeInTheDocument();
+      expect(screen.getByText('Weeks to Race Day')).toBeInTheDocument();
       expect(screen.getByText('6/14/2024')).toBeInTheDocument();
 
       // Training completion percentage
@@ -157,13 +158,13 @@ describe('DashboardContent', () => {
 
       // This week metrics
       expect(screen.getByText('25 mi')).toBeInTheDocument();
-      expect(screen.getByText('Distance')).toBeInTheDocument();
+      expect(screen.getByText('Total Mileage')).toBeInTheDocument();
       
       expect(screen.getByText('3 of 4')).toBeInTheDocument();
       expect(screen.getByText('Workouts')).toBeInTheDocument();
       
-      expect(screen.getByText('8:30/mi')).toBeInTheDocument();
-      expect(screen.getByText('Avg Pace')).toBeInTheDocument();
+      expect(screen.getByText('56')).toBeInTheDocument();
+      expect(screen.getByText('Days to Race Day')).toBeInTheDocument();
       
       expect(screen.getByText('75%')).toBeInTheDocument();
       expect(screen.getByText('Goal Progress')).toBeInTheDocument();
@@ -175,7 +176,6 @@ describe('DashboardContent', () => {
       render(<DashboardContent />);
 
       expect(screen.getByText('Marathon Training Dashboard')).toBeInTheDocument();
-      expect(screen.getByText(/Track your progress and stay on top of your marathon training plan/)).toBeInTheDocument();
     });
 
     it('should display section headings with icons', () => {
@@ -203,8 +203,9 @@ describe('DashboardContent', () => {
         thisWeekDistance: 0,
         thisWeekWorkoutsCompleted: 0,
         thisWeekTotalWorkouts: 0,
-        thisWeekAveragePace: null,
+        thisWeekPlannedMileage: 0,
         thisWeekGoalProgress: 0,
+        daysToMarathon: 0,
         currentWeek: 1,
         marathonDate: null,
       });
@@ -227,15 +228,16 @@ describe('DashboardContent', () => {
         thisWeekDistance: 15,
         thisWeekWorkoutsCompleted: 4,
         thisWeekTotalWorkouts: 4,
-        thisWeekAveragePace: '7:45',
+        thisWeekPlannedMileage: 20,
         thisWeekGoalProgress: 100,
+        daysToMarathon: 7,
         currentWeek: 16,
         marathonDate: new Date('2024-01-15'),
       });
 
       render(<DashboardContent />);
 
-      expect(screen.getByText('Week to Marathon')).toBeInTheDocument();
+      expect(screen.getByText('Week to Race Day')).toBeInTheDocument();
     });
 
     it('should handle zero values appropriately', () => {
@@ -248,8 +250,9 @@ describe('DashboardContent', () => {
         thisWeekDistance: 0,
         thisWeekWorkoutsCompleted: 0,
         thisWeekTotalWorkouts: 0,
-        thisWeekAveragePace: null,
+        thisWeekPlannedMileage: 0,
         thisWeekGoalProgress: 0,
+        daysToMarathon: 0,
         currentWeek: 1,
         marathonDate: new Date('2023-12-31'),
       });
@@ -264,9 +267,9 @@ describe('DashboardContent', () => {
       expect(screen.getByText('0 mi')).toBeInTheDocument();
       expect(screen.getByText('0 of 0')).toBeInTheDocument();
       
-      // Check for N/A pace
-      const paceElements = screen.getAllByText('N/A');
-      expect(paceElements.length).toBeGreaterThan(0);
+      // Check for weeks to marathon N/A
+      const naElements = screen.getAllByText('N/A');
+      expect(naElements.length).toBeGreaterThan(0);
     });
   });
 
@@ -281,8 +284,9 @@ describe('DashboardContent', () => {
         thisWeekDistance: 20,
         thisWeekWorkoutsCompleted: 2,
         thisWeekTotalWorkouts: 3,
-        thisWeekAveragePace: '8:00',
+        thisWeekPlannedMileage: 25,
         thisWeekGoalProgress: 67,
+        daysToMarathon: 70,
         currentWeek: 5,
         marathonDate: new Date('2024-03-15'),
       });
@@ -336,8 +340,9 @@ describe('DashboardContent', () => {
         thisWeekDistance: 18,
         thisWeekWorkoutsCompleted: 1,
         thisWeekTotalWorkouts: 3,
-        thisWeekAveragePace: '8:15',
+        thisWeekPlannedMileage: 20,
         thisWeekGoalProgress: 33,
+        daysToMarathon: 84,
         currentWeek: 4,
         marathonDate: new Date('2024-04-20'),
       });
@@ -381,8 +386,9 @@ describe('DashboardContent', () => {
         thisWeekDistance: 22,
         thisWeekWorkoutsCompleted: 3,
         thisWeekTotalWorkouts: 4,
-        thisWeekAveragePace: '7:50',
+        thisWeekPlannedMileage: 25,
         thisWeekGoalProgress: 75,
+        daysToMarathon: 42,
         currentWeek: 8,
         marathonDate: new Date('2024-05-10'),
       });

@@ -106,25 +106,30 @@ export default function WorkoutsPage() {
   const convertToWorkoutCards = useCallback((plan: any): WorkoutCardProps[] => {
     if (!plan?.plan?.workouts) return [];
     
-    return plan.plan.workouts.map((workout: any, index: number) => ({
-      id: workout.id || `${workout.week}-${workout.day || (index % 7) + 1}`,
-      name: workout.name,
-      description: workout.description,
-      type: workout.type as WorkoutType,
-      week: workout.week,
-      day: workout.day,
-      scheduledDate: new Date(workout.scheduledDate),
-      distance: workout.distance,
-      duration: workout.duration,
-      pace: workout.pace,
-      intervals: workout.intervals,
-      structure: workout.structure,
-      isCompleted: workout.isCompleted || false,
-      isToday: false, // Calculated in WorkoutGrid for performance
-      isUpcoming: workout.week >= currentWeek,
-      isPast: workout.week < currentWeek,
-    }));
-  }, [currentWeek]);
+    return plan.plan.workouts.map((workout: any, index: number) => {
+      const workoutCard = {
+        id: workout.id || `${workout.week}-${workout.day || (index % 7) + 1}`,
+        name: workout.name,
+        description: workout.description,
+        type: workout.type as WorkoutType,
+        week: workout.week,
+        day: workout.day,
+        scheduledDate: new Date(workout.scheduledDate),
+        distance: workout.distance,
+        duration: workout.duration,
+        pace: workout.pace,
+        intervals: workout.intervals,
+        isCompleted: workout.isCompleted,
+        isToday: workout.isToday,
+        isUpcoming: workout.isUpcoming,
+        isPast: workout.isPast,
+        isRaceDay: workout.isRaceDay,
+        raceDetails: workout.raceDetails,
+      };
+      
+      return workoutCard;
+    });
+  }, []);
 
   const workouts = useMemo(() => convertToWorkoutCards(trainingPlanData), [convertToWorkoutCards, trainingPlanData]);
 
@@ -201,11 +206,6 @@ export default function WorkoutsPage() {
   });
 
   const handleWorkoutComplete = useCallback((workout: WorkoutCardProps) => {
-    console.log('handleWorkoutComplete called with:', workout);
-    console.log('Workout ID:', workout.id);
-    console.log('Workout week:', workout.week);
-    console.log('Workout day:', workout.day);
-    
     if (workout.isCompleted) {
       // TODO: Handle uncompleting workout (would need a separate API endpoint)
       console.log('Workout already completed:', workout);
@@ -218,12 +218,23 @@ export default function WorkoutsPage() {
       return;
     }
 
-    console.log('Marking workout as complete:', workout.id);
+    console.log('Marking workout as complete:', {
+      id: workout.id,
+      name: workout.name,
+      distance: workout.distance,
+      type: workout.type
+    });
 
-    // Mark workout as complete
+    // Ensure we have a valid distance value
+    const actualDistance = workout.distance || 0;
+    
+    if (actualDistance === 0) {
+      console.warn('Warning: Workout distance is 0 or undefined:', workout);
+    }
+
     markWorkoutCompleteMutation.mutate({
       workoutId: workout.id,
-      completedAt: new Date().toISOString(),
+      actualDistance: actualDistance,
       notes: `Completed ${workout.name}`,
     });
   }, [markWorkoutCompleteMutation]);

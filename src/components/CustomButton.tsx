@@ -80,7 +80,7 @@ export const buttonVariants = tv({
     {
       variant: "light",
       color: "secondary",
-      class: "text-red-500!",
+      class: "text-muted-foreground!",
     },
     {
       isIconButton: true,

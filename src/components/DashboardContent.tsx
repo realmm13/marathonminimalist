@@ -103,9 +103,6 @@ export function DashboardContent() {
             <h1 className="heading-1 mb-4 text-gradient">
               Marathon Training Dashboard
             </h1>
-            <p className="body-large text-muted-foreground max-w-2xl">
-              Track your progress and stay on top of your marathon training plan with comprehensive analytics and personalized insights.
-            </p>
           </div>
           <CustomButton 
             onClick={refreshDashboard}
@@ -119,48 +116,114 @@ export function DashboardContent() {
         </div>
       </div>
 
-      {/* Training Overview */}
-      <div className="animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
-        <Card className="card-enhanced p-6">
-          <h3 className="heading-5 mb-4 flex items-center gap-2">
-            <Activity className="h-5 w-5 text-primary" />
-            Training Overview
-          </h3>
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">
-                {dashboardData.weeksToMarathon || 'N/A'}
-              </div>
-              <div className="body-small text-muted-foreground">
-                {dashboardData.weeksToMarathon === 1 ? 'Week' : 'Weeks'} to Marathon
-              </div>
-              {dashboardData.marathonDate && (
-                <div className="body-small text-muted-foreground mt-1">
-                  {new Date(dashboardData.marathonDate).toLocaleDateString()}
+      {/* Main dashboard layout - Calendar on left, other components on right */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        
+        {/* Left column - Training Calendar */}
+        <div className="animate-fade-in-up order-2 lg:order-1" style={{ animationDelay: '0.3s' }}>
+          <Calendar
+            workouts={trainingPlanData?.plan?.workouts || []}
+            marathonDate={dashboardData.marathonDate ? new Date(dashboardData.marathonDate) : undefined}
+            className="card-enhanced"
+            onEventClick={(event) => {
+              console.log('Calendar event clicked:', event);
+            }}
+            onDateSelect={(date) => {
+              console.log('Calendar date selected:', date);
+            }}
+          />
+        </div>
+
+        {/* Right column - Training Overview and This Week Summary */}
+        <div className="space-y-8 order-1 lg:order-2">
+          
+          {/* Training Overview */}
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <Card className="card-enhanced p-6">
+              <h3 className="heading-5 mb-4 flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                Training Overview
+              </h3>
+              <div className="grid gap-6 md:grid-cols-3">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {dashboardData.weeksToMarathon || 'N/A'}
+                  </div>
+                  <div className="body-small text-muted-foreground">
+                    {dashboardData.weeksToMarathon === 1 ? 'Week' : 'Weeks'} to Race Day
+                  </div>
+                  {dashboardData.marathonDate && (
+                    <div className="body-small text-muted-foreground mt-1">
+                      {new Date(dashboardData.marathonDate).toLocaleDateString()}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">
-                {dashboardData.trainingCompletePercentage}%
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {dashboardData.trainingCompletePercentage}%
+                  </div>
+                  <div className="body-small text-muted-foreground">Training Complete</div>
+                  <div className="progress-bar mt-2" style={{ 
+                    '--progress': `${dashboardData.trainingCompletePercentage}%` 
+                  } as React.CSSProperties}></div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary mb-2">
+                    {dashboardData.peakWeeklyMiles || 0}
+                  </div>
+                  <div className="body-small text-muted-foreground">Peak Weekly Miles</div>
+                </div>
               </div>
-              <div className="body-small text-muted-foreground">Training Complete</div>
-              <div className="progress-bar mt-2" style={{ 
-                '--progress': `${dashboardData.trainingCompletePercentage}%` 
-              } as React.CSSProperties}></div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary mb-2">
-                {dashboardData.peakWeeklyMiles || 0}
-              </div>
-              <div className="body-small text-muted-foreground">Peak Weekly Miles</div>
-            </div>
+            </Card>
           </div>
-        </Card>
+
+          {/* This Week Summary */}
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
+            <Card className="card-enhanced p-6">
+              <h3 className="heading-5 mb-4 flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                This Week Summary
+                <Badge variant="outline" color="gray" className="ml-2">
+                  Week {dashboardData.currentWeek}
+                </Badge>
+              </h3>
+              <div className="grid gap-6 md:grid-cols-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {dashboardData.thisWeekDistance} mi
+                  </div>
+                  <div className="body-small text-muted-foreground">Total Mileage</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {dashboardData.thisWeekWorkoutsCompleted} of {dashboardData.thisWeekTotalWorkouts}
+                  </div>
+                  <div className="body-small text-muted-foreground">Workouts</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {dashboardData.daysToMarathon}
+                  </div>
+                  <div className="body-small text-muted-foreground">Days to Race Day</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary mb-1">
+                    {dashboardData.thisWeekGoalProgress}%
+                  </div>
+                  <div className="body-small text-muted-foreground">Goal Progress</div>
+                  <div className="progress-bar mt-2" style={{ 
+                    '--progress': `${dashboardData.thisWeekGoalProgress}%` 
+                  } as React.CSSProperties}></div>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+        </div>
       </div>
 
-      {/* Current Week's Workouts */}
-      <div className="animate-fade-in-up mb-8" style={{ animationDelay: '0.25s' }}>
+      {/* This Week's Workouts - moved to bottom */}
+      <div className="mt-8 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
         <Card className="card-enhanced p-6">
           <h3 className="heading-5 mb-4 flex items-center gap-2">
             <CalendarIcon className="h-5 w-5 text-primary" />
@@ -204,63 +267,6 @@ export function DashboardContent() {
               </p>
             </div>
           )}
-        </Card>
-      </div>
-
-      {/* Training Calendar */}
-      <div className="animate-fade-in-up mb-8" style={{ animationDelay: '0.3s' }}>
-        <Calendar
-          workouts={trainingPlanData?.plan?.workouts || []}
-          marathonDate={dashboardData.marathonDate ? new Date(dashboardData.marathonDate) : undefined}
-          className="card-enhanced"
-          onEventClick={(event) => {
-            console.log('Calendar event clicked:', event);
-          }}
-          onDateSelect={(date) => {
-            console.log('Calendar date selected:', date);
-          }}
-        />
-      </div>
-
-      {/* Enhanced Quick Stats Card - moved to bottom */}
-      <div className="mt-8 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-        <Card className="card-enhanced p-6">
-          <h3 className="heading-5 mb-4 flex items-center gap-2">
-            <Target className="h-5 w-5 text-primary" />
-            This Week Summary
-            <Badge variant="outline" color="gray" className="ml-2">
-              Week {dashboardData.currentWeek}
-            </Badge>
-          </h3>
-          <div className="grid gap-6 md:grid-cols-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                {dashboardData.thisWeekDistance} mi
-              </div>
-              <div className="body-small text-muted-foreground">Distance</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                {dashboardData.thisWeekWorkoutsCompleted} of {dashboardData.thisWeekTotalWorkouts}
-              </div>
-              <div className="body-small text-muted-foreground">Workouts</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                {dashboardData.thisWeekAveragePace ? `${dashboardData.thisWeekAveragePace}/mi` : 'N/A'}
-              </div>
-              <div className="body-small text-muted-foreground">Avg Pace</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary mb-1">
-                {dashboardData.thisWeekGoalProgress}%
-              </div>
-              <div className="body-small text-muted-foreground">Goal Progress</div>
-              <div className="progress-bar mt-2" style={{ 
-                '--progress': `${dashboardData.thisWeekGoalProgress}%` 
-              } as React.CSSProperties}></div>
-            </div>
-          </div>
         </Card>
       </div>
     </div>

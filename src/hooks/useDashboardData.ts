@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { api } from '@/trpc/react';
-import { subWeeks, differenceInWeeks, format, startOfWeek, endOfWeek } from 'date-fns';
+import { subWeeks, differenceInWeeks, differenceInDays, format, startOfWeek, endOfWeek } from 'date-fns';
 
 export interface DashboardMetrics {
   // Training Overview
@@ -12,8 +12,9 @@ export interface DashboardMetrics {
   thisWeekDistance: number;
   thisWeekWorkoutsCompleted: number;
   thisWeekTotalWorkouts: number;
-  thisWeekAveragePace: string | null;
+  thisWeekPlannedMileage: number;
   thisWeekGoalProgress: number;
+  daysToMarathon: number;
   
   // Additional data
   currentWeek: number;
@@ -65,16 +66,18 @@ export function useDashboardData(): DashboardMetrics {
     let thisWeekDistance = 0;
     let thisWeekWorkoutsCompleted = 0;
     let thisWeekTotalWorkouts = 0;
-    let thisWeekAveragePace: string | null = null;
+    let thisWeekPlannedMileage = 0;
     let thisWeekGoalProgress = 0;
     let currentWeek = 1;
     let marathonDate: Date | null = null;
+    let daysToMarathon = 0;
 
     // Calculate weeks to marathon
     if (marathonSettings?.marathonDate) {
       marathonDate = new Date(marathonSettings.marathonDate);
       const now = new Date();
       weeksToMarathon = Math.max(0, differenceInWeeks(marathonDate, now));
+      daysToMarathon = Math.max(0, differenceInDays(marathonDate, now));
     }
 
     // Calculate training completion percentage and current week
@@ -108,44 +111,17 @@ export function useDashboardData(): DashboardMetrics {
 
       // Workouts completed this week
       thisWeekWorkoutsCompleted = completions.length;
-
-      // Calculate average pace
-      const validPaces = completions
-        .map(c => c.actualPace)
-        .filter(Boolean)
-        .map(pace => {
-          try {
-            const parts = pace!.split(':');
-            if (parts.length !== 2) return null;
-            
-            const minStr = parts[0];
-            const secStr = parts[1];
-            
-            if (!minStr || !secStr) return null;
-            
-            const min = parseInt(minStr, 10);
-            const sec = parseInt(secStr, 10);
-            
-            if (isNaN(min) || isNaN(sec)) return null;
-            
-            return min * 60 + sec;
-          } catch {
-            return null;
-          }
-        })
-        .filter((pace): pace is number => pace !== null);
-
-      if (validPaces.length > 0) {
-        const avgPaceSeconds = validPaces.reduce((sum, pace) => sum + pace, 0) / validPaces.length;
-        const minutes = Math.floor(avgPaceSeconds / 60);
-        const seconds = Math.round(avgPaceSeconds % 60);
-        thisWeekAveragePace = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-      }
     }
 
-    // Calculate total workouts planned for this week
+    // Calculate total workouts planned for this week and planned mileage
     if (trainingPlan?.plan && currentWeek) {
-      thisWeekTotalWorkouts = trainingPlan.plan.workouts.filter(w => w.week === currentWeek).length;
+      const currentWeekWorkouts = trainingPlan.plan.workouts.filter(w => w.week === currentWeek);
+      thisWeekTotalWorkouts = currentWeekWorkouts.length;
+      
+      // Calculate planned mileage for this week
+      thisWeekPlannedMileage = currentWeekWorkouts.reduce((sum, workout) => 
+        sum + (workout.distance || 0), 0
+      );
     }
 
     // Calculate goal progress (completion rate for this week)
@@ -160,12 +136,13 @@ export function useDashboardData(): DashboardMetrics {
       thisWeekDistance: Math.round(thisWeekDistance * 10) / 10, // Round to 1 decimal
       thisWeekWorkoutsCompleted,
       thisWeekTotalWorkouts,
-      thisWeekAveragePace,
+      thisWeekPlannedMileage: Math.round(thisWeekPlannedMileage * 10) / 10, // Round to 1 decimal
       thisWeekGoalProgress,
       currentWeek,
       marathonDate,
       isLoading,
       error,
+      daysToMarathon,
     };
   }, [
     currentWeekData,

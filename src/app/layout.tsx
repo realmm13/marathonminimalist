@@ -17,6 +17,7 @@ import { hotkeys } from "@/config/hotkeys";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { APP_NAME, APP_DESCRIPTION } from "@/config/config";
 import { LevaPanel } from "@/components/dev/LevaPanel";
+import { IS_DEV } from "@/config/dev-prod";
 
 export const metadata: Metadata = {
   title: APP_NAME,
@@ -99,7 +100,7 @@ export default async function RootLayout({
             </ThemeWrapper>
           </TRPCReactProvider>
         </NuqsAdapter>
-        <LevaPanel />
+        {IS_DEV && <LevaPanel />}
       </body>
     </html>
   );

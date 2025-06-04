@@ -13,5 +13,29 @@ export function LevaPanel() {
     return null;
   }
   
-  return <Leva oneLineLabels />;
+  return (
+    <div className="fixed bottom-4 right-4 z-[9999] pointer-events-auto">
+      <Leva 
+        oneLineLabels 
+        collapsed={true}
+        hideCopyButton={true}
+        titleBar={{
+          title: "Debug",
+          drag: false,
+          filter: false
+        }}
+        theme={{
+          sizes: {
+            rootWidth: "280px",
+            controlWidth: "160px"
+          },
+          colors: {
+            elevation1: "rgba(255, 255, 255, 0.95)",
+            elevation2: "rgba(248, 250, 252, 0.95)",
+            elevation3: "rgba(241, 245, 249, 0.95)"
+          }
+        }}
+      />
+    </div>
+  );
 }

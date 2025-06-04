@@ -28,6 +28,8 @@ export const ConfirmAlert = React.memo(
       onOpenChange(false);
     };
 
+    const isDestructive = variant === "destructive";
+
     return (
       <Alert
         open={open}
@@ -42,9 +44,9 @@ export const ConfirmAlert = React.memo(
         <AlertDialogAction
           onClick={handleConfirm}
           className={
-            variant === "destructive"
-              ? "bg-red-600 hover:bg-red-700 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
-              : "button-primary shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+            isDestructive
+              ? "bg-destructive hover:bg-destructive/90 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+              : "bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
           }
         >
           {confirmLabel}

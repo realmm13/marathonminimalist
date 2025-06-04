@@ -57,7 +57,7 @@ export function Calendar({
 
   return (
     <div className={cn(
-      "bg-background rounded-2xl p-6 max-w-md mx-auto",
+      "bg-background rounded-2xl p-6 w-full",
       "border border-border shadow-lg",
       className
     )}>
@@ -119,7 +119,10 @@ export function Calendar({
                 )}
               >
                 {/* Date number */}
-                <span className="relative z-10">
+                <span className={cn(
+                  "relative z-10",
+                  hasMarathon && "opacity-0"
+                )}>
                   {day.date.getDate()}
                 </span>
 
