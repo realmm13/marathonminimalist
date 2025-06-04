@@ -766,20 +766,8 @@ export default function FAQPage() {
         transition={{ duration: 0.5, delay: 0.8 }}
       >
         <h2 className="text-2xl font-bold text-foreground">Still Need Help?</h2>
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="p-6 border border-border rounded-lg bg-background">
-            <h3 className="font-semibold text-foreground mb-3">Contact Support</h3>
-            <p className="text-muted-foreground text-sm mb-4">
-              Have a question that's not covered here? We're here to help with your training journey.
-            </p>
-            <a 
-              href="mailto:support@marathonminimalist.com"
-              className="text-primary hover:text-primary/80 font-medium text-sm"
-            >
-              support@marathonminimalist.com
-            </a>
-          </div>
-          <div className="p-6 border border-border rounded-lg bg-background">
+        <div className="flex justify-center">
+          <div className="p-6 border border-border rounded-lg bg-background max-w-md w-full">
             <h3 className="font-semibold text-foreground mb-3">Training Questions</h3>
             <p className="text-muted-foreground text-sm mb-4">
               Need personalized advice about your training plan or have specific running questions?
