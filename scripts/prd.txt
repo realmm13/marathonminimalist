@@ -1,11 +1,11 @@
-Marathon Minimalist – Product Requirements Document
+Prep My Run – Product Requirements Document
 1. Introduction
-This Product Requirements Document (PRD) outlines the development specifications for Marathon Minimalist, a streamlined marathon training application designed to provide runners with a focused, minimalist approach to marathon preparation. This document serves as the primary reference for development teams, stakeholders, and quality assurance to ensure successful delivery of a comprehensive yet simplified marathon training platform.
+This Product Requirements Document (PRD) outlines the development specifications for Prep My Run, a streamlined marathon training application designed to provide runners with a focused, minimalist approach to marathon preparation. This document serves as the primary reference for development teams, stakeholders, and quality assurance to ensure successful delivery of a comprehensive yet simplified marathon training platform.
 
 The application addresses the common problem of overwhelming training complexity by providing a clean, focused interface that emphasizes the three core weekly workouts essential for marathon success while maintaining flexibility for individual scheduling needs.
 
 2. Product overview
-Marathon Minimalist is a web-based marathon training application that generates personalized 14-week training plans based on user goals and schedules. The platform focuses on three core workout types per week: tempo runs, 800-meter intervals, and long runs with marathon-pace finishes.
+Prep My Run is a web-based marathon training application that generates personalized 14-week training plans based on user goals and schedules. The platform focuses on three core workout types per week: tempo runs, 800-meter intervals, and long runs with marathon-pace finishes.
 
 The application features an integrated pace calculator, interval timer, workout logging system, and progress analytics, all wrapped in a minimalist user interface that prioritizes clarity and ease of use. Built for runners of all experience levels, the platform provides educational context for each workout while maintaining the flexibility to accommodate various scheduling constraints and training adaptations.
 

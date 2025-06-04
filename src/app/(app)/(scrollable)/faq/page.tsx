@@ -352,7 +352,7 @@ const generateFAQSchema = (faqItems: FAQItem[]) => {
     "@type": "FAQPage",
     "name": "Marathon Training FAQ - Minimalist 3-Workout Approach",
     "description": "Comprehensive FAQ about our minimalist marathon training approach, site navigation, and common questions about the 3-workout weekly training plan.",
-    "url": "https://marathonminimalist.com/faq",
+    "url": "https://prepmyrun.com/faq",
     "mainEntity": faqItems.map(item => ({
       "@type": "Question",
       "name": item.question,
@@ -773,10 +773,10 @@ export default function FAQPage() {
               Need personalized advice about your training plan or have specific running questions?
             </p>
             <a 
-              href="mailto:coach@marathonminimalist.com"
+              href="mailto:coach@prepmyrun.com"
               className="text-primary hover:text-primary/80 font-medium text-sm"
             >
-              coach@marathonminimalist.com
+              coach@prepmyrun.com
             </a>
           </div>
         </div>

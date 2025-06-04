@@ -1,6 +1,6 @@
 {
-  "name": "Marathon Minimalist",
-  "short_name": "Marathon Minimalist",
+  "name": "Prep My Run",
+  "short_name": "Prep My Run",
   "description": "Minimalist marathon training dashboard",
   "start_url": "/",
   "display": "standalone",
