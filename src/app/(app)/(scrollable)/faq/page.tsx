@@ -768,15 +768,15 @@ export default function FAQPage() {
         <h2 className="text-2xl font-bold text-foreground">Still Need Help?</h2>
         <div className="flex justify-center">
           <div className="p-6 border border-border rounded-lg bg-background max-w-md w-full">
-            <h3 className="font-semibold text-foreground mb-3">Training Questions</h3>
+            <h3 className="font-semibold text-foreground mb-3">Need Support?</h3>
             <p className="text-muted-foreground text-sm mb-4">
-              Need personalized advice about your training plan or have specific running questions?
+              Have questions about your training plan, technical issues, or need general assistance?
             </p>
             <a 
-              href="mailto:coach@prepmyrun.com"
+              href="mailto:support@prepmyrun.com"
               className="text-primary hover:text-primary/80 font-medium text-sm"
             >
-              coach@prepmyrun.com
+              support@prepmyrun.com
             </a>
           </div>
         </div>
