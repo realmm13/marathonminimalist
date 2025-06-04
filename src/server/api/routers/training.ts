@@ -5,6 +5,7 @@ import { TrainingScheduler, type ScheduledTrainingPlan } from "@/lib/training/tr
 import { userPreferencesSchema } from "@/types/user-preferences";
 import { TrainingPreferences } from "@/types/training";
 import { calculateStartDateFromRaceDate } from "@/lib/training/date-utils";
+import { addWeeks } from "date-fns";
 
 const generatePlanSchema = z.object({
   startDate: z.string().optional(), // ISO date string, defaults to calculated from race date
@@ -57,225 +58,88 @@ export const trainingRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "User not found" });
       }
 
-      // Parse user preferences with error handling and map to TrainingPreferences
-      let preferences: TrainingPreferences;
-      try {
-        const userPrefs = userPreferencesSchema.parse(user.preferences || {});
-        // Map user preferences to TrainingPreferences format
-        preferences = {
-          distanceUnit: userPrefs.marathonDistanceUnit,
-          paceFormat: userPrefs.marathonPaceFormat,
-          workoutDays: userPrefs.marathonWorkoutDays,
-        };
-      } catch (error) {
-        console.warn("Failed to parse user preferences, using defaults:", error);
-        // Use default TrainingPreferences
-        preferences = {
-          distanceUnit: "MILES" as const,
-          paceFormat: "MIN_PER_MILE" as const,
-          workoutDays: [1, 3, 6], // Monday, Wednesday, Saturday
-        };
-      }
+      // Parse user preferences
+      const preferences = userPreferencesSchema.parse(user.preferences || {});
+      const workoutDays = input.workoutDays || preferences.marathonWorkoutDays || [1, 3, 6]; // Default to Mon, Wed, Sat
 
-      // Generate cache key
+      // Calculate start date if not provided
+      const startDate = input.startDate 
+        ? new Date(input.startDate)
+        : calculateStartDateFromRaceDate(user.marathonDate!, workoutDays);
+
+      // Calculate end date (race date)
+      const endDate = user.marathonDate!;
+
+      // Create training scheduler
+      const trainingScheduler = new TrainingScheduler({
+        startDate,
+        raceDate: endDate,
+        goalMarathonTime: user.goalMarathonTime || "04:00:00",
+        workoutDays,
+        preferences: {
+          distanceUnit: 'KILOMETERS' as any,
+          paceFormat: 'MIN_PER_KM' as any,
+          workoutDays,
+        }
+      });
+
+      // Generate the training plan
+      const plan = trainingScheduler.generateScheduledPlan();
+
+      // Get all workout completions for this user
+      const completions = await ctx.db.workoutLog.findMany({
+        where: { userId: ctx.session.user.id },
+        select: {
+          workoutIdentifier: true,
+          completedAt: true,
+          actualDistance: true,
+          actualDuration: true,
+          actualPace: true,
+          notes: true,
+        }
+      });
+
+      // Create a map for quick lookup of completion data
+      const completionMap = new Map(
+        completions.map(completion => [
+          completion.workoutIdentifier!,
+          completion
+        ])
+      );
+
+      // Add completion status to workouts
+      const workoutsWithCompletion = plan.workouts.map((workout): any => {
+        const workoutId = `${workout.week}-${workout.day}`;
+        const completion = completionMap.get(workoutId);
+        return {
+          ...workout,
+          id: workoutId,
+          isCompleted: !!completion,
+          completionData: completion || null,
+        };
+      });
+
+      // Cache the result
       const cacheKey = generateCacheKey(
         ctx.session.user.id,
         preferences,
         user.marathonDate,
         user.goalMarathonTime
       );
+      trainingPlanCache.set(cacheKey, { plan, timestamp: Date.now() });
 
-      // Check cache first
-      const cached = trainingPlanCache.get(cacheKey);
-      if (cached && isCacheValid(cached.timestamp)) {
-        console.log("Returning cached training plan for user:", ctx.session.user.id);
-        
-        // Get workout completions for cached plan
-        const completions = await ctx.db.workoutLog.findMany({
-          where: { 
-            userId: ctx.session.user.id,
-            workoutIdentifier: {
-              not: null,
-            }
-          },
-          select: {
-            id: true,
-            workoutIdentifier: true,
-            completedAt: true,
-            notes: true,
-            actualDistance: true,
-            actualDuration: true,
-            actualPace: true,
-          }
-        });
-
-        // Create completion map
-        const completionMap = new Map<string, typeof completions[0]>();
-        completions.forEach(completion => {
-          if (completion.workoutIdentifier) {
-            completionMap.set(completion.workoutIdentifier, completion);
-          }
-        });
-
-        // Add completion status to cached workouts
-        const workoutsWithCompletion = cached.plan.workouts.map(workout => {
-          const workoutId = `${workout.week}-${workout.day}`;
-          const completion = completionMap.get(workoutId);
-          return {
-            ...workout,
-            id: workoutId,
-            isCompleted: !!completion,
-            completionData: completion || null,
-          };
-        });
-
-        return {
-          success: true,
-          plan: {
-            ...cached.plan,
-            workouts: workoutsWithCompletion,
-          },
-          userSettings: {
-            goalMarathonTime: user.goalMarathonTime,
-            marathonDate: user.marathonDate,
-            distanceUnit: preferences.distanceUnit,
-          },
-        };
-      }
-      
-      console.log("User marathon settings:", {
-        goalMarathonTime: user.goalMarathonTime,
-        marathonDate: user.marathonDate,
-        preferences: preferences
-      });
-      
-      // Check if user has completed their profile setup
-      if (!user.goalMarathonTime) {
-        throw new TRPCError({
-          code: "PRECONDITION_FAILED",
-          message: "Please complete your profile setup by setting your goal marathon time in the Profile page.",
-        });
-      }
-      
-      // Determine start date - prioritize race date alignment over manual start date
-      let startDate: Date;
-      const workoutDays = input.workoutDays || preferences.workoutDays;
-      
-      if (user.marathonDate) {
-        // Calculate start date from race date to ensure proper alignment
-        console.log("Calculating start date from race date:", user.marathonDate);
-        console.log("User workout days:", workoutDays);
-        startDate = calculateStartDateFromRaceDate(user.marathonDate, workoutDays);
-        console.log("Calculated start date:", startDate);
-      } else if (input.startDate) {
-        // Use provided start date
-        startDate = new Date(input.startDate);
-        console.log("Using provided start date:", startDate);
-      } else {
-        // Fallback to today
-        startDate = new Date();
-        console.log("Using fallback start date (today):", startDate);
-      }
-      
-      // Create training scheduler
-      const scheduler = new TrainingScheduler({
-        startDate,
-        raceDate: user.marathonDate || undefined,
-        goalMarathonTime: user.goalMarathonTime || "04:00:00",
-        workoutDays: workoutDays,
-        preferences: preferences,
-      });
-
-      try {
-        console.log("Starting training plan generation...");
-        console.log("User data:", { 
-          goalMarathonTime: user.goalMarathonTime, 
-          preferences: preferences,
-        });
-        
-        // Generate the training plan
-        console.log("Creating TrainingScheduler with params:", {
-          startDate,
-          raceDate: user.marathonDate || undefined,
-          goalMarathonTime: user.goalMarathonTime || "04:00:00",
-          workoutDays: workoutDays,
-          preferences: preferences,
-        });
-        
-        const plan = scheduler.generateScheduledPlan();
-        console.log("Training plan generated successfully, workouts count:", plan.workouts.length);
-        
-        // Get workout completions for this user - optimized field selection
-        const completions = await ctx.db.workoutLog.findMany({
-          where: { 
-            userId: ctx.session.user.id,
-            workoutIdentifier: {
-              not: null,
-            }
-          },
-          select: {
-            id: true,
-            workoutIdentifier: true,
-            completedAt: true,
-            notes: true,
-            actualDistance: true,
-            actualDuration: true,
-            actualPace: true,
-            // Removed: effortLevel, weather, temperature (advanced metrics)
-          }
-        });
-
-        console.log("Found completions:", completions.length);
-
-        // Create a map of completed workouts by workoutIdentifier
-        const completionMap = new Map<string, typeof completions[0]>();
-        completions.forEach(completion => {
-          if (completion.workoutIdentifier) {
-            completionMap.set(completion.workoutIdentifier, completion);
-          }
-        });
-
-        // Add completion status to workouts
-        const workoutsWithCompletion = plan.workouts.map(workout => {
-          const workoutId = `${workout.week}-${workout.day}`;
-          const completion = completionMap.get(workoutId);
-          return {
-            ...workout,
-            id: workoutId,
-            isCompleted: !!completion,
-            completionData: completion || null,
-          };
-        });
-        
-        console.log("Successfully processed workouts with completion status");
-        
-        // Cache the result
-        trainingPlanCache.set(cacheKey, { plan, timestamp: Date.now() });
-        
-        return {
-          success: true,
-          plan: {
-            ...plan,
-            workouts: workoutsWithCompletion,
-          },
-          userSettings: {
-            goalMarathonTime: user.goalMarathonTime,
-            marathonDate: user.marathonDate,
-            distanceUnit: preferences.distanceUnit,
-          },
-        };
-      } catch (error) {
-        console.error("Error generating training plan:", error);
-        console.error("Error stack:", error instanceof Error ? error.stack : 'No stack trace');
-        console.error("Error details:", {
-          message: error instanceof Error ? error.message : 'Unknown error',
-          name: error instanceof Error ? error.name : 'Unknown',
-        });
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to generate training plan",
-        });
-      }
+      return {
+        success: true,
+        plan: {
+          ...plan,
+          workouts: workoutsWithCompletion,
+        },
+        userSettings: {
+          goalMarathonTime: user.goalMarathonTime,
+          marathonDate: user.marathonDate,
+          distanceUnit: preferences.marathonDistanceUnit,
+        },
+      };
     }),
 
   markWorkoutComplete: protectedProcedure
@@ -519,4 +383,40 @@ export const trainingRouter = createTRPCRouter({
       daysIntoProgram: daysDiff,
     };
   }),
+
+  getTrainingPlan: protectedProcedure
+    .input(z.object({
+      userId: z.string(),
+      raceDate: z.string().optional(),
+      workoutDays: z.array(z.number()).optional(),
+    }))
+    .query(async ({ input }) => {
+      const { userId, raceDate, workoutDays = [1, 3, 5] } = input;
+      
+      // Calculate start date from race date if provided
+      const startDate = raceDate 
+        ? calculateStartDateFromRaceDate(new Date(raceDate), workoutDays)
+        : new Date();
+      
+      // Create scheduler with proper parameters object
+      const scheduler = new TrainingScheduler({
+        startDate,
+        workoutDays,
+        raceDate: raceDate ? new Date(raceDate) : undefined,
+        preferences: {
+          distanceUnit: 'KILOMETERS' as any,
+          paceFormat: 'MIN_PER_KM' as any,
+          workoutDays,
+        }
+      });
+      const plan = scheduler.generateScheduledPlan();
+      
+      return {
+        workouts: plan.workouts,
+        startDate: plan.startDate.toISOString(),
+        endDate: plan.endDate.toISOString(),
+        raceDate: raceDate || null,
+        workoutDays,
+      };
+    }),
 }); 

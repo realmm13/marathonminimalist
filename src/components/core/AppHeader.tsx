@@ -22,11 +22,11 @@ export default function AppHeader() {
         root: "relative",
       }}
       leftSide={
-        <div className="horizontal gap-4">
+        <div className="flex items-center gap-8">
           <Logo />
           {/* Training Navigation - Desktop */}
           {!isMobile && (
-            <div className="hidden md:block">
+            <div className="hidden md:flex">
               <TrainingNavigation variant="horizontal" />
             </div>
           )}

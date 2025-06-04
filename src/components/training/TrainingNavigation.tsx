@@ -109,14 +109,14 @@ export function TrainingNavigation({
   // Default horizontal variant
   return (
     <motion.nav
-      className={cn("flex items-center justify-center", className)}
+      className={cn("flex items-center", className)}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       role="navigation"
       aria-label="Training navigation"
     >
-      <ul className="flex items-center gap-8" role="list">
+      <ul className="flex items-center gap-6" role="list">
         {trainingLinks.map((link, index) => {
           const Icon = link.icon;
           const active = isActive(link.href);
@@ -131,7 +131,7 @@ export function TrainingNavigation({
                 <Link
                   href={link.href}
                   className={cn(
-                    "group relative flex cursor-pointer items-center gap-3 body-small font-medium transition-all duration-200",
+                    "group relative flex cursor-pointer items-center gap-2 body-small font-medium transition-all duration-200",
                     "focus-ring rounded-lg px-3 py-2 hover-scale",
                     active
                       ? "text-foreground"
@@ -140,7 +140,7 @@ export function TrainingNavigation({
                   aria-current={active ? "page" : undefined}
                   aria-label={`${link.label}${active ? " (current page)" : ""}`}
                 >
-                  <div className="flex items-center gap-3 transition-all duration-200">
+                  <div className="flex items-center gap-2 transition-all duration-200">
                     {Icon && (
                       <div className={cn(
                         "transform transition-all duration-200 group-hover:scale-110",
@@ -148,7 +148,7 @@ export function TrainingNavigation({
                           ? "text-foreground" 
                           : "text-muted-foreground group-hover:text-foreground"
                       )}>
-                        <Icon size={18} aria-hidden="true" />
+                        <Icon size={16} aria-hidden="true" />
                       </div>
                     )}
                     <span className={cn(
