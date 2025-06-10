@@ -1,4 +1,5 @@
 import { withContentCollections } from "@content-collections/next";
+import bundleAnalyzer from "@next/bundle-analyzer";
 
 const derivedUrl =
   (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
@@ -14,6 +15,10 @@ if (process.env.NODE_ENV === "production") {
   console.log("Derived server URL → ", derivedUrl);
   console.log("SERVER_URL → ", serverUrl);
 }
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -75,5 +80,5 @@ const config = {
 };
 
 // Re-enable content-collections to fix build error
-export default withContentCollections(config);
+export default withBundleAnalyzer(withContentCollections(config));
 // export default config;

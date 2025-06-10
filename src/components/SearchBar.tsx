@@ -77,3 +77,5 @@ export const SearchBar = memo(
     );
   },
 );
+
+SearchBar.displayName = "SearchBar";

@@ -58,6 +58,9 @@ export const CommonMenuItem: ReactFC<CommonMenuItemProps> = ({
   ...rest
 }) => {
   const { menuType, closeMenu } = useMenuContext();
+  
+  // Always call hooks before any conditional returns
+  const { Component, href, linkProps } = useLinkableComponent(rest);
 
   // Handle click with menu closing
   const handleClick = () => {
@@ -87,8 +90,6 @@ export const CommonMenuItem: ReactFC<CommonMenuItemProps> = ({
   }
 
   // For dropdown and context menus, use the existing implementation
-  const { Component, href, linkProps } = useLinkableComponent(rest);
-
   const MenuItem = menuType === "dropdown" ? DropdownMenuItem : ContextMenuItem;
   const MenuShortcut =
     menuType === "dropdown" ? DropdownMenuShortcut : ContextMenuShortcut;

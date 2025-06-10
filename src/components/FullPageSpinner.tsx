@@ -4,9 +4,7 @@ import * as React from "react";
 import { type ReactFC } from "@/lib/utils";
 import { Spinner, type SpinnerProps } from "@/components/Spinner";
 
-export interface FullPageSpinnerProps extends SpinnerProps {}
-
-export const FullPageSpinner: ReactFC<FullPageSpinnerProps> = ({
+export const FullPageSpinner: ReactFC<SpinnerProps> = ({
   size = "xl",
   ...props
 }) => {

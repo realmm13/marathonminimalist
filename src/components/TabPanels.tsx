@@ -53,16 +53,13 @@ export function TabPanels({
   placeholder,
   classNames,
 }: TabPanelsProps) {
-  if (!tabs || tabs.length === 0) {
-    return null;
-  }
-
-  const firstTab = tabs[0]!;
-
+  // Move hooks before any early returns
+  const firstTab = tabs?.[0];
+  
   const initialTab =
-    defaultTab && tabs.some((tab) => tab.value === defaultTab)
+    defaultTab && tabs?.some((tab) => tab.value === defaultTab)
       ? defaultTab
-      : firstTab.value;
+      : firstTab?.value || '';
 
   const [internalActiveTab, setInternalActiveTab] =
     useState<string>(initialTab);
@@ -75,6 +72,11 @@ export function TabPanels({
       setInternalActiveTab(controlledActiveTab);
     }
   }, [controlledActiveTab, internalActiveTab, isControlled]);
+
+  // Early return after hooks
+  if (!tabs || tabs.length === 0) {
+    return null;
+  }
 
   const tabOptions: SegmentedControlOption[] = tabs.map((tab) => ({
     value: tab.value,
@@ -93,7 +95,7 @@ export function TabPanels({
   };
 
   const activeTabContent =
-    tabs.find((tab) => tab.value === activeTab)?.content || firstTab.content;
+    tabs.find((tab) => tab.value === activeTab)?.content || firstTab?.content;
 
   return (
     <div className={cn("flex flex-col gap-4", classNames?.root)}>
