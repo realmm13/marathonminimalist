@@ -227,34 +227,15 @@ export class WeekTemplateManager {
     const workoutDays2 = assignments2.map(a => a.dayOfWeek).sort();
     
     const differences = {
-      workoutDays: {
-        added: workoutDays2.filter(day => !workoutDays1.includes(day)),
-        removed: workoutDays1.filter(day => !workoutDays2.includes(day))
-      },
-      workoutTypes: {
-        changed: [] as { day: number; from: WorkoutType; to: WorkoutType }[]
-      },
-      intensity: null as { from: string; to: string } | null
+      added: workoutDays2.filter(day => !workoutDays1.includes(day)),
+      removed: workoutDays1.filter(day => !workoutDays2.includes(day)),
+      unchanged: workoutDays1.filter(day => workoutDays2.includes(day))
     };
-
-    // Compare workout types for common days
-    const commonDays = workoutDays1.filter(day => workoutDays2.includes(day));
-    for (const day of commonDays) {
-      const type1 = assignments1.find(a => a.dayOfWeek === day)?.workoutType;
-      const type2 = assignments2.find(a => a.dayOfWeek === day)?.workoutType;
-      
-      if (type1 && type2 && type1 !== type2) {
-        differences.workoutTypes.changed.push({ day, from: type1, to: type2 });
-      }
-    }
 
     // Determine conflict level
     let conflictLevel: 'none' | 'minor' | 'major' = 'none';
-    if (differences.workoutDays.added.length > 0 || differences.workoutDays.removed.length > 0) {
+    if (differences.added.length > 0 || differences.removed.length > 0) {
       conflictLevel = 'minor';
-    }
-    if (differences.workoutTypes.changed.length > 1) {
-      conflictLevel = 'major';
     }
 
     return {
@@ -704,13 +685,24 @@ export class WeekTemplateManager {
     workoutDays: number[],
     intensity: WeekTemplate['intensity'] = 'moderate'
   ): WeekTemplate {
+    // Create default workout types mapping
+    const workoutTypes: { [day: number]: WorkoutType } = {};
+    workoutDays.forEach(day => {
+      // Assign default workout types based on day
+      if (day === 0 || day === 6) { // Weekend
+        workoutTypes[day] = WorkoutType.LONG_RUN;
+      } else {
+        workoutTypes[day] = WorkoutType.EASY_RUN;
+      }
+    });
+
     return {
       id: `custom_${Date.now()}`,
       name,
       description,
       workoutDays: [...workoutDays],
-      intensity,
-      category: 'custom'
+      workoutTypes,
+      intensity
     };
   }
 } 

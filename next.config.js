@@ -1,4 +1,4 @@
-// import { withContentCollections } from "@content-collections/next";
+import { withContentCollections } from "@content-collections/next";
 
 const derivedUrl =
   (process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}`) ||
@@ -74,6 +74,6 @@ const config = {
   },
 };
 
-// Temporarily disable content-collections to fix dev server hanging
-export default config;
-// export default withContentCollections(config);
+// Re-enable content-collections to fix build error
+export default withContentCollections(config);
+// export default config;

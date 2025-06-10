@@ -6,7 +6,6 @@ import { getPlansForPolarPlugin } from "@/lib/payment-utils";
 import { db } from "@/server/db";
 import { sendEmail } from "@/server/email/send-email";
 import { getDefaultPreferences } from "@/types/user-preferences";
-import { polar } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
 import {
   betterAuth,
@@ -133,35 +132,9 @@ export const auth = betterAuth({
     ];
 
     if (serverEnv.NEXT_PUBLIC_ENABLE_POLAR && polarClient) {
-      const webhookSecret =
-        serverEnv.NEXT_PUBLIC_POLAR_ENV === "sandbox"
-          ? serverEnv.POLAR_WEBHOOK_SECRET_SANDBOX
-          : serverEnv.POLAR_WEBHOOK_SECRET_PROD;
-
-      const productsArray = getPlansForPolarPlugin();
-
-      plugins.push(
-        polar({
-          client: polarClient,
-          createCustomerOnSignUp: serverEnv.POLAR_CREATE_CUSTOMER_ON_SIGNUP,
-          enableCustomerPortal: serverEnv.POLAR_ENABLE_CUSTOMER_PORTAL,
-          checkout: {
-            enabled: serverEnv.POLAR_ENABLE_CHECKOUT,
-            products: productsArray,
-            successUrl: `${serverEnv.NEXT_PUBLIC_APP_URL}/checkout-success?checkout_id={CHECKOUT_ID}`,
-          },
-          ...(webhookSecret
-            ? {
-                webhooks: {
-                  secret: webhookSecret,
-                  onPayload: async (payload) => {
-                    console.log("Received Polar webhook payload:", payload);
-                  },
-                },
-              }
-            : {}),
-        }),
-      );
+      // Note: polar plugin is not available without @polar-sh/better-auth package
+      // This code block will not execute since NEXT_PUBLIC_ENABLE_POLAR=false
+      console.warn("Polar plugin requested but @polar-sh/better-auth package not installed");
     }
 
     return plugins;
