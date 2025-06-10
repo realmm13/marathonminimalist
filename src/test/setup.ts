@@ -114,5 +114,5 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Create a test wrapper component that provides necessary context
 export const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return React.createElement(KitzeUIProvider, { isMobile: false, children });
+  return React.createElement(KitzeUIProvider, { isMobile: false } as any, children);
 }; 
