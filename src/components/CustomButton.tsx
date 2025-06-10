@@ -299,8 +299,8 @@ export const CustomButton: ReactFC<CustomButtonProps> = ({
 
   return tooltip ? (
     <ConditionalTooltip
-      content={String(tooltip)}
-      condition={true}
+      content={typeof tooltip === 'string' ? tooltip : undefined}
+      condition={typeof tooltip === 'string'}
       classNames={{ tooltip: classNames.tooltip }}
     >
       {button}

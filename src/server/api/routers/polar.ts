@@ -4,10 +4,10 @@ import { serverEnv } from "@/env";
 
 const polarSubscriptionSchema = z.object({
   id: z.string(),
-  status: z.string(),
+  status: z.enum(["active", "canceled"]),
   amount: z.number(),
   currency: z.string(),
-  recurringInterval: z.string(),
+  recurringInterval: z.enum(["month", "year"]),
   currentPeriodEnd: z.string(),
   cancelAtPeriodEnd: z.boolean(),
   startedAt: z.string().nullable(),

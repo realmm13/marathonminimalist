@@ -178,7 +178,7 @@ export function ProgressChart({ className }: ProgressChartProps) {
 
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+    if (active && payload?.length) {
       const data = payload[0].payload;
       return (
         <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
@@ -356,6 +356,9 @@ export function ProgressChart({ className }: ProgressChartProps) {
         return null;
     }
   };
+
+  // Transform data for chart display
+  const transformedData = chartData?.length > 0 ? chartData[0] : null;
 
   return (
     <Card className={className}>

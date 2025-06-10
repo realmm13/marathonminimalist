@@ -13,7 +13,7 @@ export interface IntervalParams {
  * Fixed progression for all runners regardless of experience level
  */
 function getIntervalRepetitions(week: number): number {
-  const repProgression: { [key: number]: number } = {
+  const repProgression: Record<number, number> = {
     1: 2,   // 2 x 800m repeats
     2: 3,   // 3 x 800m repeats
     3: 4,   // 4 x 800m repeats
@@ -311,4 +311,15 @@ export function getRecommendedIntervalPace(
   
   const { paceSeconds } = calculate5KPaceFromMarathonTime(marathonTime);
   return formatIntervalPace(paceSeconds, preferences);
+}
+
+// Interval workout configuration by experience level
+const INTERVAL_CONFIG: Record<string, {
+  warmupMinutes: number;
+  cooldownMinutes: number;
+  targetPace: string; // relative to threshold pace
+  restMinutes: number;
+  minIntervals: number;
+  maxIntervals: number;
+}> = {
 } 

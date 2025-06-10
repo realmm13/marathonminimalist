@@ -12,14 +12,20 @@ import {
 // Define the structure of a subscription based on the provided JSON
 interface PolarSubscription {
   id: string;
-  status: "active" | "canceled" | string; // Allow for other statuses
+  status: "active" | "canceled"; // Remove redundant string type
   amount: number;
   currency: string;
-  recurringInterval: "month" | "year" | string; // Allow other intervals
+  recurringInterval: "month" | "year"; // Remove redundant string type
   currentPeriodEnd: string;
   cancelAtPeriodEnd: boolean;
   // Add other relevant fields if needed
 }
+
+// Define proper subscription status without redundant types
+type SubscriptionStatus = "active" | "canceled";
+
+// Define proper billing interval without redundant types  
+type BillingInterval = "month" | "year";
 
 interface PolarActiveSubscriptionCardProps {
   subscription: PolarSubscription;

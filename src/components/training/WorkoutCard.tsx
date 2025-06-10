@@ -169,7 +169,7 @@ export const WorkoutCard = React.memo<WorkoutCardProps>(function WorkoutCard({
     }
     
     // Convert pace if needed
-    const paceMatch = pace.match(/(\d+):(\d+)/);
+    const paceMatch = /(\d+):(\d+)/.exec(pace);
     if (!paceMatch) return pace;
     
     const [, minutes = '0', seconds = '0'] = paceMatch;

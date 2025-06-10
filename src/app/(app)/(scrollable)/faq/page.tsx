@@ -364,7 +364,12 @@ const generateFAQSchema = (faqItems: FAQItem[]) => {
       }
     }
 
-    // Fallback: convert to string and clean up
+    // Fallback: For JSX elements, return a generic description instead of stringifying
+    if (typeof element === 'object' && element !== null) {
+      return 'Interactive content - see FAQ for full details';
+    }
+
+    // Final fallback for primitive values
     return String(element)
       .replace(/[{}[\]"]/g, ' ')
       .replace(/\s+/g, ' ')

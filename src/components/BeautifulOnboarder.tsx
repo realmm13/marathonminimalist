@@ -12,7 +12,7 @@ export type OnboardingStep = {
   key: string;
   content:
     | React.ReactNode
-    | ((props: { nextStep: () => void }) => React.ReactNode);
+    | ((props: { nextStep: () => void | Promise<void> }) => React.ReactNode);
   nextAction?: () => Promise<void> | void;
 };
 
@@ -52,7 +52,7 @@ export function BeautifulOnboarder({ steps }: BeautifulOnboarderProps) {
   const CurrentStepContent =
     !isOnFinalStep && activeStepIndex < steps.length
       ? typeof steps[activeStepIndex]?.content === "function"
-        ? (steps[activeStepIndex]?.content as Function)({ nextStep })
+        ? (steps[activeStepIndex]?.content as (props: { nextStep: () => void | Promise<void> }) => React.ReactNode)({ nextStep })
         : steps[activeStepIndex]?.content
       : null;
 

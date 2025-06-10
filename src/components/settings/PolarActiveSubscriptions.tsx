@@ -2,18 +2,23 @@
 
 import { PolarActiveSubscriptionCard } from "./PolarActiveSubscriptionCard";
 
-interface PolarSubscription {
+// Union types (just the literals, no mixed string type)
+type SubscriptionStatus = "active" | "canceled";
+
+type BillingInterval = "month" | "year";
+
+interface Subscription {
   id: string;
-  status: "active" | "canceled" | string;
+  status: "active" | "canceled";
   amount: number;
   currency: string;
-  recurringInterval: "month" | "year" | string;
+  recurringInterval: "month" | "year";
   currentPeriodEnd: string;
   cancelAtPeriodEnd: boolean;
 }
 
 interface PolarActiveSubscriptionsProps {
-  subscriptions: PolarSubscription[];
+  subscriptions: Subscription[];
 }
 
 export function PolarActiveSubscriptions({

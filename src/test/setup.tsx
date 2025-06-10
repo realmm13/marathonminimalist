@@ -2,6 +2,7 @@ import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
 import React from 'react';
+import type { ReactNode } from 'react';
 import { KitzeUIProvider } from '@/components/KitzeUIContext';
 
 // Cleanup after each test case (e.g. clearing jsdom)
@@ -54,15 +55,15 @@ vi.mock('framer-motion', () => ({
     option: 'option',
     label: 'label',
   },
-  AnimatePresence: ({ children }: { children: any }) => children,
+  AnimatePresence: ({ children }: { children: ReactNode }) => children,
   useAnimation: () => ({
     start: vi.fn(),
     stop: vi.fn(),
     set: vi.fn(),
   }),
-  useMotionValue: (initial: any) => ({ get: () => initial, set: vi.fn() }),
-  useTransform: (value: any, input: any, output: any) => value,
-  useSpring: (value: any) => value,
+  useMotionValue: (initial: unknown) => ({ get: () => initial, set: vi.fn() }),
+  useTransform: (_value: unknown, _input: unknown, _output: unknown) => _value,
+  useSpring: (value: unknown) => value,
 }));
 
 // Mock audio
@@ -100,7 +101,7 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation(query => ({
+  value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -113,6 +114,10 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 // Create a test wrapper component that provides necessary context
-export const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return React.createElement(KitzeUIProvider, { isMobile: false } as any, children);
+export const TestWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
+  return (
+    <KitzeUIProvider isMobile={false}>
+      {children}
+    </KitzeUIProvider>
+  );
 }; 

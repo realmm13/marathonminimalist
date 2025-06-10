@@ -16,14 +16,12 @@ export async function register() {
     logEnvConfigStatus();
 
     if (serverEnv.NEXT_PUBLIC_ENABLE_CRON === true) {
-      const { startMainCron } =
-        await require("./src/server/instrumentation/cron/scripts/main-cron");
+      const { startMainCron } = await import("./src/server/instrumentation/cron/scripts/main-cron");
       startMainCron();
     }
 
     if (serverEnv.NEXT_PUBLIC_ENABLE_BACKGROUND_JOBS) {
-      const { startWorker } =
-        await require("./src/server/instrumentation/bull/worker");
+      const { startWorker } = await import("./src/server/instrumentation/bull/worker");
       console.log("🔄 Redis worker starting...");
       startWorker();
     }

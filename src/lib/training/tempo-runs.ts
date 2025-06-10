@@ -28,7 +28,7 @@ export interface TempoRunWorkout {
  * Fixed progression for all runners regardless of experience level
  */
 function getTempoDistance(week: number): number {
-  const tempoProgression: { [key: number]: number } = {
+  const tempoProgression: Record<number, number> = {
     1: 3,   // 3 miles @ MP
     2: 4,   // 4 miles @ MP
     3: 5,   // 5 miles @ MP

@@ -18,6 +18,8 @@ export const startWorker = () => {
           case QUEUE_TYPES.EnhanceArticleWithAI: // Example queue type
             console.log("⚙️ Enhancing article...");
             // await enhanceArticleWithAI(job.data, context); // Placeholder call
+            // Use context when implementing actual job processing
+            console.log("Context available for job processing:", context);
             break;
           // Add more cases for other job types specific to your application
           default:
@@ -52,7 +54,9 @@ export const startWorker = () => {
   });
 
   worker.on("progress", (job: Job, progress: JobProgress) => {
-    console.log(`🔄 Job #${job.id} (${job.name}) has progressed: ${progress}%`);
+    // Convert progress to string representation, handling both number and object types
+    const progressStr = typeof progress === 'number' ? `${progress}` : JSON.stringify(progress);
+    console.log(`🔄 Job #${job.id} (${job.name}) has progressed: ${progressStr}%`);
   });
 
   worker.on("error", (err: Error) => {
@@ -60,24 +64,29 @@ export const startWorker = () => {
     console.error("⚙️ Worker encountered an error:", err);
   });
 
-  worker.waitUntilReady().then(() => {
+  // Properly await the worker ready promise
+  void worker.waitUntilReady().then(() => {
     console.log("⚙️ Worker is ready and listening for jobs!");
   });
 
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    // Graceful shutdown
-    process.on("SIGINT", async () => {
-      console.log("⚙️ Shutting down worker...");
-      await worker.close();
-      console.log("⚙️ Worker shut down complete.");
-      process.exit(0);
+    // Graceful shutdown - use void for proper async handlers
+    process.on("SIGINT", () => {
+      void (async () => {
+        console.log("⚙️ Shutting down worker...");
+        await worker.close();
+        console.log("⚙️ Worker shut down complete.");
+        process.exit(0);
+      })();
     });
 
-    process.on("SIGTERM", async () => {
-      console.log("⚙️ Shutting down worker...");
-      await worker.close();
-      console.log("⚙️ Worker shut down complete.");
-      process.exit(0);
+    process.on("SIGTERM", () => {
+      void (async () => {
+        console.log("⚙️ Shutting down worker...");
+        await worker.close();
+        console.log("⚙️ Worker shut down complete.");
+        process.exit(0);
+      })();
     });
   }
 

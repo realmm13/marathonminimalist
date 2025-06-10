@@ -114,7 +114,7 @@ export class RestDayManager {
    */
   public static suggestOptimalRestDays(
     workoutDays: number[],
-    targetRestDays: number = 2
+    targetRestDays = 2
   ): number[] {
     const allDays = [1, 2, 3, 4, 5, 6, 7];
     const availableRestDays = allDays.filter(day => !workoutDays.includes(day));

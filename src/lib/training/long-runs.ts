@@ -13,7 +13,7 @@ export interface LongRunParams {
  * Fixed progression for all runners regardless of experience level
  */
 function getSlowRunDuration(week: number): number {
-  const durationProgression: { [key: number]: number } = {
+  const durationProgression: Record<number, number> = {
     1: 90,   // 90 mins slow
     2: 90,   // 90 mins slow
     3: 100,  // 100 mins slow
@@ -43,7 +43,7 @@ function getSlowRunDuration(week: number): number {
  * Fixed progression for all runners regardless of experience level
  */
 function getMarathonPaceMiles(week: number): number {
-  const mpProgression: { [key: number]: number } = {
+  const mpProgression: Record<number, number> = {
     1: 1,   // 1 mile @ MP
     2: 2,   // 2 miles @ MP
     3: 3,   // 3 miles @ MP
@@ -287,4 +287,9 @@ export function getRecommendedEasyPace(
   }
   
   return formatPaceForUser(paces.easyPace, preferences);
-} 
+}
+
+// Easy/Base pace multipliers by distance
+const easyPaceMultipliers: Record<number, number> = {
+  // Add your multipliers here
+}; 

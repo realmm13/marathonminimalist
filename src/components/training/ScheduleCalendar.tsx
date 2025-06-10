@@ -119,7 +119,7 @@ export function ScheduleCalendar({
 
   // Get workout days for a specific week (considering overrides)
   const getWorkoutDaysForWeek = (week: number): number[] => {
-    if (weeklyOverrides && weeklyOverrides[week]) {
+    if (weeklyOverrides?.[week]) {
       return weeklyOverrides[week] || [];
     }
     return selectedWorkoutDays;
@@ -180,7 +180,7 @@ export function ScheduleCalendar({
   const renderDayCell = useCallback((
     dayOfWeek: number, 
     date: Date, 
-    isCurrentWeek: boolean = false,
+    isCurrentWeek = false,
     weekNumber?: number
   ) => {
     const isWorkoutDay = weekNumber 

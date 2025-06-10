@@ -6,7 +6,7 @@ export interface WeekTemplate {
   name: string;
   description: string;
   workoutDays: number[];
-  workoutTypes: { [day: number]: WorkoutType };
+  workoutTypes: Record<number, WorkoutType>;
   intensity: 'easy' | 'moderate' | 'hard' | 'recovery' | 'race';
   isDefault?: boolean;
 }
@@ -103,7 +103,7 @@ export class WeekTemplateManager {
     }
   ];
 
-  private customizations: Map<number, WeekCustomization> = new Map();
+  private customizations = new Map<number, WeekCustomization>();
   private customTemplates: WeekTemplate[] = [];
 
   constructor() {
@@ -456,7 +456,7 @@ export class WeekTemplateManager {
   /**
    * Get all available week templates
    */
-  public static getTemplates(includeCustom: boolean = true): WeekTemplate[] {
+  public static getTemplates(includeCustom = true): WeekTemplate[] {
     // In a real app, custom templates would be loaded from user preferences
     return this.DEFAULT_TEMPLATES;
   }
@@ -686,7 +686,7 @@ export class WeekTemplateManager {
     intensity: WeekTemplate['intensity'] = 'moderate'
   ): WeekTemplate {
     // Create default workout types mapping
-    const workoutTypes: { [day: number]: WorkoutType } = {};
+    const workoutTypes: Record<number, WorkoutType> = {};
     workoutDays.forEach(day => {
       // Assign default workout types based on day
       if (day === 0 || day === 6) { // Weekend

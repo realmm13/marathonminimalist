@@ -83,7 +83,7 @@ export default function ProfilePage() {
     if (user && marathonSettings) {
       form.reset({
         name: user.name || "",
-        distanceUnit: marathonSettings.distanceUnit as "MILES" | "KILOMETERS",
+        distanceUnit: marathonSettings.distanceUnit,
         goalMarathonTime: marathonSettings.goalMarathonTime,
         marathonDate: marathonSettings.marathonDate,
       });

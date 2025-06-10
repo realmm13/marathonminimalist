@@ -116,7 +116,7 @@ const DialogList = memo(function DialogList({
                 <Component {...props} close={() => onClose(id)} />
               ) : (
                 // Re-add ts-ignore as Component type might be complex for TSX
-                // @ts-ignore
+                // @ts-expect-error - Component type might be complex for TSX
                 <Component {...props} />
               )}
             </SimpleDialog>
