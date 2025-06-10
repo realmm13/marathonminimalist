@@ -47,6 +47,7 @@
     "@formkit/auto-animate": "^0.8.2",
     "@hookform/resolvers": "^5.0.1",
     "@plunk/node": "^3.0.3",
+    "@polar-sh/better-auth": "^0.1.0",
     "@polar-sh/sdk": "0.32.11",
     "@prisma/client": "^6.6.0",
     "@radix-ui/react-alert-dialog": "^1.1.10",
