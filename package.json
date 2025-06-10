@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "dev": "next dev --turbo",
     "build": "npx prisma migrate deploy && npx prisma generate && next build",
@@ -43,7 +47,6 @@
     "@formkit/auto-animate": "^0.8.2",
     "@hookform/resolvers": "^5.0.1",
     "@plunk/node": "^3.0.3",
-    "@polar-sh/better-auth": "0.1.0",
     "@polar-sh/sdk": "0.32.11",
     "@prisma/client": "^6.6.0",
     "@radix-ui/react-alert-dialog": "^1.1.10",
@@ -76,7 +79,7 @@
     "@types/nodemailer": "^6.4.17",
     "@uploadthing/react": "^7.3.0",
     "ai": "^4.3.4",
-    "better-auth": "1.2.8-beta.1",
+    "better-auth": "^1.2.8",
     "bullmq": "^5.48.1",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.1",
