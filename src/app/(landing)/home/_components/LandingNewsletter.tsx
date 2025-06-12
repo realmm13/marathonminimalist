@@ -6,8 +6,8 @@ import LandingSectionTitle from "./LandingSectionTitle";
 
 export default function LandingNewsletter() {
   return (
-    <section className="py-24 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4">
+    <section className="section-padding bg-muted/30">
+      <div className="container-enhanced">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -31,7 +31,7 @@ export default function LandingNewsletter() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-6"
           >
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            <h3 className="heading-3 mb-6">
               What you'll get:
             </h3>
             
@@ -62,12 +62,12 @@ export default function LandingNewsletter() {
                   transition={{ duration: 0.4, delay: 0.3 + index * 0.1 }}
                   className="flex items-start gap-4"
                 >
-                  <div className="flex-shrink-0 w-2 h-2 bg-blue-600 rounded-full mt-3"></div>
+                  <div className="flex-shrink-0 w-2 h-2 bg-primary rounded-full mt-3"></div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    <h4 className="font-semibold mb-1">
                       {benefit.title}
                     </h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
+                    <p className="body-small text-muted-foreground">
                       {benefit.description}
                     </p>
                   </div>
@@ -80,9 +80,9 @@ export default function LandingNewsletter() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.7 }}
-              className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mt-8"
+              className="bg-muted rounded-lg p-4 mt-8"
             >
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="body-small text-muted-foreground">
                 <strong>No spam, ever.</strong> Unsubscribe at any time. We respect your privacy and will never share your email.
               </p>
             </motion.div>

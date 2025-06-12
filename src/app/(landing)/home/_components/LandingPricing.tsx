@@ -2,39 +2,36 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CustomButton } from "@/components/CustomButton";
 import { APP_NAME } from "@/config/config";
 import LandingSectionTitle from "./LandingSectionTitle";
 
 function DiscountBadge() {
   return (
-    <div className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-4 py-1 text-sm font-medium text-amber-700 dark:border-amber-900/50 dark:bg-amber-900/20 dark:text-amber-400">
+    <div className="inline-flex items-center rounded-full border border-border bg-muted px-4 py-1 text-sm font-medium text-muted-foreground">
       <span className="mr-1 text-xs">🏃‍♂️</span> Start your marathon journey today
     </div>
   );
 }
 
 function GetStartedButton({
-  variant = "default",
+  variant = "filled",
   className = "",
 }: {
-  variant?: "default" | "muted" | "annual";
+  variant?: "filled" | "outline" | "gradient";
   className?: string;
 }) {
-  const isPrimary = variant === "annual";
+  const isPrimary = variant === "gradient";
 
   return (
-    <Button
-      className={`${className} group flex items-center justify-center gap-2 ${
-        isPrimary
-          ? "bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
-          : ""
-      }`}
-      variant={variant === "muted" ? "outline" : "default"}
+    <CustomButton
+      className={className}
+      variant={variant}
+      size="lg"
     >
       Start Training
-      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-    </Button>
+      <ArrowRight className="ml-2 h-4 w-4" />
+    </CustomButton>
   );
 }
 
@@ -45,8 +42,8 @@ export default function LandingPricing() {
   };
 
   return (
-    <div className="w-full py-24">
-      <div className="container mx-auto px-4">
+    <section className="w-full section-padding">
+      <div className="container-enhanced mx-auto">
         <LandingSectionTitle
           id="pricing-heading"
           title="Choose Your Marathon Training Plan"
@@ -66,7 +63,7 @@ export default function LandingPricing() {
           aria-label="Marathon training pricing plans"
         >
           <motion.article
-            className="rounded-2xl border border-gray-200 p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900/50"
+            className="card-enhanced rounded-2xl p-8 bg-white"
             variants={planVariants}
             initial="hidden"
             whileInView="visible"
@@ -75,38 +72,38 @@ export default function LandingPricing() {
             role="listitem"
           >
             <header>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="heading-5 text-foreground">
                 Basic Training
               </h3>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="body-medium text-muted-foreground mt-2">
                 Perfect for first-time marathoners and casual runners
               </p>
             </header>
             <div className="mt-8">
-              <span className="text-4xl font-bold text-gray-900 dark:text-white">
+              <span className="text-4xl font-bold text-foreground">
                 $12
               </span>
-              <span className="text-gray-600 dark:text-gray-400">/month</span>
+              <span className="text-muted-foreground">/month</span>
             </div>
-            <GetStartedButton variant="muted" className="mt-8 w-full" />
-            <ul className="mt-6 space-y-2 text-sm text-gray-600 dark:text-gray-400" role="list">
+            <GetStartedButton variant="outline" className="mt-8 w-full" />
+            <ul className="mt-6 space-y-2 body-small text-muted-foreground" role="list">
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> 16-week training plan
+                <span className="text-primary" aria-hidden="true">✓</span> 16-week training plan
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Basic pace calculator
+                <span className="text-primary" aria-hidden="true">✓</span> Basic pace calculator
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Progress tracking
+                <span className="text-primary" aria-hidden="true">✓</span> Progress tracking
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Mobile app access
+                <span className="text-primary" aria-hidden="true">✓</span> Mobile app access
               </li>
             </ul>
           </motion.article>
 
           <motion.article
-            className="relative rounded-2xl border-2 border-amber-500 bg-amber-50/50 p-8 shadow-lg dark:border-amber-700 dark:bg-amber-900/10"
+            className="relative card-enhanced rounded-2xl border-2 border-primary p-8 bg-white"
             variants={planVariants}
             initial="hidden"
             whileInView="visible"
@@ -115,47 +112,47 @@ export default function LandingPricing() {
             whileHover={{ y: -8, transition: { duration: 0.2 } }}
             role="listitem"
           >
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-1 text-sm font-medium text-white">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-sm font-medium text-primary-foreground">
               Most Popular
             </div>
             <header>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="heading-5 text-foreground">
                 Premium Training
               </h3>
-              <p className="mt-2 text-gray-600 dark:text-gray-400">
+              <p className="body-medium text-muted-foreground mt-2">
                 For serious runners aiming for personal bests
               </p>
             </header>
             <div className="mt-8">
-              <span className="text-4xl font-bold text-gray-900 dark:text-white">
+              <span className="text-4xl font-bold text-foreground">
                 $19
               </span>
-              <span className="text-gray-600 dark:text-gray-400">/month</span>
+              <span className="text-muted-foreground">/month</span>
             </div>
-            <div className="mt-4 rounded-lg bg-amber-100 p-3 text-sm text-amber-900 dark:bg-amber-900/30 dark:text-amber-200">
+            <div className="mt-4 rounded-lg bg-muted p-3 body-small text-muted-foreground">
               <span className="font-medium">Everything in Basic</span> plus advanced features for optimal performance
             </div>
-            <GetStartedButton variant="annual" className="mt-8 w-full" />
-            <ul className="mt-6 space-y-2 text-sm text-gray-600 dark:text-gray-400" role="list">
+            <GetStartedButton variant="filled" className="mt-8 w-full" />
+            <ul className="mt-6 space-y-2 body-small text-muted-foreground" role="list">
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Advanced pace strategies
+                <span className="text-primary" aria-hidden="true">✓</span> Advanced pace strategies
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Nutrition planning
+                <span className="text-primary" aria-hidden="true">✓</span> Nutrition planning
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Race day preparation
+                <span className="text-primary" aria-hidden="true">✓</span> Race day preparation
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Personal coach support
+                <span className="text-primary" aria-hidden="true">✓</span> Personal coach support
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-amber-500" aria-hidden="true">✓</span> Detailed analytics
+                <span className="text-primary" aria-hidden="true">✓</span> Detailed analytics
               </li>
             </ul>
           </motion.article>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 }

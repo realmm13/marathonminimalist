@@ -20,49 +20,42 @@ export default function LandingFeatures() {
     icon: typeof Calendar;
     title: string;
     description: string;
-    gradient: GradientType;
   }[] = [
     {
       icon: Calendar,
       title: "Personalized Training Plans",
       description:
-        "Science-backed 16-week marathon training programs tailored to your fitness level and goals.",
-      gradient: "blue",
+        "Clear, easy-to-follow 14-week marathon training programs tailored to your fitness level and goals.",
     },
     {
       icon: Timer,
       title: "Smart Pace Guidance",
       description:
         "Real-time pace calculations and race day strategy to help you maintain optimal speed throughout your marathon.",
-      gradient: "green",
     },
     {
       icon: TrendingUp,
       title: "Progress Tracking",
       description:
         "Comprehensive analytics to monitor your training progress, weekly mileage, and performance improvements.",
-      gradient: "amber",
     },
     {
       icon: Trophy,
       title: "Race Day Ready",
       description:
         "Complete race preparation including nutrition planning, gear recommendations, and mental preparation strategies.",
-      gradient: "purple",
     },
     {
       icon: Target,
       title: "Goal Achievement",
       description:
         "Set and track specific marathon goals with milestone celebrations and adaptive training adjustments.",
-      gradient: "indigo",
     },
     {
       icon: Activity,
       title: "Workout Variety",
       description:
         "Diverse training sessions including easy runs, tempo runs, intervals, and long runs to build endurance and speed.",
-      gradient: "orange",
     },
   ];
 
@@ -82,8 +75,8 @@ export default function LandingFeatures() {
   };
 
   return (
-    <div className="w-full py-20">
-      <div className="container mx-auto px-4">
+    <section className="w-full section-padding">
+      <div className="container-enhanced">
         <LandingSectionTitle
           id="features-heading"
           title="Everything You Need to Train for a Marathon"
@@ -111,13 +104,13 @@ export default function LandingFeatures() {
                 icon={feature.icon}
                 title={feature.title}
                 description={feature.description}
-                gradient={feature.gradient}
-                descriptionClassName="text-sm"
+                gradient="primary"
+                descriptionClassName="body-small text-muted-foreground"
               />
             </motion.div>
           ))}
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 }

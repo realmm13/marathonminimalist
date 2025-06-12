@@ -20,7 +20,7 @@ export default function ScrollProgressIndicator() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 z-50 h-1 bg-gradient-to-r from-amber-500 to-orange-500 shadow-sm"
+      className="fixed top-0 left-0 z-50 h-1 bg-primary shadow-sm"
       style={{ width: `${scrollProgress}%` }}
       initial={{ width: 0 }}
       animate={{ width: `${scrollProgress}%` }}

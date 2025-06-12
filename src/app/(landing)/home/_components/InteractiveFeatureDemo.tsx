@@ -48,20 +48,20 @@ const PaceCalculatorDemo = memo(() => {
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block body-small font-medium text-foreground mb-2">
             Distance (miles)
           </label>
           <input
             type="number"
             value={distance}
             onChange={(e) => setDistance(parseFloat(e.target.value) || 0)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-800"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm bg-background text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             step="0.1"
             min="0"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block body-small font-medium text-foreground mb-2">
             Target Time
           </label>
           <input
@@ -69,13 +69,13 @@ const PaceCalculatorDemo = memo(() => {
             value={targetTime}
             onChange={(e) => setTargetTime(e.target.value)}
             placeholder="4:00:00"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 dark:border-gray-600 dark:bg-gray-800"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm bg-background text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
       </div>
-      <div className="rounded-lg bg-amber-50 p-4 text-center dark:bg-amber-900/20">
-        <p className="text-sm text-gray-600 dark:text-gray-400">Required Pace</p>
-        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{pace} /mile</p>
+      <div className="rounded-lg bg-muted p-4 text-center">
+        <p className="body-small text-muted-foreground">Required Pace</p>
+        <p className="text-2xl font-bold text-primary">{pace} /mile</p>
       </div>
     </div>
   );
@@ -101,15 +101,15 @@ const ProgressTrackerDemo = memo(() => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">Training Progress</span>
-        <span className="text-sm text-gray-600 dark:text-gray-400">
+        <span className="body-small font-medium text-foreground">Training Progress</span>
+        <span className="body-small text-muted-foreground">
           Week {currentWeek} of {totalWeeks}
         </span>
       </div>
       
-      <div className="relative h-2 rounded-full bg-gray-200 dark:bg-gray-700">
+      <div className="relative h-2 rounded-full bg-muted">
         <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+          className="h-full rounded-full bg-primary"
           initial={{ width: 0 }}
           animate={{ width: `${progressPercentage}%` }}
           transition={{ duration: 1, ease: "easeOut" }}
@@ -119,14 +119,14 @@ const ProgressTrackerDemo = memo(() => {
       <div className="flex justify-between">
         <button
           onClick={() => setCurrentWeek(Math.max(1, currentWeek - 1))}
-          className="rounded-md bg-gray-100 px-3 py-1 text-sm hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="rounded-md bg-muted px-3 py-1 body-small hover:bg-muted/80 text-foreground transition-colors"
           disabled={currentWeek <= 1}
         >
           Previous Week
         </button>
         <button
           onClick={() => setCurrentWeek(Math.min(totalWeeks, currentWeek + 1))}
-          className="rounded-md bg-gray-100 px-3 py-1 text-sm hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
+          className="rounded-md bg-muted px-3 py-1 body-small hover:bg-muted/80 text-foreground transition-colors"
           disabled={currentWeek >= totalWeeks}
         >
           Next Week
@@ -137,10 +137,10 @@ const ProgressTrackerDemo = memo(() => {
         {weeklyData.map((data) => (
           <div
             key={data.week}
-            className={`rounded-lg p-2 text-center text-xs ${
+            className={`rounded-lg p-2 text-center body-small ${
               data.week === currentWeek
-                ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-                : "bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                ? "bg-primary/10 text-primary border border-primary/20"
+                : "bg-muted text-muted-foreground"
             }`}
           >
             <div className="font-medium">W{data.week}</div>
@@ -192,11 +192,11 @@ const WorkoutTimerDemo = memo(() => {
 
   return (
     <div className="space-y-6 text-center">
-      <div className="rounded-lg bg-gray-50 p-6 dark:bg-gray-800">
-        <div className="text-4xl font-mono font-bold text-gray-900 dark:text-white">
+      <div className="rounded-lg bg-muted p-6">
+        <div className="text-4xl font-mono font-bold text-foreground">
           {formatTime(time)}
         </div>
-        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-2 body-small text-muted-foreground">
           Workout Duration
         </div>
       </div>
@@ -205,7 +205,7 @@ const WorkoutTimerDemo = memo(() => {
         {!isRunning ? (
           <button
             onClick={handleStart}
-            className="flex items-center space-x-2 rounded-md bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+            className="flex items-center space-x-2 rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <Play size={16} />
             <span>Start</span>
@@ -213,7 +213,7 @@ const WorkoutTimerDemo = memo(() => {
         ) : (
           <button
             onClick={handlePause}
-            className="flex items-center space-x-2 rounded-md bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
+            className="flex items-center space-x-2 rounded-md bg-secondary px-4 py-2 text-secondary-foreground hover:bg-secondary/80 transition-colors"
           >
             <Pause size={16} />
             <span>Pause</span>
@@ -222,7 +222,7 @@ const WorkoutTimerDemo = memo(() => {
         
         <button
           onClick={handleReset}
-          className="flex items-center space-x-2 rounded-md bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+          className="flex items-center space-x-2 rounded-md bg-muted px-4 py-2 text-muted-foreground hover:bg-muted/80 transition-colors"
         >
           <RotateCcw size={16} />
           <span>Reset</span>
@@ -252,8 +252,8 @@ export default function InteractiveFeatureDemo() {
   }, [activeTab]);
 
   return (
-    <section className="w-full py-12 md:py-16" id="interactive-demo">
-      <div className="container mx-auto px-4 md:px-6">
+    <section className="w-full section-padding" id="interactive-demo">
+      <div className="container-enhanced">
         <div className="mx-auto max-w-4xl">
           <motion.div
             className="mb-8 text-center"
@@ -262,16 +262,16 @@ export default function InteractiveFeatureDemo() {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+            <h2 className="heading-2 mb-4">
               Try Our Training Tools
             </h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="body-large text-muted-foreground">
               Experience the power of our marathon training features with these interactive demos
             </p>
           </motion.div>
 
           <motion.div
-            className="rounded-lg border bg-white p-6 shadow-lg dark:bg-gray-900 md:p-8"
+            className="card-enhanced p-6 md:p-8"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
@@ -285,10 +285,10 @@ export default function InteractiveFeatureDemo() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center space-x-2 rounded-lg px-4 py-2 body-small font-medium transition-all duration-200 ${
                       activeTab === tab.id
-                        ? "bg-amber-500 text-white shadow-md"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
                     }`}
                   >
                     <Icon size={16} />

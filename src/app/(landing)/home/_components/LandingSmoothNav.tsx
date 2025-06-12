@@ -90,7 +90,7 @@ export default function LandingSmoothNav() {
           transition={{ duration: 0.3 }}
         >
           <nav
-            className="flex flex-col items-center space-y-2 rounded-full bg-white/80 p-3 shadow-lg backdrop-blur-md dark:bg-gray-900/80"
+            className="flex flex-col items-center space-y-2 rounded-full bg-white/80 p-3 shadow-lg backdrop-blur-md"
             role="navigation"
             aria-label="Page sections navigation"
           >
@@ -104,8 +104,8 @@ export default function LandingSmoothNav() {
                   onClick={() => scrollToSection(item.id)}
                   className={`group relative flex h-10 w-10 items-center justify-center rounded-full transition-all duration-200 ${
                     isActive
-                      ? "bg-amber-500 text-white shadow-md"
-                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
@@ -116,7 +116,7 @@ export default function LandingSmoothNav() {
                   
                   {/* Tooltip */}
                   <motion.div
-                    className="absolute right-full mr-3 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 group-hover:opacity-100 dark:bg-white dark:text-gray-900"
+                    className="absolute right-full mr-3 whitespace-nowrap rounded-md bg-popover px-2 py-1 body-small text-popover-foreground opacity-0 group-hover:opacity-100 border border-border shadow-md"
                     initial={{ opacity: 0, x: 10 }}
                     whileHover={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.2 }}
@@ -129,14 +129,14 @@ export default function LandingSmoothNav() {
 
             {/* Scroll to top button */}
             <motion.div
-              className="mt-4 border-t border-gray-200 pt-2 dark:border-gray-700"
+              className="mt-4 border-t border-border pt-2"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
               <motion.button
                 onClick={scrollToTop}
-                className="group flex h-10 w-10 items-center justify-center rounded-full text-gray-600 transition-all duration-200 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
+                className="group flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-all duration-200 hover:bg-muted hover:text-foreground"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 aria-label="Scroll to top"

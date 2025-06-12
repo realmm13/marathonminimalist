@@ -1,106 +1,105 @@
 "use client";
 import Link from "next/link";
-import { Twitter, Github } from "lucide-react";
+import { Twitter, Github, Mail, Heart } from "lucide-react";
 import { Logo } from "@/components/core/Logo";
 import { motion } from "framer-motion";
-import { APP_NAME } from "@/config/config";
+import { APP_NAME, APP_DESCRIPTION } from "@/config/config";
+
+const socialLinks = [
+  {
+    name: "GitHub",
+    href: "https://github.com/yourusername/marathon-minimalist",
+    icon: Github,
+  },
+  {
+    name: "Twitter",
+    href: "https://twitter.com/yourusername",
+    icon: Twitter,
+  },
+  {
+    name: "Email",
+    href: "mailto:hello@marathonminimalist.com",
+    icon: Mail,
+  },
+];
+
+const footerLinks = [
+  {
+    title: "Product",
+    links: [
+      { name: "Features", href: "#features" },
+      { name: "Pricing", href: "#pricing" },
+      { name: "FAQ", href: "#faq" },
+    ],
+  },
+  {
+    title: "Company",
+    links: [
+      { name: "About", href: "/about" },
+      { name: "Blog", href: "/blog" },
+      { name: "Contact", href: "/contact" },
+    ],
+  },
+];
 
 export default function LandingFooter() {
-  // Marathon training focused footer links
-  const footerLinks = [
-    {
-      title: "Training",
-      links: [
-        { label: "Training Plans", href: "#" },
-        { label: "Pace Calculator", href: "#" },
-        { label: "Progress Tracking", href: "#" },
-      ],
-    },
-    {
-      title: "Resources",
-      links: [
-        { label: "Training Guide", href: "#" },
-        { label: "Nutrition Tips", href: "#" },
-        { label: "Race Preparation", href: "#" },
-      ],
-    },
-    {
-      title: "Support",
-      links: [
-        { label: "Help Center", href: "#" },
-      ],
-    },
-  ];
-
-  // Simplified social links
-  const socialLinks = [
-    { icon: <Twitter className="h-5 w-5" />, href: "#", label: "Twitter" },
-    { icon: <Github className="h-5 w-5" />, href: "#", label: "GitHub" },
-  ];
-
   return (
-    <footer className="mx-auto mt-auto w-full max-w-[var(--container-max-width)] border-t border-gray-200 dark:border-gray-800">
-      <div className="container mx-auto px-4 pt-8">
-        <motion.div
-          className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          {/* Logo and description */}
-          <div className="col-span-1">
-            <Logo />
-            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-              Empowering runners to achieve their marathon dreams with science-backed training.
+    <footer className="mx-auto mt-auto w-full max-w-[var(--container-max-width)] bg-background">
+      <div className="container-enhanced py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+          {/* Brand Section */}
+          <div className="md:col-span-2">
+            <h2 className="heading-5 mb-3">{APP_NAME}</h2>
+            <p className="body-medium text-muted-foreground mb-4 max-w-md">
+              {APP_DESCRIPTION}
             </p>
-            <div className="mt-4 flex space-x-4">
-              {socialLinks.map((link, i) => (
-                <Link
-                  key={i}
-                  href={link.href}
-                  className="text-gray-500 transition-colors duration-200 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                  aria-label={link.label}
-                >
-                  {link.icon}
-                </Link>
-              ))}
+            <div className="flex space-x-4">
+              {socialLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                    aria-label={link.name}
+                  >
+                    <Icon size={20} />
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {/* Footer navigation - marathon focused */}
-          {footerLinks.map((section, i) => (
-            <div key={i} className="col-span-1">
-              <h3 className="mb-3 font-semibold text-gray-900 dark:text-white">
+          {/* Links Sections */}
+          {footerLinks.map((section) => (
+            <div key={section.title}>
+              <h3 className="heading-6 mb-3 text-foreground">
                 {section.title}
               </h3>
-              <ul className="space-y-1">
-                {section.links.map((link, j) => (
-                  <li key={j}>
+              <ul className="space-y-2">
+                {section.links.map((link) => (
+                  <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-sm text-gray-600 transition-colors duration-200 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+                      className="body-small text-muted-foreground transition-colors duration-200 hover:text-foreground"
                     >
-                      {link.label}
+                      {link.name}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
-        </motion.div>
-      </div>
+        </div>
 
-      {/* Giant app name that appears when in view */}
-      <div className="relative w-full overflow-hidden">
-        <motion.div
-          className="pointer-events-none -mt-6 hidden overflow-hidden bg-gradient-to-b from-gray-900/10 from-25% to-gray-900/0 bg-clip-text text-[14rem] leading-none font-black text-transparent select-none sm:block sm:h-36 md:h-48 md:text-[18rem] lg:h-60 lg:text-[22rem] dark:from-white/10 dark:to-white/0"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          {APP_NAME}
-        </motion.div>
+        {/* Bottom Section */}
+        <div className="mt-8 pt-8 text-center">
+          <p className="body-small text-muted-foreground">
+            © {new Date().getFullYear()} {APP_NAME}. Made with{" "}
+            <Heart className="inline h-4 w-4 text-primary" /> for runners
+            everywhere.
+          </p>
+        </div>
       </div>
     </footer>
   );

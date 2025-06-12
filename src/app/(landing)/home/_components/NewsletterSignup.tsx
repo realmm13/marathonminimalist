@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, CheckCircle, AlertCircle } from "lucide-react";
 import { z } from "zod";
+import { CustomButton } from "@/components/CustomButton";
 
 const newsletterSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -84,20 +85,21 @@ export default function NewsletterSignup({
             placeholder="Enter your email"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-4 py-2 rounded-lg bg-background focus:ring-2 focus:ring-primary"
             disabled={isLoading}
             required
           />
-          <button
+          <CustomButton
             type="submit"
             disabled={isLoading || !formData.email}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            loading={isLoading}
+            variant="filled"
           >
-            {isLoading ? "..." : "Subscribe"}
-          </button>
+            Subscribe
+          </CustomButton>
         </form>
         {message && (
-          <p className={`mt-2 text-sm ${status === "success" ? "text-green-600" : "text-red-600"}`}>
+          <p className={`mt-2 body-small ${status === "success" ? "text-green-600" : "text-red-600"}`}>
             {message}
           </p>
         )}
@@ -108,15 +110,15 @@ export default function NewsletterSignup({
   if (variant === "hero") {
     return (
       <motion.div 
-        className={`bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white ${className}`}
+        className={`card-enhanced p-8 ${className}`}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
         <div className="text-center mb-6">
-          <Mail className="h-12 w-12 mx-auto mb-4 text-blue-100" />
-          <h3 className="text-2xl font-bold mb-2">Stay Updated</h3>
-          <p className="text-blue-100">
+          <Mail className="h-12 w-12 mx-auto mb-4 text-primary" />
+          <h3 className="heading-3 mb-2">Stay Updated</h3>
+          <p className="body-medium text-muted-foreground">
             Get the latest training tips and app updates delivered to your inbox
           </p>
         </div>
@@ -128,7 +130,7 @@ export default function NewsletterSignup({
               placeholder="Your name (optional)"
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
-              className="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/70 focus:ring-2 focus:ring-white/50 focus:border-transparent"
+              className="px-4 py-3 rounded-lg bg-background focus:ring-2 focus:ring-primary"
               disabled={isLoading}
             />
             <input
@@ -136,19 +138,21 @@ export default function NewsletterSignup({
               placeholder="Your email address"
               value={formData.email}
               onChange={(e) => handleInputChange("email", e.target.value)}
-              className="px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/70 focus:ring-2 focus:ring-white/50 focus:border-transparent"
+              className="px-4 py-3 rounded-lg bg-background focus:ring-2 focus:ring-primary"
               disabled={isLoading}
               required
             />
           </div>
           
-          <button
+          <CustomButton
             type="submit"
             disabled={isLoading || !formData.email}
-            className="w-full px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            loading={isLoading}
+            variant="filled"
+            className="w-full"
           >
-            {isLoading ? "Subscribing..." : "Subscribe to Newsletter"}
-          </button>
+            Subscribe to Newsletter
+          </CustomButton>
         </form>
 
         {message && (
@@ -157,8 +161,8 @@ export default function NewsletterSignup({
             animate={{ opacity: 1, y: 0 }}
             className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${
               status === "success" 
-                ? "bg-green-500/20 text-green-100" 
-                : "bg-red-500/20 text-red-100"
+                ? "bg-green-500/10 text-green-600" 
+                : "bg-red-500/10 text-red-600"
             }`}
           >
             {status === "success" ? (
@@ -166,7 +170,7 @@ export default function NewsletterSignup({
             ) : (
               <AlertCircle className="h-5 w-5" />
             )}
-            <span className="text-sm">{message}</span>
+            <span className="body-small">{message}</span>
           </motion.div>
         )}
       </motion.div>
@@ -176,17 +180,17 @@ export default function NewsletterSignup({
   // Default variant
   return (
     <motion.div 
-      className={`bg-white rounded-xl shadow-lg p-6 border border-gray-100 ${className}`}
+      className={`card-enhanced p-6 ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
       <div className="text-center mb-6">
-        <Mail className="h-10 w-10 mx-auto mb-3 text-blue-600" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+        <Mail className="h-10 w-10 mx-auto mb-3 text-primary" />
+        <h3 className="heading-4 mb-2">
           Join Our Newsletter
         </h3>
-        <p className="text-gray-600">
+        <p className="body-medium text-muted-foreground">
           Get training tips, app updates, and marathon insights delivered weekly
         </p>
       </div>
@@ -197,27 +201,28 @@ export default function NewsletterSignup({
           placeholder="Your name (optional)"
           value={formData.name}
           onChange={(e) => handleInputChange("name", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 rounded-lg bg-background focus:ring-2 focus:ring-primary"
           disabled={isLoading}
         />
-        
         <input
           type="email"
           placeholder="Your email address"
           value={formData.email}
           onChange={(e) => handleInputChange("email", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-3 rounded-lg bg-background focus:ring-2 focus:ring-primary"
           disabled={isLoading}
           required
         />
         
-        <button
+        <CustomButton
           type="submit"
           disabled={isLoading || !formData.email}
-          className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          loading={isLoading}
+          variant="filled"
+          className="w-full"
         >
-          {isLoading ? "Subscribing..." : "Subscribe"}
-        </button>
+          Subscribe to Newsletter
+        </CustomButton>
       </form>
 
       {message && (
@@ -226,8 +231,8 @@ export default function NewsletterSignup({
           animate={{ opacity: 1, y: 0 }}
           className={`mt-4 p-3 rounded-lg flex items-center gap-2 ${
             status === "success" 
-              ? "bg-green-50 text-green-700 border border-green-200" 
-              : "bg-red-50 text-red-700 border border-red-200"
+              ? "bg-green-500/10 text-green-600" 
+              : "bg-red-500/10 text-red-600"
           }`}
         >
           {status === "success" ? (
@@ -235,7 +240,7 @@ export default function NewsletterSignup({
           ) : (
             <AlertCircle className="h-5 w-5" />
           )}
-          <span className="text-sm">{message}</span>
+          <span className="body-small">{message}</span>
         </motion.div>
       )}
     </motion.div>

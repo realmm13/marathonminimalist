@@ -35,12 +35,12 @@ export const EmailSentAnimation = ({
             },
           }}
         >
-          <Mail size={48} className="text-violet-500" />
+          <Mail size={48} className="text-primary" />
         </motion.div>
 
         {/* Small decorative elements */}
         <motion.div
-          className="absolute top-[25%] left-[20%] text-yellow-400"
+          className="absolute top-[25%] left-[20%] text-primary/60"
           initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
           animate={{
             opacity: [0, 1, 0],
@@ -58,7 +58,7 @@ export const EmailSentAnimation = ({
         </motion.div>
 
         <motion.div
-          className="absolute top-[30%] left-[70%] text-blue-400"
+          className="absolute top-[30%] left-[70%] text-muted-foreground/60"
           initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
           animate={{
             opacity: [0, 1, 0],
@@ -76,7 +76,7 @@ export const EmailSentAnimation = ({
         </motion.div>
 
         <motion.div
-          className="absolute top-[70%] left-[30%] text-green-400"
+          className="absolute top-[70%] left-[30%] text-primary/40"
           initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
           animate={{
             opacity: [0, 1, 0],
@@ -94,7 +94,7 @@ export const EmailSentAnimation = ({
         </motion.div>
 
         <motion.div
-          className="absolute top-[65%] left-[65%] text-purple-400"
+          className="absolute top-[65%] left-[65%] text-muted-foreground/40"
           initial={{ opacity: 0, scale: 0.5, rotate: 0 }}
           animate={{
             opacity: [0, 1, 0],

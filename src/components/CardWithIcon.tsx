@@ -24,7 +24,7 @@ export const CardWithIcon = ({
   iconSize = "normal",
   compact = false,
 }: CardWithIconProps) => {
-  const borderGlowClass = {
+  const borderGlowClass: Record<GradientType, string> = {
     blue: "dark:before:from-blue-500/0 dark:before:via-blue-500/30 dark:before:to-blue-500/0",
     purple:
       "dark:before:from-purple-500/0 dark:before:via-purple-500/30 dark:before:to-purple-500/0",
@@ -42,9 +42,13 @@ export const CardWithIcon = ({
     cyan: "dark:before:from-cyan-500/0 dark:before:via-cyan-500/30 dark:before:to-cyan-500/0",
     emerald:
       "dark:before:from-emerald-500/0 dark:before:via-emerald-500/30 dark:before:to-emerald-500/0",
+    neutral: "",
+    primary: "",
+    secondary: "",
+    muted: "",
   };
 
-  const hoverGlowClass = {
+  const hoverGlowClass: Record<GradientType, string> = {
     blue: "dark:md:hover:before:from-blue-500/0 dark:md:hover:before:via-blue-500/60 dark:md:hover:before:to-blue-500/0",
     purple:
       "dark:md:hover:before:from-purple-500/0 dark:md:hover:before:via-purple-500/60 dark:md:hover:before:to-purple-500/0",
@@ -62,12 +66,16 @@ export const CardWithIcon = ({
     cyan: "dark:md:hover:before:from-cyan-500/0 dark:md:hover:before:via-cyan-500/60 dark:md:hover:before:to-cyan-500/0",
     emerald:
       "dark:md:hover:before:from-emerald-500/0 dark:md:hover:before:via-emerald-500/60 dark:md:hover:before:to-emerald-500/0",
+    neutral: "",
+    primary: "",
+    secondary: "",
+    muted: "",
   };
 
   return (
     <div
       className={cn(
-        `vertical center relative cursor-default select-none ${
+        `flex flex-col items-center relative cursor-default select-none ${
           compact ? "p-3" : "p-6"
         } h-full transform rounded-xl border border-gray-200 bg-white transition-all duration-500 md:hover:-translate-y-1 md:hover:bg-white dark:border-slate-700/50 dark:bg-slate-900/50 dark:before:absolute dark:before:inset-0 dark:before:-z-10 dark:before:rounded-xl dark:before:bg-gradient-to-r dark:md:hover:bg-slate-800/70 ${
           borderGlowClass[gradient]

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { zStringToBool } from "./utils";
 
 export const clientSchema = z.object({
-  NEXT_PUBLIC_APP_NAME: z.string().default("Prep My Run"),
+  NEXT_PUBLIC_APP_NAME: z.string().default("Marathon Minimalist"),
   NEXT_PUBLIC_APP_DESCRIPTION: z
     .string()
     .optional()

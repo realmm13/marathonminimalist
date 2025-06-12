@@ -10,6 +10,12 @@ import { Badge } from '@/components/ui/badge';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { useUserSetting } from '@/hooks/useUserSetting';
 
+// Fallback enum for DistanceUnit in case it's undefined (e.g., on landing page)
+const FALLBACK_DISTANCE_UNIT = {
+  KILOMETERS: 'KILOMETERS',
+  MILES: 'MILES',
+} as const;
+
 // Helper functions for unit conversion
 const convertDistance = (kmValue: number, unit: DistanceUnit): number => {
   return unit === DistanceUnit.MILES ? kmValue * 0.621371 : kmValue;
@@ -36,7 +42,7 @@ const convertPace = (kmPace: string, unit: DistanceUnit): string => {
 };
 
 // Sample workout data for a 14-week marathon training plan
-const generateSampleWorkouts = (distanceUnit: DistanceUnit): WorkoutCardProps[] => {
+const generateSampleWorkouts = (distanceUnit: DistanceUnit | keyof typeof FALLBACK_DISTANCE_UNIT): WorkoutCardProps[] => {
   const startDate = new Date('2024-01-01');
   const workouts: WorkoutCardProps[] = [];
 
@@ -290,7 +296,8 @@ export function WorkoutDemo() {
   
   // Get user's distance unit preference
   const { value: distanceUnitValue } = useUserSetting('marathonDistanceUnit');
-  const distanceUnit = (distanceUnitValue as DistanceUnit) || DistanceUnit.MILES;
+  // Use fallback if DistanceUnit is undefined
+  const distanceUnit: DistanceUnit | keyof typeof FALLBACK_DISTANCE_UNIT = (distanceUnitValue as DistanceUnit) || (DistanceUnit?.MILES ?? FALLBACK_DISTANCE_UNIT.MILES);
   
   const workouts = generateSampleWorkouts(distanceUnit);
 

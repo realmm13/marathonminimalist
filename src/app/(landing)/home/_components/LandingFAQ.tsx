@@ -25,20 +25,20 @@ function FAQItem({
 
   return (
     <motion.div
-      className="border-b border-gray-200 py-5 dark:border-gray-700"
+      className="border-b border-border py-5"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.3, delay: index * 0.1 }}
     >
       <button
-        className="flex w-full items-center justify-between text-left"
+        className="flex w-full items-center justify-between text-left hover:opacity-80 transition-opacity"
         onClick={toggleOpen}
         aria-expanded={isOpen}
         aria-controls={answerId}
         id={questionId}
       >
-        <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+        <h3 className="heading-5 text-foreground">
           {question}
         </h3>
         <motion.span
@@ -47,7 +47,7 @@ function FAQItem({
           transition={{ duration: 0.3 }}
           aria-hidden="true"
         >
-          <ChevronDown className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+          <ChevronDown className="h-5 w-5 text-muted-foreground" />
         </motion.span>
       </button>
       <AnimatePresence>
@@ -62,7 +62,7 @@ function FAQItem({
             role="region"
             aria-labelledby={questionId}
           >
-            <p className="text-base text-gray-600 dark:text-gray-400">
+            <p className="body-medium text-muted-foreground">
               {answer}
             </p>
           </motion.div>
@@ -108,36 +108,26 @@ export default function LandingFAQ() {
   };
 
   return (
-    <div className="w-full py-24">
-      <div className="container mx-auto px-4">
+    <section className="w-full section-padding">
+      <div className="container-enhanced">
         <LandingSectionTitle
           id="faq-heading"
-          title="Marathon Training Questions"
-          description="Get answers to common questions about marathon training, our plans, and how to achieve your running goals."
+          title="Frequently Asked Questions"
+          description="Answers to common questions about our marathon training platform."
         />
-
-        <motion.div
-          className="mx-auto max-w-3xl"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          role="list"
-          aria-label="Frequently asked questions"
-        >
+        <div className="mt-8">
           {faqItems.map((item, index) => (
-            <div key={index} role="listitem">
-              <FAQItem
-                index={index}
-                question={item.question}
-                answer={item.answer}
-                isOpen={index === openIndex}
-                toggleOpen={() => toggleFAQ(index)}
-              />
-            </div>
+            <FAQItem
+              key={index}
+              index={index}
+              question={item.question}
+              answer={item.answer}
+              isOpen={index === openIndex}
+              toggleOpen={() => toggleFAQ(index)}
+            />
           ))}
-        </motion.div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -21,7 +21,7 @@ const TestimonialStars = ({ count }: { count: number }) => {
             transition={{ delay: i * 0.1, duration: 0.3 }}
             viewport={{ once: true, margin: "-50px" }}
           >
-            <Star className="h-4 w-4 fill-amber-400 text-amber-400" aria-hidden="true" />
+            <Star className="h-4 w-4 fill-primary text-primary" aria-hidden="true" />
           </motion.div>
         ))}
     </div>
@@ -78,8 +78,8 @@ export default function LandingTestimonials() {
   };
 
   return (
-    <div className="w-full py-24">
-      <div className="container mx-auto px-4">
+    <section className="w-full section-padding">
+      <div className="container-enhanced">
         <LandingSectionTitle
           id="testimonials-heading"
           title="Success Stories from Real Marathoners"
@@ -99,7 +99,7 @@ export default function LandingTestimonials() {
             <motion.article
               key={index}
               variants={itemVariants}
-              className="relative flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white/50 p-8 backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800/50"
+              className="card-enhanced relative flex flex-col p-8"
               whileHover={{
                 y: -10,
                 boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
@@ -122,13 +122,13 @@ export default function LandingTestimonials() {
                 </div>
                 <div>
                   <h4 className="font-semibold">{testimonial.name}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="body-small text-muted-foreground">
                     {testimonial.role}
                   </p>
                 </div>
               </motion.header>
 
-              <blockquote className="mb-6 flex-grow text-gray-600 italic dark:text-gray-300">
+              <blockquote className="mb-6 flex-grow body-medium text-muted-foreground italic">
                 "{testimonial.content}"
               </blockquote>
 
@@ -139,6 +139,6 @@ export default function LandingTestimonials() {
           ))}
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 }

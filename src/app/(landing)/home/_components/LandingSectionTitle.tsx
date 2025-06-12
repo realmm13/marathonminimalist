@@ -22,8 +22,8 @@ export default function LandingSectionTitle({
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.5 }}
     >
-      <h2 id={id} className="mb-4 text-3xl font-bold md:text-4xl">{title}</h2>
-      <p className="mx-auto max-w-2xl text-gray-600 dark:text-gray-400">
+      <h2 id={id} className="heading-2 mb-4">{title}</h2>
+      <p className="body-large text-muted-foreground mx-auto max-w-2xl">
         {description}
       </p>
     </motion.div>
