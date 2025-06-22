@@ -31,11 +31,11 @@ export function HeaderLinks({ links }: HeaderLinksProps) {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="group flex cursor-pointer items-center gap-1.5 text-gray-700 transition-colors duration-200 hover:text-black dark:text-gray-300 dark:hover:text-white"
+                className="group flex cursor-pointer items-center gap-1.5 text-muted-foreground transition-colors duration-200 hover:text-foreground"
               >
                 <div className="flex items-center gap-1.5 transition-all duration-200 group-hover:scale-105">
                   {Icon && (
-                    <div className="transform text-gray-500 transition-all duration-200 group-hover:scale-[1.15] group-hover:-rotate-3 group-hover:text-violet-600 dark:text-gray-400 dark:group-hover:text-violet-400">
+                    <div className="transform text-muted-foreground transition-all duration-200 group-hover:scale-[1.15] group-hover:-rotate-3 group-hover:text-violet-500 dark:group-hover:text-violet-400">
                       <Icon size={18} />
                     </div>
                   )}

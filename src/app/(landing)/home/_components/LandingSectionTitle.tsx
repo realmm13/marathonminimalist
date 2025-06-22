@@ -22,7 +22,7 @@ export default function LandingSectionTitle({
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.5 }}
     >
-      <h2 id={id} className="heading-2 mb-4">{title}</h2>
+      <h2 id={id} className="heading-2 mb-4 text-zinc-900 dark:text-zinc-50">{title}</h2>
       <p className="body-large text-muted-foreground mx-auto max-w-2xl">
         {description}
       </p>

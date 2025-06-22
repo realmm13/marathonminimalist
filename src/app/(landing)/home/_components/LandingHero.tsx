@@ -81,7 +81,7 @@ export default function LandingHero() {
 
   return (
     <section className="w-full pb-0">
-      <div className="container-enhanced flex flex-col items-center gap-6 mx-auto pb-0">
+      <div className="container-enhanced flex flex-col items-center gap-2 mx-auto pb-0">
         <h1 id="hero-heading" className="text-foreground font-extrabold tracking-tight text-center text-[clamp(2.5rem,6vw,4.5rem)] max-w-5xl mx-auto">
           Train Smarter, Run Faster
         </h1>

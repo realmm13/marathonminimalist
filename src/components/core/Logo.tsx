@@ -20,7 +20,7 @@ export function Logo() {
           height={28}
           className="w-7 h-7 flex-shrink-0"
         />
-        <h1 className="text-lg font-bold tracking-tight uppercase transition-all duration-200 hover:tracking-wide dark:hover:text-white whitespace-nowrap">
+        <h1 className="text-lg font-bold tracking-tight uppercase transition-all duration-200 hover:tracking-wide text-muted-foreground hover:text-foreground dark:text-gray-300 dark:hover:text-white whitespace-nowrap">
           {APP_NAME}
         </h1>
       </motion.div>

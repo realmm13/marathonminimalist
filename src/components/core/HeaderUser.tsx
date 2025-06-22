@@ -64,7 +64,12 @@ export function AppHeaderUser({ links }: AppHeaderUserProps) {
           {...motionProps}
         >
           {!isMobile && (
-            <CustomButton leftIcon={LucideLogIn} href="/signin">
+            <CustomButton
+              leftIcon={LucideLogIn}
+              href="/signin"
+              variant="outline"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Login
             </CustomButton>
           )}

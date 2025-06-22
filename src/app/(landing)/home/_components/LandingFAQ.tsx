@@ -38,7 +38,7 @@ function FAQItem({
         aria-controls={answerId}
         id={questionId}
       >
-        <h3 className="heading-5 text-foreground">
+        <h3 className="heading-5 text-zinc-900 dark:text-zinc-50">
           {question}
         </h3>
         <motion.span

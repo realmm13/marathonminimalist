@@ -380,31 +380,31 @@
 
 /* Enhanced typography utilities */
 .heading-1 {
-  @apply text-4xl font-bold leading-tight tracking-tight;
+  @apply text-4xl font-bold leading-tight tracking-tight text-white;
 }
 
 .heading-2 {
-  @apply text-3xl font-bold leading-tight tracking-tight;
+  @apply text-4xl font-extrabold tracking-tighter text-zinc-900 dark:text-zinc-50;
 }
 
 .heading-3 {
-  @apply text-2xl font-semibold leading-snug tracking-tight;
+  @apply text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50;
 }
 
 .heading-4 {
-  @apply text-xl font-semibold leading-snug;
+  @apply text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50;
 }
 
 .heading-5 {
-  @apply text-lg font-medium leading-snug;
+  @apply text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50;
 }
 
 .heading-6 {
-  @apply text-base font-medium leading-normal;
+  @apply text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50;
 }
 
 .body-large {
-  @apply text-lg leading-relaxed;
+  @apply text-lg font-normal;
 }
 
 .body-normal {
@@ -530,11 +530,4 @@
 .settings-button-container button {
   position: relative;
   z-index: 10;
-}
-
-.text-primary {
-  color: #2563eb !important; /* blue-600 for light mode */
-}
-.dark .text-primary {
-  color: #60a5fa !important; /* blue-400 for dark mode */
 }

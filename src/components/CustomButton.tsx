@@ -53,7 +53,7 @@ export const buttonVariants = tv({
       light:
         "bg-[var(--button-bg)]/10 text-[var(--button-bg)] hover:bg-[var(--button-bg)]/20 border border-[var(--button-bg)]/20 hover:border-[var(--button-bg)]/30",
       outline:
-        "border border-[var(--button-bg)]/50 text-[var(--button-bg)] bg-transparent hover:bg-[var(--button-bg)]/10 hover:border-[var(--button-bg)]/70 hover:shadow-sm",
+        "border border-[var(--button-bg)]/50 text-foreground bg-transparent hover:bg-[var(--button-bg)]/10 hover:border-[var(--button-bg)]/70 hover:shadow-sm",
       ghost:
         "text-[var(--button-bg)] bg-transparent hover:bg-[var(--button-bg)]/10 hover:shadow-sm",
       link: "text-[var(--button-bg)] underline-offset-4 hover:underline hover:text-[var(--button-bg)]/80",

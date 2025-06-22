@@ -22,7 +22,10 @@ export default function LandingPageHeader() {
       middle={isMobile ? null : <HeaderLinks links={navigationLinks} />}
       renderRightSide={() => (
         <div className="flex items-center gap-2 select-none">
-          <ThemeSwitchMinimalNextThemes buttonProps={{ variant: "ghost" }} />
+          <ThemeSwitchMinimalNextThemes
+            className="text-muted-foreground hover:text-foreground dark:text-gray-300 dark:hover:text-white"
+            buttonProps={{ variant: "ghost" }}
+          />
           <AppHeaderUser links={navigationLinks} />
         </div>
       )}
